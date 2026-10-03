@@ -68,10 +68,28 @@ state correctly offline without knowing the friend's private base config.
 **D-19 · Test deps:** Espresso 3.7 / test runner 1.7 are required to run Compose UI tests on
 API 36+ emulators (3.5 reflects on a removed `InputManager` API).
 
+**D-20 · Supabase client = OkHttp + kotlinx.serialization, no supabase-kt.** We use four
+GoTrue endpoints and one RPC pattern. A thin client keeps dependencies and APK size small and
+makes error mapping explicit. Sessions live in app-private DataStore, excluded from backup;
+moving them to Keystore-backed encryption is a follow-up.
+
+**D-21 · RPC-only server API.** RLS is on with no policies and all table grants are revoked;
+clients can call only `SECURITY DEFINER` RPCs that derive the caller from `auth.uid()`. That puts
+privacy enforcement in one place (`idl_private.presence_view`), which is golden-tested against
+the Kotlin reference. Realtime subscriptions on tables are therefore out; we use push instead.
+
+**D-22 · Passwordless email one-time code** (not magic links, not passwords). No deep-link
+plumbing and no password storage. Google sign-in can come later.
+
+**D-23 · Push via an outbox table.** RPCs enqueue ids-only payloads in `push_outbox` inside the
+same transaction as the change. A `push-fanout` edge function will deliver them through FCM.
+Fan-out happens at enqueue time, so the friend list is evaluated transactionally.
+
 ## High-risk decisions to watch
 
-1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigate
-   with shared golden vectors and SQL tests in CI.
+1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated
+   by `contract/privacy_vectors.json`: Kotlin generates it and SQL must match it
+   (`supabase/tests/run.sh`). A mutation check confirmed that leaking mood fails 3 of 29 vectors.
 2. **Push fan-out cost/latency** — one presence change × N friends × M devices. Edge function
    must batch; payloads carry ids only.
 3. **Widget update reliability** on OEM-skinned Android (battery optimisers kill background

@@ -39,14 +39,15 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Unit) {
+fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Unit, onSignedOut: () -> Unit) {
     val scope = rememberCoroutineScope()
     val notif by c.settings.notifications.collectAsState(initial = AppSettings.Notifications(true, false, true))
     val offline by c.settings.simulateOffline.collectAsState(initial = false)
     val sync by c.sync.lastSync.collectAsState(initial = null)
     var target by remember { mutableStateOf<String?>(null) }
     var log by remember { mutableStateOf<String?>(null) }
-    val friendIds = remember(sync) { c.fakeBackend.demoFriendIds() }
+    val fake = c.fakeBackend
+    val friendIds = remember(sync) { fake?.demoFriendIds().orEmpty() }
     val chosen = target ?: friendIds.firstOrNull()
 
     Scaffold(topBar = { IdlTopBar("Settings", onBack = onBack) }) { pad ->
@@ -73,37 +74,48 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
                 ListItem(headlineContent = { Text(name) }, supportingContent = { Text(if (enabled) "Available" else "Not available in this alpha") })
             }
 
-            if (BuildConfig.DEBUG) {
+            SectionTitle("Account")
+            Text(
+                if (c.isRemote) "Connected to the iDL server." else "Demo mode: a local server with sample friends.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            if (c.isRemote) {
+                OutlinedButton(onClick = { scope.launch { c.session.signOut(); onSignedOut() } }, modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Sign out")
+                }
+            }
+
+            if (BuildConfig.DEBUG && fake != null) {
                 SectionTitle("Alpha / debug")
                 Toggle("Simulate offline", "Every backend call fails; the app runs from cache", offline, Modifier.testTag("simulateOffline")) {
                     scope.launch { c.settings.setSimulateOffline(it) }
                 }
                 Text("Demo friend", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
-                ChoiceChips(friendIds, chosen, { c.fakeBackend.displayNameOf(it) }, { target = it }, allowNone = false)
+                ChoiceChips(friendIds, chosen, { fake.displayNameOf(it) }, { target = it }, allowNone = false)
                 Text("Simulate a status change (mock push)", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     QuickState.ALL.forEach { q ->
                         OutlinedButton(onClick = {
                             chosen ?: return@OutlinedButton
-                            scope.launch { c.fakeBackend.simulatePresence(chosen, q); log = "${c.fakeBackend.displayNameOf(chosen)} → ${q.label}" }
+                            scope.launch { fake.simulatePresence(chosen, q); log = "${fake.displayNameOf(chosen)} → ${q.label}" }
                         }, modifier = Modifier.testTag("simulate:${q.id}")) { Text("${q.emoji} ${q.label}") }
                     }
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = {
                         chosen ?: return@OutlinedButton
-                        scope.launch { c.fakeBackend.simulateExpiresSoon(chosen, 60); log = "Status expires in 60s" }
+                        scope.launch { fake.simulateExpiresSoon(chosen, 60); log = "Status expires in 60s" }
                     }) { Text("Expire in 1 min") }
                     OutlinedButton(onClick = {
                         chosen ?: return@OutlinedButton
-                        scope.launch { c.fakeBackend.simulateIncomingReaction(chosen, ReactionTemplate.entries.random()); log = "Reaction sent to you" }
+                        scope.launch { fake.simulateIncomingReaction(chosen, ReactionTemplate.entries.random()); log = "Reaction sent to you" }
                     }) { Text("Send me a reaction") }
                     OutlinedButton(onClick = {
                         chosen ?: return@OutlinedButton
-                        scope.launch { c.fakeBackend.simulateFriendRemovedMe(chosen); log = "Removed you (cache purged)"; target = null }
+                        scope.launch { fake.simulateFriendRemovedMe(chosen); log = "Removed you (cache purged)"; target = null }
                     }) { Text("They remove me") }
                     OutlinedButton(onClick = { scope.launch { c.sync.reconcile(); log = "Reconciled" } }) { Text("Reconcile now") }
-                    OutlinedButton(onClick = { scope.launch { c.fakeBackend.resetDemo(); c.sync.reconcile(); log = "Demo world reset" } }) { Text("Reset demo friends") }
+                    OutlinedButton(onClick = { scope.launch { fake.resetDemo(); c.sync.reconcile(); log = "Demo world reset" } }) { Text("Reset demo friends") }
                 }
                 log?.let { Text(it, Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.primary) }
                 Card(Modifier.fillMaxWidth().padding(vertical = 16.dp)) {

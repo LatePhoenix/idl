@@ -24,17 +24,18 @@ Status legend: ✅ built, tested, and verified on the Pixel 9 emulator (API 37) 
 
 ## Milestone 1 — Real backend (closed alpha gate)
 
-1. Supabase project; apply `IDL_DATA_MODEL.md` schema + RLS + `presence_view_for`.
-2. Golden test vectors: run `PrivacyFilterTest` cases against the SQL function in CI.
-3. `SupabaseIdlBackend` (Ktor client) implementing `IdlBackend`; flag `REMOTE_BACKEND`.
-4. Email magic-link auth; account deletion; replace demo onboarding.
-5. FCM: `google-services.json`, `FirebasePushSource`, device registration, an edge function
-   fanning out on `presence_states` changes (skips invisible changes).
-6. QR **scanning** (CameraX + ZXing). Today: QR display + code/link entry.
-7. Crash reporting vendor (D-07) + privacy-conscious analytics events.
-8. CI (GitHub Actions): `./gradlew lint test assembleDebug`, plus an emulator job for `connectedDebugAndroidTest`.
-9. Widget polish: wide-layout screenshots per launcher, OEM battery-optimizer testing.
-10. Avatar art pass (illustrator replaces layer painters; bump `renderVersion`).
+| # | Item | Status | Notes |
+| --- | --- | --- | --- |
+| 1 | Schema + RLS lockdown + RPC API (`supabase/migrations`) | ✅ | Tested on Postgres 16 with an auth shim; not yet applied to a real Supabase project |
+| 2 | Golden privacy vectors shared by Kotlin and SQL | ✅ | 29 cases; a mutation check confirmed they catch leaks |
+| 3 | `SupabaseIdlBackend` (OkHttp) behind `IdlBackend`, auto-selected when configured | ✅ | Unit tests (MockWebServer) + end-to-end against real PostgREST |
+| 4 | Passwordless email-code auth, token refresh, sign-out, unauthorized → local wipe | 🟡 | GoTrue calls are tested against mocks only; needs a real project |
+| 5 | FCM: `push-fanout` edge function, device registration from the app, `FirebasePushSource` | ⬜ | `push_outbox` + `register_device` RPC are in place |
+| 6 | QR scanning (CameraX + ZXing) | ⬜ | |
+| 7 | Crash reporting (D-07) + privacy-conscious analytics | ⬜ | |
+| 8 | CI: Gradle tests + SQL suite + PostgREST IT | 🟡 | `.github/workflows/ci.yml` written; it hasn't run (no remote yet) |
+| 9 | Account deletion, pg_cron cleanup, Keystore-backed session storage | ⬜ | |
+| 10 | Widget polish on real launchers / OEM battery testing; avatar art pass | ⬜ | |
 
 ## Milestone 2 — v0.5 Social depth (only after the MVP loop shows retention)
 

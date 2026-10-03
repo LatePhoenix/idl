@@ -3,8 +3,9 @@
 *Set your vibe. See your people.* An Android-first ambient-presence app for close friends:
 set an expressive avatar status, and friends see it on their home-screen widgets.
 
-Closed-alpha foundation. It runs entirely on an in-process **fake backend** with demo friends;
-nothing leaves the device.
+Closed-alpha foundation. By default it runs on an in-process **fake backend** with demo friends,
+so nothing leaves the device. Set `supabase.url` and `supabase.anonKey` in `local.properties`
+to use the real Supabase backend instead; see [supabase/README.md](supabase/README.md).
 
 ## Build & run
 
@@ -12,9 +13,10 @@ Requirements: JDK 17+ (21 works) and an Android SDK with platform 35. Set `sdk.d
 `local.properties`, or set `ANDROID_HOME`.
 
 ```bash
-./gradlew test assembleDebug          # 63 JVM unit tests + debug APK
+./gradlew test assembleDebug          # 78 JVM unit tests (PostgREST IT skips without -Pidl.postgrestUrl) + APK
 ./gradlew connectedDebugAndroidTest   # 8 instrumented tests (needs emulator/device)
 ./gradlew installDebug                # app id: app.idl.debug
+supabase/tests/run.sh                 # backend: privacy vectors + RLS/behaviour tests (needs Docker)
 ```
 
 ## Try the MVP loop
@@ -44,7 +46,7 @@ docs/       product spec, architecture, data model, privacy, widgets, API, roadm
 
 ## Known limitations
 
-- No real backend, auth, FCM or crash reporting yet (Milestone 1; see `docs/IDL_IMPLEMENTATION_ROADMAP.md`).
+- The Supabase backend and auth are built and tested locally but haven't run against a real project yet. FCM delivery and crash reporting are still to do (see `docs/IDL_IMPLEMENTATION_ROADMAP.md`).
 - QR codes are displayed, not scanned; use code or link entry instead.
 - Circles, duo/circle widgets and integrations exist only as models, flags and placeholders.
 - Avatar art is programmatic vector drawing. It's readable, but not final art.

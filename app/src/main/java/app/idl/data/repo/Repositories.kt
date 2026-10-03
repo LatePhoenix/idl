@@ -6,6 +6,10 @@ import app.idl.data.local.AvatarEntity
 import app.idl.data.local.FriendEntity
 import app.idl.data.local.FriendPresenceEntity
 import app.idl.data.local.IdlDao
+import app.idl.data.local.IdlDatabase
+import app.idl.data.remote.supabase.AuthGateway
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import app.idl.data.local.OwnPresenceEntity
 import app.idl.data.local.PrivacyRulesEntity
 import app.idl.data.local.ReactionEntity
@@ -83,11 +87,38 @@ data class FriendCard(
 // --- Repositories ---------------------------------------------------------------------------
 
 class SessionRepository(
+    private val db: IdlDatabase,
     private val dao: IdlDao,
     private val backend: IdlBackend,
+    val auth: AuthGateway,
     private val widgets: WidgetRefresher,
 ) {
     val me: Flow<Me?> = dao.session().map { it?.toMe() }
+
+    /**
+     * After auth succeeds: load the server profile if one exists. Returns null when this account
+     * still needs a username (first sign-in), in which case the UI calls [register].
+     */
+    suspend fun resumeProfile(): Result<Me?> = attempt {
+        try {
+            val me = backend.me()
+            dao.upsertSession(SessionEntity(userId = me.userId, username = me.username, displayName = me.displayName, invisible = me.invisible))
+            runCatching { backend.getAvatar() }.getOrNull()?.let {
+                dao.upsertAvatar(AvatarEntity(me.userId, IdlJson.encodeToString(AvatarConfig.serializer(), it)))
+            }
+            me
+        } catch (e: IdlException) {
+            if (e.error == IdlError.NotFound) null else throw e
+        }
+    }
+
+    /** Signs out and wipes every cached friend, presence and reaction from the device. */
+    suspend fun signOut() {
+        auth.signOut()
+        withContext(Dispatchers.IO) { db.clearAllTables() }
+        widgets.all()
+        IdlLog.i("account.signed_out")
+    }
 
     suspend fun register(displayName: String, username: String): Result<Me> = attempt {
         val me = backend.register(displayName, username)
@@ -329,6 +360,8 @@ class SyncManager(
     private val reactions: ReactionRepository,
     private val privacy: PrivacyRepository,
     private val widgets: WidgetRefresher,
+    /** The server no longer accepts our session (revoked, or the refresh token expired). */
+    private val onUnauthorized: suspend () -> Unit = {},
 ) {
     val lastSync: Flow<SyncStateEntity?> = dao.syncState()
 
@@ -353,6 +386,7 @@ class SyncManager(
         widgets.all()
         result.onSuccess { IdlLog.i("reconcile.ok") }
             .onFailure { IdlLog.w("reconcile.failed", "error" to it.idlError) }
+        if (result.exceptionOrNull()?.idlError == IdlError.Unauthorized) onUnauthorized()
         return result
     }
 }

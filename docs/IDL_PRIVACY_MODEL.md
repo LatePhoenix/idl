@@ -64,7 +64,8 @@ allows(category, viewer, owner):
 * Invisible is a **user-level toggle** (not part of an expiring state, see D-16). When on,
   `presence_view_for` returns **only** the owner's resting avatar with no status fields and no
   timestamps — byte-for-byte identical to "no status set" (unit-tested).
-* No push fan-out is sent for invisible changes (so toggling it doesn't itself signal).
+* Toggling Invisible sends friends the same ids-only `presence_changed` push as clearing a
+  status, so their widgets drop the status promptly but can't tell invisibility from a clear.
 * The owner still sees their full status locally and in the "Your iDL" widget.
 
 ## 5. Revocation

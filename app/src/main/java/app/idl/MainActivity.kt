@@ -75,9 +75,11 @@ private fun IdlNavHost(c: AppContainer, nav: NavHostController, start: String) {
     val back: () -> Unit = { if (!nav.popBackStack()) nav.navigate("home") }
     NavHost(nav, startDestination = start) {
         composable("onboarding") {
-            OnboardingScreen(c) {
-                nav.navigate("avatar?firstRun=true") { popUpTo("onboarding") { inclusive = true } }
-            }
+            OnboardingScreen(
+                c,
+                onCreated = { nav.navigate("avatar?firstRun=true") { popUpTo("onboarding") { inclusive = true } } },
+                onReturning = { nav.navigate("home") { popUpTo(0) } },
+            )
         }
         composable(
             "avatar?firstRun={firstRun}",
@@ -113,7 +115,9 @@ private fun IdlNavHost(c: AppContainer, nav: NavHostController, start: String) {
         composable("add", deepLinks = listOf(navDeepLink { uriPattern = "idl://add" })) { AddFriendScreen(c, onBack = back) }
         composable("privacy") { PrivacyCenterScreen(c, onBack = back) }
         composable("widgets", deepLinks = listOf(navDeepLink { uriPattern = "idl://widgets" })) { WidgetsScreen(c, onBack = back) }
-        composable("settings") { SettingsScreen(c, onBack = back, onAvatarStudio = { nav.navigate("avatar") }) }
+        composable("settings") {
+            SettingsScreen(c, onBack = back, onAvatarStudio = { nav.navigate("avatar") }, onSignedOut = { nav.navigate("onboarding") { popUpTo(0) } })
+        }
     }
 }
 
