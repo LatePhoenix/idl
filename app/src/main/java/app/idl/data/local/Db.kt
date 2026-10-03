@@ -1,0 +1,186 @@
+package app.idl.data.local
+
+import android.content.Context
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.Transaction
+import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
+
+/*
+ * Local cache. Complex value objects (avatar config, presence state/view) are stored as
+ * JSON blobs encoded with IdlJson: they are always read and written whole, and blobs keep
+ * schema migrations trivial while the domain model is still moving.
+ */
+
+@Entity(tableName = "session")
+data class SessionEntity(
+    @PrimaryKey val id: Int = 0,
+    val userId: String,
+    val username: String,
+    val displayName: String,
+    val invisible: Boolean,
+)
+
+@Entity(tableName = "avatars")
+data class AvatarEntity(
+    @PrimaryKey val userId: String,
+    val json: String,
+)
+
+@Entity(tableName = "own_presence")
+data class OwnPresenceEntity(
+    @PrimaryKey val source: String,
+    val json: String,
+    val pendingSync: Boolean,
+)
+
+@Entity(tableName = "friends")
+data class FriendEntity(
+    @PrimaryKey val userId: String,
+    val username: String,
+    val displayName: String,
+    val status: String,
+    val isCloseFriend: Boolean,
+)
+
+@Entity(tableName = "friend_presence")
+data class FriendPresenceEntity(
+    @PrimaryKey val userId: String,
+    val json: String,
+    val fetchedAtMs: Long,
+)
+
+@Entity(tableName = "reactions")
+data class ReactionEntity(
+    @PrimaryKey val id: String,
+    val senderId: String,
+    val recipientId: String,
+    val template: String,
+    val createdAtMs: Long,
+    val expiresAtMs: Long,
+    val dismissedAtMs: Long?,
+)
+
+@Entity(tableName = "privacy_rules")
+data class PrivacyRulesEntity(
+    @PrimaryKey val id: Int = 0,
+    val json: String,
+)
+
+@Entity(tableName = "widget_subscriptions")
+data class WidgetSubscriptionEntity(
+    @PrimaryKey val appWidgetId: Int,
+    val kind: String,
+    val friendUserId: String?,
+)
+
+@Entity(tableName = "sync_state")
+data class SyncStateEntity(
+    @PrimaryKey val id: Int = 0,
+    val lastSuccessMs: Long?,
+    val lastAttemptMs: Long?,
+    val lastError: String?,
+)
+
+@Dao
+interface IdlDao {
+    // Session
+    @Query("SELECT * FROM session WHERE id = 0") fun session(): Flow<SessionEntity?>
+    @Query("SELECT * FROM session WHERE id = 0") suspend fun sessionNow(): SessionEntity?
+    @Upsert suspend fun upsertSession(s: SessionEntity)
+
+    // Avatars
+    @Query("SELECT * FROM avatars WHERE userId = :userId") fun avatar(userId: String): Flow<AvatarEntity?>
+    @Query("SELECT * FROM avatars WHERE userId = :userId") suspend fun avatarNow(userId: String): AvatarEntity?
+    @Upsert suspend fun upsertAvatar(a: AvatarEntity)
+
+    // Own presence
+    @Query("SELECT * FROM own_presence") fun ownPresence(): Flow<List<OwnPresenceEntity>>
+    @Query("SELECT * FROM own_presence") suspend fun ownPresenceNow(): List<OwnPresenceEntity>
+    @Upsert suspend fun upsertOwnPresence(p: OwnPresenceEntity)
+    @Query("DELETE FROM own_presence WHERE source = :source") suspend fun deleteOwnPresence(source: String)
+
+    // Friends
+    @Query("SELECT * FROM friends ORDER BY displayName COLLATE NOCASE") fun friends(): Flow<List<FriendEntity>>
+    @Query("SELECT * FROM friends ORDER BY displayName COLLATE NOCASE") suspend fun friendsNow(): List<FriendEntity>
+    @Query("SELECT * FROM friends WHERE userId = :userId") fun friend(userId: String): Flow<FriendEntity?>
+    @Query("SELECT * FROM friends WHERE userId = :userId") suspend fun friendNow(userId: String): FriendEntity?
+    @Query("DELETE FROM friends") suspend fun clearFriends()
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertFriends(f: List<FriendEntity>)
+    @Upsert suspend fun upsertFriend(f: FriendEntity)
+
+    @Transaction
+    suspend fun replaceFriends(f: List<FriendEntity>) {
+        clearFriends()
+        insertFriends(f)
+    }
+
+    // Friend presence
+    @Query("SELECT * FROM friend_presence") fun friendPresence(): Flow<List<FriendPresenceEntity>>
+    @Query("SELECT * FROM friend_presence WHERE userId = :userId") fun friendPresence(userId: String): Flow<FriendPresenceEntity?>
+    @Query("SELECT * FROM friend_presence WHERE userId = :userId") suspend fun friendPresenceNow(userId: String): FriendPresenceEntity?
+    @Query("SELECT * FROM friend_presence") suspend fun friendPresenceAllNow(): List<FriendPresenceEntity>
+    @Upsert suspend fun upsertFriendPresence(p: List<FriendPresenceEntity>)
+
+    /** Revocation: remove everything cached about a user. */
+    @Transaction
+    suspend fun purgeUser(userId: String) {
+        deleteFriend(userId)
+        deleteFriendPresence(userId)
+        deleteAvatar(userId)
+    }
+    @Query("DELETE FROM friends WHERE userId = :userId") suspend fun deleteFriend(userId: String)
+    @Query("DELETE FROM friend_presence WHERE userId = :userId") suspend fun deleteFriendPresence(userId: String)
+    @Query("DELETE FROM avatars WHERE userId = :userId") suspend fun deleteAvatar(userId: String)
+
+    // Reactions
+    @Query("SELECT * FROM reactions ORDER BY createdAtMs DESC") fun reactions(): Flow<List<ReactionEntity>>
+    @Query("SELECT * FROM reactions WHERE id = :id") suspend fun reactionNow(id: String): ReactionEntity?
+    @Upsert suspend fun upsertReactions(r: List<ReactionEntity>)
+    @Query("UPDATE reactions SET dismissedAtMs = :atMs WHERE id = :id") suspend fun dismissReaction(id: String, atMs: Long)
+    @Query("DELETE FROM reactions WHERE expiresAtMs <= :nowMs") suspend fun purgeExpiredReactions(nowMs: Long)
+
+    // Privacy
+    @Query("SELECT * FROM privacy_rules WHERE id = 0") fun privacyRules(): Flow<PrivacyRulesEntity?>
+    @Upsert suspend fun upsertPrivacyRules(r: PrivacyRulesEntity)
+
+    // Widgets
+    @Query("SELECT * FROM widget_subscriptions WHERE appWidgetId = :id") suspend fun widgetSubscription(id: Int): WidgetSubscriptionEntity?
+    @Query("SELECT * FROM widget_subscriptions WHERE friendUserId = :userId") suspend fun widgetSubscriptionsFor(userId: String): List<WidgetSubscriptionEntity>
+    @Upsert suspend fun upsertWidgetSubscription(s: WidgetSubscriptionEntity)
+    @Query("DELETE FROM widget_subscriptions WHERE appWidgetId = :id") suspend fun deleteWidgetSubscription(id: Int)
+
+    // Sync
+    @Query("SELECT * FROM sync_state WHERE id = 0") fun syncState(): Flow<SyncStateEntity?>
+    @Query("SELECT * FROM sync_state WHERE id = 0") suspend fun syncStateNow(): SyncStateEntity?
+    @Upsert suspend fun upsertSyncState(s: SyncStateEntity)
+}
+
+@Database(
+    entities = [
+        SessionEntity::class, AvatarEntity::class, OwnPresenceEntity::class, FriendEntity::class,
+        FriendPresenceEntity::class, ReactionEntity::class, PrivacyRulesEntity::class,
+        WidgetSubscriptionEntity::class, SyncStateEntity::class,
+    ],
+    version = 1,
+    exportSchema = true,
+)
+abstract class IdlDatabase : RoomDatabase() {
+    abstract fun dao(): IdlDao
+
+    companion object {
+        fun create(context: Context): IdlDatabase =
+            Room.databaseBuilder(context, IdlDatabase::class.java, "idl.db").build()
+
+        fun inMemory(context: Context): IdlDatabase =
+            Room.inMemoryDatabaseBuilder(context, IdlDatabase::class.java).build()
+    }
+}

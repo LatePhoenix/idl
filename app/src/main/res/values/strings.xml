@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">iDL</string>
+    <string name="widget_solo_label">iDL friend</string>
+    <string name="widget_solo_description">One friend\'s iDL, at a glance</string>
+    <string name="widget_self_label">Your iDL</string>
+    <string name="widget_self_description">Your current vibe — tap to change it</string>
+</resources>
