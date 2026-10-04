@@ -95,6 +95,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
 | `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` | D-39 emoji-style compositor. Design only; does not replace the rows above |
 | `docs/handoff/PHASE_1_TASK.md` | Avatar Phase 1 spec (done) |
+| `docs/handoff/PHASE_2_TASK.md` | Avatar Phase 2 spec: vector renderer core, D-39 slice (ROADMAP steps 3–5, 8) |
 | `supabase/README.md` | Server: security model, local tests, real-project setup |
 | `docs/IDL_IMPLEMENTATION_ROADMAP.md` | **Superseded by this file**; kept for history |
 
@@ -507,7 +508,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-09. F-10 is fixed in Track 0.4 |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. F-10 is fixed in Track 0.4. **Next: `docs/handoff/PHASE_2_TASK.md`** (vector renderer core and the first original `emoji_core` picture set; PRs A–C). F-09 stays 🟡 until vector art replaces the procedural bridge |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -841,3 +842,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
 | 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
 | 2026-10-04 | Claude | Audit of PRs #17–#18. Merged #17 into #18 and renumbered #18's findings to F-27–F-29 (they collided with #17's F-23–F-25). F-29 set to 🟡: the write guard isn't wired because no recipe is persisted yet, so the unused Avatar Studio `recipe` parameter was removed. D-40 recorded (accept the Earning timing signal). 184 JVM, 18/18 device, check.ps1 matches | PR #18, F-29, D-40 |
+| 2026-10-04 | Claude | Phase 2 task spec: picture IR, path parser, validator, `itemIds`, color slots, compositor order, Canvas vector renderer, original `emoji_core` slice, debug screen; three PRs | `docs/handoff/PHASE_2_TASK.md` |
