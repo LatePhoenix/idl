@@ -67,7 +67,10 @@ private const val AVATAR_PX = 256
 private suspend fun render(context: Context, model: WidgetModel): Bitmap? = withContext(Dispatchers.Default) {
     runCatching {
         model.avatar?.let {
-            AvatarRenderer.bitmap(it, AVATAR_PX, AvatarBadges(model.availability, model.activity))
+            AvatarRenderer.bitmap(
+                it, AVATAR_PX,
+                AvatarBadges(model.availability, model.activity, resonating = model.resonating),
+            )
         }
     }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrNull()
 }
@@ -151,6 +154,7 @@ class SoloFriendWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
+        c.economy.evaluate()
         suspend fun load() = WidgetData.friend(c.dao, c.clock, appWidgetId).let { it to render(context, it) }
         val initial = load()
         provideContent { LiveBody(context, "solo", initial) { load() } }
@@ -162,6 +166,7 @@ class SelfWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
+        c.economy.evaluate()
         suspend fun load() = WidgetData.self(c.dao, c.clock).let { it to render(context, it) }
         val initial = load()
         provideContent { LiveBody(context, "self", initial) { load() } }
@@ -173,8 +178,11 @@ class SoloFriendWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         super.onDeleted(context, appWidgetIds)
-        val dao = context.container.dao
-        CoroutineScope(Dispatchers.IO).launch { appWidgetIds.forEach { dao.deleteWidgetSubscription(it) } }
+        val c = context.container
+        CoroutineScope(Dispatchers.IO).launch {
+            appWidgetIds.forEach { c.dao.deleteWidgetSubscription(it) }
+            c.economy.syncLocalWidgets()
+        }
     }
 }
 
@@ -227,6 +235,7 @@ object WidgetPinning {
     suspend fun attach(context: Context, appWidgetId: Int, friendId: String) {
         val dao = context.container.dao
         dao.upsertWidgetSubscription(WidgetSubscriptionEntity(appWidgetId, WidgetData.KIND_SOLO, friendId))
+        context.container.economy.syncLocalWidgets()
         IdlLog.i("widget.subscribed")
         val glanceId = GlanceAppWidgetManager(context).getGlanceIdBy(appWidgetId)
         SoloFriendWidget().update(context, glanceId)
@@ -255,6 +264,8 @@ class GlanceWidgetRefresher(private val context: Context, private val dao: IdlDa
 
     private suspend fun safely(block: suspend () -> Unit) {
         version.update { it + 1 }
+        runCatching { context.container.economy.evaluate() }
+            .onFailure { IdlLog.w("charge.evaluate_failed", t = it) }
         runCatching { block() }.onFailure { IdlLog.w("widget.refresh_failed", t = it) }
     }
 }

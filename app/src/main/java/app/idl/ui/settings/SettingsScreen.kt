@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,14 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
     val fake = c.fakeBackend
     val friendIds = remember(sync) { fake?.demoFriendIds().orEmpty() }
     val chosen = target ?: friendIds.firstOrNull()
+    val charge by c.economy.state.collectAsState()
+    var remotePinned by remember(chosen) { mutableStateOf(false) }
+    var localPinned by remember(chosen) { mutableStateOf(false) }
+    LaunchedEffect(chosen) {
+        val tether = chosen?.let { c.economy.tether(it) }
+        remotePinned = tether?.hasRemoteWidgetInstalled == true
+        localPinned = tether?.hasLocalWidgetInstalled == true
+    }
 
     Scaffold(topBar = { IdlTopBar("Settings", onBack = onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
@@ -92,6 +101,35 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
                 }
                 Text("Demo friend", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 ChoiceChips(friendIds, chosen, { fake.displayNameOf(it) }, { target = it }, allowNone = false)
+                Text(
+                    "${charge.currentCharge} Charge · +${charge.hourlyRate} Charge/hr",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                Toggle(
+                    "Their widget is on my home screen",
+                    "Demo stand-in for pinning their widget here",
+                    localPinned,
+                    Modifier.testTag("tetherLocal"),
+                ) { on ->
+                    localPinned = on
+                    val id = chosen ?: return@Toggle
+                    scope.launch { localPinned = c.economy.setLocalWidgetInstalled(id, on) }
+                }
+                Toggle(
+                    "Friend has your widget installed",
+                    "Their device has you pinned. Both switches make a mutual tether.",
+                    remotePinned,
+                    Modifier.testTag("tetherRemote"),
+                ) { on ->
+                    remotePinned = on
+                    val id = chosen ?: return@Toggle
+                    scope.launch { c.economy.setRemoteWidgetInstalled(id, on) }
+                }
+                OutlinedButton(
+                    onClick = { scope.launch { c.economy.debugAccrueHours(1); log = "Accrued 1 hour of Charge" } },
+                    modifier = Modifier.padding(top = 8.dp).testTag("accrueHour"),
+                ) { Text("Accrue 1 hour") }
                 Text("Simulate a status change (mock push)", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     QuickState.ALL.forEach { q ->

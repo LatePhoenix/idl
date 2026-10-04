@@ -17,6 +17,7 @@ import app.idl.data.remote.supabase.SupabaseIdlBackend
 import app.idl.data.local.DataStoreSessionStore
 import okhttp3.OkHttpClient
 import app.idl.data.repo.AvatarRepository
+import app.idl.data.repo.EconomyRepository
 import app.idl.data.repo.FriendsRepository
 import app.idl.data.repo.PresenceRepository
 import app.idl.data.repo.PrivacyRepository
@@ -65,6 +66,7 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val backend: IdlBackend = fakeBackend ?: SupabaseIdlBackend(http, supabase, supabaseAuth)
 
     val widgets = GlanceWidgetRefresher(app, dao)
+    val economy = EconomyRepository(dao, clock, scope, widgets)
     val scheduler = WorkSyncScheduler(app)
 
     val session = SessionRepository(db, dao, backend, auth, widgets)
@@ -73,7 +75,7 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val friends = FriendsRepository(dao, backend, presence, widgets)
     val reactions = ReactionRepository(dao, backend, clock)
     val privacy = PrivacyRepository(dao, backend)
-    val sync = SyncManager(dao, clock, presence, friends, reactions, privacy, widgets, onUnauthorized = { session.signOut() })
+    val sync = SyncManager(dao, clock, presence, friends, reactions, privacy, widgets, economy, onUnauthorized = { session.signOut() })
     val pushHandler = PushHandler(dao, presence, friends, reactions, widgets, settings, notifier)
 
     fun start() {

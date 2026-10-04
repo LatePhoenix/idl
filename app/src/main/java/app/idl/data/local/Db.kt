@@ -12,6 +12,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.Upsert
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 /*
@@ -82,6 +84,25 @@ data class WidgetSubscriptionEntity(
     val friendUserId: String?,
 )
 
+@Entity(tableName = "user_economy")
+data class UserEconomyStateEntity(
+    @PrimaryKey val userId: String,
+    val currentCharge: Long,
+    val lastEvaluatedEpochMs: Long,
+    val lifetimeChargeEarned: Long,
+)
+
+@Entity(tableName = "friend_tethers")
+data class FriendTetherEntity(
+    @PrimaryKey val friendUserId: String,
+    val hasLocalWidgetInstalled: Boolean,
+    val hasRemoteWidgetInstalled: Boolean,
+    val tetherActivatedEpochMs: Long?,
+) {
+    val isMutuallyTethered: Boolean
+        get() = hasLocalWidgetInstalled && hasRemoteWidgetInstalled
+}
+
 @Entity(tableName = "sync_state")
 data class SyncStateEntity(
     @PrimaryKey val id: Int = 0,
@@ -136,6 +157,7 @@ interface IdlDao {
         deleteFriend(userId)
         deleteFriendPresence(userId)
         deleteAvatar(userId)
+        deleteTether(userId)
     }
     @Query("DELETE FROM friends WHERE userId = :userId") suspend fun deleteFriend(userId: String)
     @Query("DELETE FROM friend_presence WHERE userId = :userId") suspend fun deleteFriendPresence(userId: String)
@@ -157,6 +179,18 @@ interface IdlDao {
     @Query("SELECT * FROM widget_subscriptions WHERE friendUserId = :userId") suspend fun widgetSubscriptionsFor(userId: String): List<WidgetSubscriptionEntity>
     @Upsert suspend fun upsertWidgetSubscription(s: WidgetSubscriptionEntity)
     @Query("DELETE FROM widget_subscriptions WHERE appWidgetId = :id") suspend fun deleteWidgetSubscription(id: Int)
+    @Query("SELECT * FROM widget_subscriptions") suspend fun widgetSubscriptionsNow(): List<WidgetSubscriptionEntity>
+
+    // Charge
+    @Query("SELECT * FROM user_economy WHERE userId = :userId") fun economy(userId: String): Flow<UserEconomyStateEntity?>
+    @Query("SELECT * FROM user_economy WHERE userId = :userId") suspend fun economyNow(userId: String): UserEconomyStateEntity?
+    @Upsert suspend fun upsertEconomy(e: UserEconomyStateEntity)
+
+    @Query("SELECT * FROM friend_tethers") fun tethers(): Flow<List<FriendTetherEntity>>
+    @Query("SELECT * FROM friend_tethers") suspend fun tethersNow(): List<FriendTetherEntity>
+    @Query("SELECT * FROM friend_tethers WHERE friendUserId = :userId") suspend fun tetherNow(userId: String): FriendTetherEntity?
+    @Upsert suspend fun upsertTether(t: FriendTetherEntity)
+    @Query("DELETE FROM friend_tethers WHERE friendUserId = :userId") suspend fun deleteTether(userId: String)
 
     // Sync
     @Query("SELECT * FROM sync_state WHERE id = 0") fun syncState(): Flow<SyncStateEntity?>
@@ -169,16 +203,34 @@ interface IdlDao {
         SessionEntity::class, AvatarEntity::class, OwnPresenceEntity::class, FriendEntity::class,
         FriendPresenceEntity::class, ReactionEntity::class, PrivacyRulesEntity::class,
         WidgetSubscriptionEntity::class, SyncStateEntity::class,
+        UserEconomyStateEntity::class, FriendTetherEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class IdlDatabase : RoomDatabase() {
     abstract fun dao(): IdlDao
 
     companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `user_economy` (`userId` TEXT NOT NULL, " +
+                        "`currentCharge` INTEGER NOT NULL, `lastEvaluatedEpochMs` INTEGER NOT NULL, " +
+                        "`lifetimeChargeEarned` INTEGER NOT NULL, PRIMARY KEY(`userId`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `friend_tethers` (`friendUserId` TEXT NOT NULL, " +
+                        "`hasLocalWidgetInstalled` INTEGER NOT NULL, `hasRemoteWidgetInstalled` INTEGER NOT NULL, " +
+                        "`tetherActivatedEpochMs` INTEGER, PRIMARY KEY(`friendUserId`))",
+                )
+            }
+        }
+
         fun create(context: Context): IdlDatabase =
-            Room.databaseBuilder(context, IdlDatabase::class.java, "idl.db").build()
+            Room.databaseBuilder(context, IdlDatabase::class.java, "idl.db")
+                .addMigrations(MIGRATION_1_2)
+                .build()
 
         fun inMemory(context: Context): IdlDatabase =
             Room.inMemoryDatabaseBuilder(context, IdlDatabase::class.java).build()

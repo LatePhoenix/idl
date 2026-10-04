@@ -43,6 +43,7 @@ import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarComposer
 import app.idl.domain.AvatarConfig
+import app.idl.domain.ChargeState
 import app.idl.domain.Expiry
 import app.idl.domain.Mood
 import app.idl.domain.PresenceResolver
@@ -77,8 +78,10 @@ class StatusDeckViewModel(private val c: AppContainer) : ViewModel() {
     val baseAvatar = c.session.me.flatMapLatest { me -> me?.let { c.avatars.avatar(it.userId) } ?: flowOf(null) }
         .map { it ?: AvatarConfig() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AvatarConfig())
+    val charge = c.economy.state
 
     init {
+        viewModelScope.launch { c.economy.evaluate() }
         viewModelScope.launch {
             val manual = c.presence.ownStates.first().firstOrNull { it.source == PresenceSource.MANUAL }
             draft.value = StatusDraft.from(manual, c.clock.now())
@@ -114,6 +117,7 @@ class StatusDeckViewModel(private val c: AppContainer) : ViewModel() {
 fun StatusDeckScreen(c: AppContainer, onDone: () -> Unit, vm: StatusDeckViewModel = viewModel { StatusDeckViewModel(c) }) {
     val draft by vm.draft.collectAsState()
     val invisible by vm.invisible.collectAsState()
+    val charge by vm.charge.collectAsState()
     val base by vm.baseAvatar.collectAsState()
     val message by vm.message.collectAsState()
     LaunchedEffect(vm) { vm.done.collect { onDone() } }
@@ -129,6 +133,7 @@ fun StatusDeckScreen(c: AppContainer, onDone: () -> Unit, vm: StatusDeckViewMode
             onClear = { vm.clear() },
             onInvisible = { vm.setInvisible(it) },
             modifier = Modifier.padding(pad),
+            charge = charge,
         )
     }
 }
@@ -146,6 +151,7 @@ fun StatusDeckContent(
     onClear: () -> Unit,
     onInvisible: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    charge: ChargeState = ChargeState.EMPTY,
     now: java.time.Instant = java.time.Instant.now(),
 ) {
     val previewPresence = PresenceResolver.resolve(listOf(draft.toState(now)), now)
@@ -167,6 +173,7 @@ fun StatusDeckContent(
             )
         }
         message?.let { Text(it, color = MaterialTheme.colorScheme.secondary, style = MaterialTheme.typography.bodySmall) }
+        ChargeBanner(charge)
 
         SectionTitle("Quick states")
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -221,6 +228,28 @@ fun StatusDeckContent(
                 headlineContent = { Text("Invisible") },
                 supportingContent = { Text("Friends see your avatar with no status. You still see yours.") },
                 trailingContent = { Switch(checked = invisible, onCheckedChange = onInvisible, modifier = Modifier.testTag("invisible")) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChargeBanner(state: ChargeState) {
+    val tethers = if (state.activeTethers == 1) "1 mutual tether" else "${state.activeTethers} mutual tethers"
+    Card(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+            .testTag("charge")
+            .semantics { contentDescription = "${state.currentCharge} Charge, plus ${state.hourlyRate} per hour" },
+    ) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Text("Charge", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("${state.currentCharge}", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "+${state.hourlyRate} Charge/hr · $tethers",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

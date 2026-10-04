@@ -360,6 +360,7 @@ class SyncManager(
     private val reactions: ReactionRepository,
     private val privacy: PrivacyRepository,
     private val widgets: WidgetRefresher,
+    private val economy: EconomyRepository,
     /** The server no longer accepts our session (revoked, or the refresh token expired). */
     private val onUnauthorized: suspend () -> Unit = {},
 ) {
@@ -384,6 +385,7 @@ class SyncManager(
             ),
         )
         widgets.all()
+        economy.evaluate()
         result.onSuccess { IdlLog.i("reconcile.ok") }
             .onFailure { IdlLog.w("reconcile.failed", "error" to it.idlError) }
         if (result.exceptionOrNull()?.idlError == IdlError.Unauthorized) onUnauthorized()

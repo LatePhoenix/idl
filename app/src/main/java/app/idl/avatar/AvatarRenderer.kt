@@ -30,6 +30,8 @@ import kotlin.math.sin
 data class AvatarBadges(
     val availability: Availability? = null,
     val activity: ActivityType? = null,
+    /** Mutual widget pin. Draws a small corner mark; it is not derived from mood. */
+    val resonating: Boolean = false,
 )
 
 object AvailabilityColors {
@@ -75,6 +77,7 @@ object AvatarRenderer {
             canvas.restoreToCount(checkpoint)
         }
         drawLayers(p, overlay, plan.sceneDetail, badges)
+        if (badges?.resonating == true) p.resonance()
     }
 
     private fun drawLayers(p: Painter, layers: List<Layer>, sceneDetail: Boolean, badges: AvatarBadges?) {
@@ -533,6 +536,17 @@ object AvatarRenderer {
             val bx = s - br * 1.25f; val by = s - br * 1.25f
             fill.color = 0xFFFFFFFF.toInt(); c.drawCircle(bx, by, br * 1.18f, fill)
             fill.color = AvailabilityColors.of(a); c.drawCircle(bx, by, br, fill)
+        }
+
+        fun resonance() {
+            val br = s * 0.035f
+            val bx = br * 2.4f
+            val by = br * 2.4f
+            fill.shader = null
+            fill.color = 0x552E8792
+            c.drawCircle(bx, by, br * 2.1f, fill)
+            fill.color = 0xFF2E8792.toInt()
+            c.drawCircle(bx, by, br, fill)
         }
 
         fun activityBadge(a: ActivityType) {
