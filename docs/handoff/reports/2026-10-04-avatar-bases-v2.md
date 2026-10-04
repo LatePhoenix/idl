@@ -12,10 +12,12 @@ Plan: avatar base exploration (v2). Prompts: `docs/art/avatar-base-prompts-v2.md
 | Pass/fail against the base gate and §5.3 | Met. All twelve kept bases pass. Two generative attempts were rejected and replaced (ghost B hollow head; both pixel grids). |
 | 48px expression contact sheet for every passing base | Met. Looked at the 48×48 cell sheets on white and on `#0F1722`. Happy, sad, angry, and sleepy stay distinct on every kept base. |
 | One face-parts sheet for the leading non-pixel style | Met, with a deviation: the generated kit is saved, and the sheets use one authored glyph set (see below). |
-| One recommended silhouette per family | Met. No art-direction lock. |
+| One recommended silhouette per family | Withdrawn on 2026-10-04. See Recommendation. |
 | Renderer, manifest, Room unchanged | Met. |
 
 ## Base checklist
+
+Pass and fail calls in this checklist are historical generation notes. A pass is not a selection.
 
 Fill is the content bounding box as a fraction of the 1024×1024 frame. “About 70%” was judged on the long side for tall figures, then confirmed by looking at the 48px sheet. A base that is only ~50% of the width still passes when the long side is ~70–85% and the face stays readable at 48px.
 
@@ -62,16 +64,9 @@ The 48px blob-a white sheet was inspected at native size as well as at 4×. Happ
 
 ## Recommendation
 
-One silhouette per family. The other variant lost on master-plan §5.3 (silhouette at 48px, expression vocabulary, or readability on both backgrounds). This is not a lock.
+The user rejected the set on 2026-10-04 and withdrew every family pick (blob B, bot A, ghost B, critter B, orb A, pixel A).
 
-| Family | Keep | Why the other lost |
-|---|---|---|
-| Blob | **B** drip feet | Blob A’s gumdrop is readable, but at 48px it is a generic mound and the gloss highlight does not add silhouette. B’s three feet stay readable on white and on `#0F1722`. |
-| Bot | **A** screen | Bot B’s plate is large, but the ear bolts, claws, chest light, and helmet rim crowd accessory and brow zones. A’s blank screen is the expression surface and still separates the four emotions at 48px. |
-| Ghost | **B** comma tail | Ghost A is visible, but the body is only a few levels off white, so on a bright wallpaper the shape is mostly the outline. B’s teal head and tail read as a filled silhouette on both backgrounds. |
-| Critter | **B** short-ear round | Critter A’s ears and tail are the stronger silhouette, but the muzzle collapses mouth shapes into one bar at 48px, so the expression vocabulary is weaker. B keeps mouths and eyes distinct. |
-| Orb | **A** inner disc | Orb B’s ring is a good silhouette and stays out of the upper face, but cream-on-blue glyphs are a contrast patch, crying does not read, and the ring hole stays white on `#0F1722`. A’s pale disc holds the shared dark glyphs. |
-| Pixel (alternate only) | **A** round 24×24 | Pixel B’s sprout reads, but forcing a real 12×8 face squared the bean. A’s higher face holds the four emotions with less competition from the crown. |
+The temporary stand-in is blob A only, judged from the 48px sheets enlarged 4×: blob-a-white-x4.png and blob-a-dark-x4.png. It is a design reference, not a canonical layer and not wired into the app.
 
 ## Files
 
