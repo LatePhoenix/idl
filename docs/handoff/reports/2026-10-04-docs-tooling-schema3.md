@@ -54,4 +54,4 @@ Room and the server still store v1 `AvatarConfig`, not `AvatarConfiguration`. Th
 - F-29 is 🟡. The guard exists and is tested; it gets wired when the vector editor persists `AvatarConfiguration`.
 - Removed the unused `recipe` parameter from `AvatarStudioScreen`. That file now matches `main`.
 - Recorded D-40: the "Earning" banner's timing signal is accepted.
-- Checks after the follow-up are listed in the PR comment and the master-plan work log.
+- Checks after the follow-up: `scripts/check.sh` 184 tests, 0 failed, 1 skipped, lint 0 errors / 42 warnings; `connectedDebugAndroidTest` 18/18 on `emulator-5554`.
