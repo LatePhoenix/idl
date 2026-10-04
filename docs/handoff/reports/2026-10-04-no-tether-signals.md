@@ -83,4 +83,4 @@ The screen was awake (`KEYCODE_WAKEUP`, `svc power stayon true`). An earlier run
 
 ## Commits
 
-Recorded in the commit that adds this report on `charge/no-tether-signals-f05`.
+- `b28e44e` Remove per-friend tether signals so a pin stays private.
