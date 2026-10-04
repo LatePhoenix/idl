@@ -88,6 +88,8 @@ PR: https://github.com/LatePhoenix/idl/pull/5
 
 Range: `git log --oneline origin/main..HEAD`.
 
+Follow-up commit: `bc2ca3d`.
+
 ## PR #5 follow-up — F-02 remaining, F-21, F-22
 
 `origin/main` (`f330a08`, feature ideas and D-35…D-38) is merged. D-31 stays ahead of D-32. Both sides of `master-plan.md` are kept.
