@@ -23,13 +23,13 @@ import app.idl.domain.HeadAccessory
 import app.idl.domain.Layer
 import app.idl.domain.MouthShape
 import app.idl.domain.Scene
-import app.idl.domain.StatusGlyphs
 import app.idl.domain.avatar.AccessibilityRenderMode
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.PlaceholderFrame
 import app.idl.domain.avatar.PlaceholderFrames
 import app.idl.domain.avatar.ResolvedAvatar
 import app.idl.domain.avatar.WallpaperContrastMode
+import app.idl.domain.wire
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -81,8 +81,9 @@ object AvatarRenderer {
         badges: AvatarBadges? = null,
         simplifyAtPx: Int = sizePx,
         contrast: RenderContrast = RenderContrast(),
+        registry: AssetRegistry? = null,
     ): Bitmap = blank(sizePx).also { bmp ->
-        draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx, contrast)
+        draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx, contrast, registry)
     }
 
     /** Paints a resolved v2 avatar with the procedural placeholder shapes. */
@@ -105,13 +106,29 @@ object AvatarRenderer {
         badges: AvatarBadges? = null,
         simplifyAtPx: Int = size.toInt(),
         contrast: RenderContrast = RenderContrast(),
+        registry: AssetRegistry? = null,
     ) {
         val plan = AvatarSpec.plan(
             config, simplifyAtPx,
             showAvailability = badges?.availability != null,
             showActivity = badges?.activity != null && badges.activity != ActivityType.NONE,
         )
-        draw(canvas, PlaceholderFrame(config, plan.layers, plan.sceneDetail), size, badges, contrast)
+        val availability = badges?.availability
+        val activity = badges?.activity?.takeIf { it != ActivityType.NONE }
+        draw(
+            canvas,
+            PlaceholderFrame(
+                config,
+                plan.layers,
+                plan.sceneDetail,
+                availabilityGlyph = availability?.let { registry?.asset("avail_${it.wire}")?.glyph },
+                availability = availability,
+                activityGlyph = activity?.let { registry?.asset("badge_${it.wire}")?.glyph },
+            ),
+            size,
+            badges,
+            contrast,
+        )
     }
 
     fun draw(
@@ -148,16 +165,10 @@ object AvatarRenderer {
                 Layer.PROP -> p.prop()
                 Layer.AVAILABILITY_BADGE -> {
                     val availability = frame.availability ?: badges?.availability
-                    if (availability != null) {
-                        val glyph = frame.availabilityGlyph ?: StatusGlyphs.availability(availability)
-                        p.availabilityBadge(glyph, availability)
-                    }
+                    val glyph = frame.availabilityGlyph
+                    if (availability != null && glyph != null) p.availabilityBadge(glyph, availability)
                 }
-                Layer.ACTIVITY_BADGE -> {
-                    val glyph = frame.activityGlyph
-                        ?: badges?.activity?.takeIf { it != ActivityType.NONE }?.let(StatusGlyphs::activity)
-                    if (glyph != null) p.activityBadge(glyph)
-                }
+                Layer.ACTIVITY_BADGE -> frame.activityGlyph?.let { p.activityBadge(it) }
             }
         }
     }

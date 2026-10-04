@@ -599,8 +599,8 @@ class AvatarResolverTest {
             config(scene = "scene_forest"),
             VisiblePresence(sceneAssetId = "scene_nope"),
         ))
-        assertTrue(missingScene.has("scene_plain"))
-        assertFalse(missingScene.has("scene_forest"))
+        assertTrue(missingScene.has("scene_forest"))
+        assertFalse(missingScene.has("scene_plain"))
 
         val missingProp = resolver.resolve(request(presence = VisiblePresence(propAssetId = "prop_nope")))
         assertFalse(missingProp.layers.any { it.category == AssetCategory.FOREGROUND_PROP })
@@ -621,6 +621,23 @@ class AvatarResolverTest {
         assertTrue(ids.indexOf("body_hoodie") < ids.indexOf("base_blob"))
         val drops = resolved.dropped
         assertEquals(drops.sortedWith(compareBy({ it.assetId }, { it.reason.ordinal })), drops)
+    }
+
+    @Test fun `an unknown presence scene falls through and an unknown saved scene uses the pack default`() {
+        val fromPresence = resolver.resolve(request(
+            config(scene = "scene_forest"),
+            VisiblePresence(sceneAssetId = "scene_missing"),
+        ))
+        assertTrue(fromPresence.has("scene_forest"))
+
+        val identity = resolver.resolve(request(config(scene = "scene_missing")))
+        assertTrue(identity.has("scene_plain"))
+        assertFalse(identity.has("scene_missing"))
+    }
+
+    @Test fun `accessibility sentence does not repeat a label`() {
+        val resolved = resolver.resolve(request(presence = VisiblePresence(availability = Availability.DO_NOT_DISTURB)))
+        assertEquals("Blob avatar, do not disturb", resolved.accessibilityDescription)
     }
 
     @Test fun `accessibility description names base expression availability and activity`() {

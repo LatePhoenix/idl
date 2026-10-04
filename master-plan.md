@@ -256,10 +256,14 @@ in one PR.
   (`HINT_SUPPORTS_DARK_TEXT`, API 27+), with a user setting and an API 26 fallback (Avatar
   Phase 7 item, but it's shipping now).
 
-#### F-08 · Glyph names duplicated in code and manifest · 🟡 P1
+#### F-08 · Glyph names duplicated in code and manifest · ✅ P1
 - `domain/StatusGlyphs.kt` hard-codes what `core_proto` already declares in each asset's
   `glyph`. **Fix:** the renderer reads `registry.asset(layer.assetId).glyph`; delete
   `StatusGlyphs` or keep it as a test-only cross-check.
+- **Fixed:** resolved frames already carry the manifest glyph. The painter uses that field.
+  The legacy badge path looks up `avail_*` / `badge_*` on the registry. `StatusGlyphs` now
+  lives in the unit tests as a cross-check that every indicator and badge still declares
+  the expected shape.
 
 #### F-09 · `PlaceholderFrame` adapter is lossy · 🟡 P1 (resolved by Avatar Phase 2)
 - It ignores resolved brows, eye and mouth families, essential overlays chosen by
@@ -276,14 +280,19 @@ in one PR.
 - **Fix:** clear the cache in `signOut()`; key or tag files by friend and delete them in
   `purgeUser`; size the LRU by `bitmap.byteCount`; write to a temp file then rename.
 
-#### F-11 · Accessibility sentence repeats itself · ⬜ P1
+#### F-11 · Accessibility sentence repeats itself · ✅ P1
 - DND produces "Blob avatar, do not disturb, do not disturb" (expression label plus
   availability label). **Fix:** de-duplicate labels case-insensitively; add a test.
+- **Fixed:** `describe` skips a label that is already in the sentence, ignoring case.
+  Do not disturb is "Blob avatar, do not disturb".
 
-#### F-12 · Unknown presence scene replaces the saved scene · ⬜ P2
+#### F-12 · Unknown presence scene replaces the saved scene · ✅ P2
 - `resolveFamily` returns the pack default on the first unknown ID instead of trying the next
   source. **Fix:** unknown non-identity sources fall through; only identity slots fall back to
   defaults. (Open question from Cursor's Phase 1 report.)
+- **Fixed:** an unknown candidate is skipped. A presence scene of `scene_missing` keeps the
+  saved scene. A saved scene that itself is unknown still uses the pack default, as does an
+  unknown base.
 
 #### F-13 · No Room migration test · ✅ P1
 - DB v1→v2 (`MIGRATION_1_2`) has no `MigrationTestHelper` test, although schemas 1 and 2 are
@@ -396,7 +405,7 @@ PostgREST tests) can be done at any time.
 | 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ✅ |
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
-| 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ⬜ |
+| 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ✅ |
 | 0.7 | Room migration test (1→2) | F-13 | ✅ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
 | 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | 🟡 F-18 done; F-15 and F-20 remain |
@@ -751,3 +760,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
 | 2026-10-04 | Cursor | Room 1→2 migration test with the exported schemas. 161 JVM, 16/16 device | `492019e`, PR #13, F-13 ✅, Track 0.7 |
+| 2026-10-04 | Cursor | Glyphs from the manifest, de-duplicated accessibility sentences, unknown scenes fall through. 163 JVM, 15/15 device | F-08 ✅, F-11 ✅, F-12 ✅, Track 0.6 |

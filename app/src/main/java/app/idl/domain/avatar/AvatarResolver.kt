@@ -105,8 +105,8 @@ class AvatarResolver(private val registry: AssetRegistry) {
             else add(asset, priority, variant, order)
         }
 
-        // Step 1–2. Family slots (base, palette, scene, frame, eye and mouth family) fall back
-        // to pack defaults. Any other unknown id is dropped and the next source is tried.
+        // Step 1–2. Unknown ids from presence or a scene mapping are skipped. Only when no
+        // candidate resolves does an identity slot use the pack default.
         val baseId = resolveFamily(listOf(config.baseAssetId), AssetCategory.BASE, registry.defaults.base)
         val paletteId = resolveFamily(listOf(config.paletteAssetId), AssetCategory.PALETTE, registry.defaults.palette)
         val eyeFamilyId = resolveFamily(
@@ -281,16 +281,16 @@ class AvatarResolver(private val registry: AssetRegistry) {
     }
 
     /**
-     * Walk [candidates] until one resolves. The first unknown id in a family slot is replaced
-     * by [fallback] and wins, which is the step-1 rule for base, palette, scene, frame and the
-     * eye and mouth families. Null entries are absent sources and are skipped.
+     * Walk [candidates] until one resolves. An unknown id is not a choice: presence and scene
+     * mappings fall through to the next source. The pack [fallback] is used only when every
+     * candidate is missing, which is how a single identity slot (base, palette, eyes, mouth,
+     * saved scene, frame) still lands on the pack default.
      */
     private fun resolveFamily(candidates: List<String?>, category: AssetCategory, fallback: String): String {
         for (raw in candidates) {
             if (raw.isNullOrBlank()) continue
             val asset = registry.asset(raw)
             if (asset != null && asset.category == category) return asset.id
-            return registry.asset(fallback)?.id ?: fallback
         }
         return registry.asset(fallback)?.id ?: fallback
     }
@@ -464,11 +464,13 @@ class AvatarResolver(private val registry: AssetRegistry) {
 
     private fun describe(baseId: String, expressionId: String, presence: VisiblePresence): String {
         val parts = mutableListOf("${registry.asset(baseId)?.accessibilityLabel ?: "Avatar"} avatar")
-        registry.expression(expressionId)?.label?.let { parts += it.replaceFirstChar { c -> c.lowercase(Locale.ROOT) } }
-        presence.availability?.let { parts += it.label.replaceFirstChar { c -> c.lowercase(Locale.ROOT) } }
-        presence.activityType?.takeIf { it != ActivityType.NONE }?.let {
-            parts += it.label.replaceFirstChar { c -> c.lowercase(Locale.ROOT) }
+        fun add(raw: String) {
+            val text = raw.replaceFirstChar { c -> c.lowercase(Locale.ROOT) }
+            if (parts.none { it.equals(text, ignoreCase = true) }) parts += text
         }
+        registry.expression(expressionId)?.label?.let { add(it) }
+        presence.availability?.let { add(it.label) }
+        presence.activityType?.takeIf { it != ActivityType.NONE }?.let { add(it.label) }
         return parts.joinToString(", ")
     }
 
