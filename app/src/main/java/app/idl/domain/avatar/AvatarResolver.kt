@@ -1,0 +1,496 @@
+package app.idl.domain.avatar
+
+import app.idl.domain.ActivityType
+import app.idl.domain.IdlJson
+import app.idl.domain.wire
+import java.security.MessageDigest
+import java.util.Locale
+
+/**
+ * Conflict order from master plan §11.3, highest first. Earlier constants are accepted before
+ * later ones, so a silhouette beats a decoration when both cannot be shown.
+ */
+enum class LayerPriority {
+    BASE,
+    FACE,
+    AVAILABILITY,
+    EXPRESSION,
+    ACTIVITY,
+    SIGNATURE,
+    CONTEXT,
+    SCENE,
+    DECORATION,
+}
+
+/** Why a requested asset is absent from [ResolvedAvatar.layers]. */
+enum class DropReason {
+    UNKNOWN_ASSET,
+    INCOMPATIBLE_BASE,
+    CONFLICT,
+    MISSING_REQUIREMENT,
+    OCCLUDED,
+    TARGET_SIMPLIFIED,
+    DISPLACED,
+}
+
+data class ResolvedLayer(
+    val assetId: String,
+    val category: AssetCategory,
+    val z: Int,
+    val priority: LayerPriority,
+    val variant: String? = null,
+)
+
+data class DroppedAsset(
+    val assetId: String,
+    val reason: DropReason,
+    val detail: String? = null,
+)
+
+/**
+ * The draw list for one [AvatarRenderRequest]. [renderKey] is the cache key (decision D-27):
+ * the same inputs always produce the same key, and any change to the request or pack version
+ * changes it. [accessibilityDescription] is the non-visual summary a screen reader speaks.
+ */
+data class ResolvedAvatar(
+    val baseAssetId: String,
+    val paletteAssetId: String,
+    val expressionId: String,
+    val layers: List<ResolvedLayer>,
+    val dropped: List<DroppedAsset>,
+    val sceneDetail: Boolean,
+    val renderKey: String,
+    val accessibilityDescription: String,
+)
+
+/**
+ * Master plan §11.2, without drawing. Presence fields that are null are not consulted, so a
+ * hidden mood cannot change the expression or pull in a `mood:*` override (decision D-24).
+ */
+class AvatarResolver(private val registry: AssetRegistry) {
+    private val engine = CompatibilityEngine(registry)
+
+    fun resolve(request: AvatarRenderRequest): ResolvedAvatar {
+        val config = request.configuration
+        val presence = request.presence
+        val dropped = mutableListOf<DroppedAsset>()
+        val candidates = mutableListOf<Candidate>()
+
+        fun drop(assetId: String, reason: DropReason, detail: String? = null) {
+            if (dropped.none { it.assetId == assetId && it.reason == reason }) {
+                dropped += DroppedAsset(assetId, reason, detail)
+            }
+        }
+
+        fun add(asset: AssetDef, priority: LayerPriority, variant: String? = null, order: Int = 0) {
+            val existing = candidates.indexOfFirst { it.asset.id == asset.id }
+            if (existing >= 0) {
+                if (priority.ordinal < candidates[existing].priority.ordinal) {
+                    candidates[existing] = Candidate(asset, priority, variant, order)
+                }
+                return
+            }
+            candidates += Candidate(asset, priority, variant, order)
+        }
+
+        fun addId(raw: String, categories: Set<AssetCategory>, priority: LayerPriority, variant: String? = null, order: Int = 0) {
+            val canon = registry.canonicalId(raw)
+            val asset = registry.asset(canon)
+            if (asset == null || asset.category !in categories) drop(canon, DropReason.UNKNOWN_ASSET)
+            else add(asset, priority, variant, order)
+        }
+
+        // Step 1–2. Family slots (base, palette, scene, frame, eye and mouth family) fall back
+        // to pack defaults. Any other unknown id is dropped and the next source is tried.
+        val baseId = resolveFamily(listOf(config.baseAssetId), AssetCategory.BASE, registry.defaults.base)
+        val paletteId = resolveFamily(listOf(config.paletteAssetId), AssetCategory.PALETTE, registry.defaults.palette)
+        val eyeFamilyId = resolveFamily(
+            listOf(config.eyeFamilyAssetId ?: registry.defaults.eyeFamily),
+            AssetCategory.EYE_FAMILY,
+            registry.defaults.eyeFamily,
+        )
+        val mouthFamilyId = resolveFamily(
+            listOf(config.mouthFamilyAssetId ?: registry.defaults.mouthFamily),
+            AssetCategory.MOUTH_FAMILY,
+            registry.defaults.mouthFamily,
+        )
+
+        val keys = presence.semanticKeys()
+        fun override(key: SemanticKey) = config.styleDna.semanticVisualOverrides[key.wire]
+        fun priorityFor(key: SemanticKey) =
+            if (key.kind == SemanticKey.Kind.ACTIVITY) LayerPriority.ACTIVITY else LayerPriority.CONTEXT
+
+        val sceneId = resolveFamily(
+            buildList {
+                add(presence.sceneAssetId)
+                keys.forEach { add(override(it)?.sceneAssetId) }
+                keys.forEach { add(registry.semantic(it)?.sceneAssetId) }
+                add(config.defaultSceneAssetId)
+            },
+            AssetCategory.SCENE,
+            registry.defaults.scene,
+        )
+        val frameId = resolveFamily(
+            listOf(config.defaultFrameAssetId),
+            AssetCategory.FRAME,
+            registry.defaults.frame,
+        )
+
+        val head = pick(
+            buildList {
+                add(sourced(presence.headAccessoryAssetId, LayerPriority.CONTEXT, signature = false))
+                keys.forEach { add(sourced(override(it)?.headAccessoryAssetId, priorityFor(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.headAccessoryAssetId, priorityFor(it), false)) }
+                add(sourced(config.signatureHeadAccessoryAssetId, LayerPriority.SIGNATURE, true))
+            },
+            AssetCategory.HEAD_ACCESSORY,
+            dropped,
+        )
+        val body = pick(
+            buildList {
+                add(sourced(presence.bodyAccessoryAssetId, LayerPriority.CONTEXT, false))
+                keys.forEach { add(sourced(override(it)?.bodyAccessoryAssetId, priorityFor(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.bodyAccessoryAssetId, priorityFor(it), false)) }
+                add(sourced(config.signatureBodyAccessoryAssetId, LayerPriority.SIGNATURE, true))
+            },
+            AssetCategory.BODY_ACCESSORY,
+            dropped,
+        )
+        val face = pick(
+            listOf(sourced(config.signatureFaceAccessoryAssetId, LayerPriority.SIGNATURE, true)),
+            AssetCategory.FACE_ACCESSORY,
+            dropped,
+        )
+        val prop = pick(
+            buildList {
+                add(sourced(presence.propAssetId, LayerPriority.CONTEXT, false))
+                keys.forEach { add(sourced(override(it)?.propAssetId, priorityFor(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.propAssetId, priorityFor(it), false)) }
+                add(sourced(config.defaultPropAssetId, LayerPriority.SIGNATURE, true))
+            },
+            AssetCategory.FOREGROUND_PROP,
+            dropped,
+        )
+        displace(config.signatureHeadAccessoryAssetId, head, dropped)
+        displace(config.signatureBodyAccessoryAssetId, body, dropped)
+
+        val availability = pick(
+            buildList {
+                keys.forEach { add(sourced(override(it)?.availabilityIndicatorAssetId, LayerPriority.AVAILABILITY, false)) }
+                val indicator = presence.availability?.let { registry.semantic(SemanticKey.availability(it))?.availabilityIndicator }
+                add(sourced(indicator, LayerPriority.AVAILABILITY, false))
+            },
+            AssetCategory.AVAILABILITY_INDICATOR,
+            dropped,
+        )
+        val badgeId = presence.activityType
+            ?.takeIf { it != ActivityType.NONE }
+            ?.let { registry.semantic(SemanticKey.activity(it))?.activityBadge }
+        val badge = pick(
+            listOf(sourced(badgeId, LayerPriority.ACTIVITY, false)),
+            AssetCategory.ACTIVITY_BADGE,
+            dropped,
+        )
+
+        // Step 3. Expression sources stop at the first id the pack actually defines.
+        val expressionId = firstExpression(buildList {
+            add(presence.expressionId)
+            keys.forEach { add(override(it)?.expressionId) }
+            if (presence.mood != null) add(registry.semantic(SemanticKey.mood(presence.mood))?.expressionId)
+            if (presence.availability != null) add(registry.semantic(SemanticKey.availability(presence.availability))?.expressionId)
+            add(config.restingExpressionId)
+            add("neutral")
+        }, dropped)
+        val expression = registry.expression(expressionId)
+        val parts = expression?.partsFor(baseId)
+        val eyeVariant = variantFor(eyeFamilyId, baseId, "eyefam_round")
+        val mouthVariant = variantFor(mouthFamilyId, baseId, registry.defaults.mouthFamily)
+        val overrideEyes = keys.firstNotNullOfOrNull { override(it)?.eyesAssetId }
+        val eyesId = when {
+            overrideEyes == null -> parts?.eyes
+            registry.asset(overrideEyes)?.category == AssetCategory.FACE_EYE -> registry.asset(overrideEyes)!!.id
+            else -> {
+                drop(registry.canonicalId(overrideEyes), DropReason.UNKNOWN_ASSET)
+                parts?.eyes
+            }
+        }
+
+        registry.asset(baseId)?.let { add(it, LayerPriority.BASE) }
+        config.signatureFeatureAssetIds.forEach { raw ->
+            addId(raw, setOf(AssetCategory.SIGNATURE_FEATURE), LayerPriority.BASE)
+        }
+        eyesId?.let { addId(it, setOf(AssetCategory.FACE_EYE), LayerPriority.FACE, eyeVariant) }
+        parts?.brows?.let { addId(it, setOf(AssetCategory.FACE_BROW), LayerPriority.FACE) }
+        parts?.mouth?.let { addId(it, setOf(AssetCategory.FACE_MOUTH), LayerPriority.FACE, mouthVariant) }
+        expression?.overlays?.forEach { addId(it, OVERLAYS, LayerPriority.EXPRESSION) }
+        expression?.extras?.forEach { addId(it, OVERLAYS, LayerPriority.DECORATION) }
+        keys.forEach { key ->
+            override(key)?.overlayAssetIds?.forEach { addId(it, OVERLAYS, LayerPriority.CONTEXT) }
+            registry.semantic(key)?.overlayAssetIds?.forEach { addId(it, OVERLAYS, LayerPriority.CONTEXT) }
+        }
+        listOfNotNull(head, body, face, prop, availability, badge).forEach { chosen ->
+            add(checkNotNull(chosen.asset), chosen.priority)
+        }
+        registry.asset(sceneId)?.let { add(it, LayerPriority.SCENE) }
+        registry.asset(frameId)?.let { add(it, LayerPriority.BASE) }
+        request.reactionOverlayAssetIds.forEachIndexed { index, raw ->
+            addId(raw, setOf(AssetCategory.REACTION_OVERLAY), LayerPriority.DECORATION, order = index)
+        }
+
+        // Steps 4–8.
+        var accepted = fitBase(candidates, baseId, dropped)
+        accepted = resolveConflicts(accepted, baseId, dropped)
+        accepted = dropUnsatisfied(accepted, dropped)
+        accepted = dropOccluded(accepted, dropped)
+        accepted = simplify(accepted, request, dropped)
+        if (config.styleDna.sceneDetailPreference == SceneDetailPreference.NONE) {
+            registry.asset(registry.defaults.scene)?.let { plain ->
+                accepted = accepted.map { if (it.asset.category == AssetCategory.SCENE) it.copy(asset = plain) else it }
+            }
+        }
+
+        val layers = accepted
+            .filter { it.asset.category.drawn }
+            .sortedWith(compareBy({ it.asset.z }, { it.asset.id }))
+            .map { ResolvedLayer(it.asset.id, it.asset.category, it.asset.z, it.priority, it.variant) }
+        val sceneDetail = when (config.styleDna.sceneDetailPreference) {
+            SceneDetailPreference.NONE -> false
+            SceneDetailPreference.LOW_DETAIL -> request.sizePx >= 256
+            SceneDetailPreference.FULL -> request.sizePx >= 96
+        }
+        return ResolvedAvatar(
+            baseAssetId = baseId,
+            paletteAssetId = paletteId,
+            expressionId = expressionId,
+            layers = layers,
+            dropped = dropped.sortedWith(compareBy({ it.assetId }, { it.reason.ordinal })),
+            sceneDetail = sceneDetail,
+            renderKey = renderKey(request),
+            accessibilityDescription = describe(baseId, expressionId, presence),
+        )
+    }
+
+    /**
+     * Walk [candidates] until one resolves. The first unknown id in a family slot is replaced
+     * by [fallback] and wins, which is the step-1 rule for base, palette, scene, frame and the
+     * eye and mouth families. Null entries are absent sources and are skipped.
+     */
+    private fun resolveFamily(candidates: List<String?>, category: AssetCategory, fallback: String): String {
+        for (raw in candidates) {
+            if (raw.isNullOrBlank()) continue
+            val asset = registry.asset(raw)
+            if (asset != null && asset.category == category) return asset.id
+            return registry.asset(fallback)?.id ?: fallback
+        }
+        return registry.asset(fallback)?.id ?: fallback
+    }
+
+    private fun pick(options: List<Sourced?>, category: AssetCategory, dropped: MutableList<DroppedAsset>): Sourced? {
+        for (option in options) {
+            if (option == null) continue
+            val canon = registry.canonicalId(option.id)
+            val asset = registry.asset(canon)
+            if (asset != null && asset.category == category) return option.copy(id = asset.id, asset = asset)
+            if (dropped.none { it.assetId == canon && it.reason == DropReason.UNKNOWN_ASSET }) {
+                dropped += DroppedAsset(canon, DropReason.UNKNOWN_ASSET)
+            }
+        }
+        return null
+    }
+
+    private fun displace(signatureId: String?, chosen: Sourced?, dropped: MutableList<DroppedAsset>) {
+        if (chosen == null || chosen.signature || signatureId == null) return
+        val canon = registry.canonicalId(signatureId)
+        val asset = registry.asset(canon)
+        if (asset == null) {
+            if (dropped.none { it.assetId == canon && it.reason == DropReason.UNKNOWN_ASSET }) {
+                dropped += DroppedAsset(canon, DropReason.UNKNOWN_ASSET)
+            }
+        } else if (asset.id != chosen.asset?.id) {
+            dropped += DroppedAsset(asset.id, DropReason.DISPLACED)
+        }
+    }
+
+    private fun firstExpression(options: List<String?>, dropped: MutableList<DroppedAsset>): String {
+        for (raw in options) {
+            if (raw.isNullOrBlank()) continue
+            if (registry.expression(raw) != null) return raw
+            if (dropped.none { it.assetId == raw && it.reason == DropReason.UNKNOWN_ASSET }) {
+                dropped += DroppedAsset(raw, DropReason.UNKNOWN_ASSET)
+            }
+        }
+        return "neutral"
+    }
+
+    private fun variantFor(familyId: String, baseId: String, hardFallback: String): String {
+        val asset = registry.asset(familyId) ?: return hardFallback
+        return engine.firstFit(asset, baseId)?.id ?: hardFallback
+    }
+
+    private fun fitBase(candidates: List<Candidate>, baseId: String, dropped: MutableList<DroppedAsset>): List<Candidate> {
+        val kept = mutableListOf<Candidate>()
+        for (candidate in candidates) {
+            val fit = engine.firstFit(candidate.asset, baseId)
+            if (fit == null) dropped += DroppedAsset(candidate.asset.id, DropReason.INCOMPATIBLE_BASE)
+            else kept += candidate.copy(asset = fit)
+        }
+        return kept
+    }
+
+    private fun resolveConflicts(candidates: List<Candidate>, baseId: String, dropped: MutableList<DroppedAsset>): List<Candidate> {
+        val accepted = mutableListOf<Candidate>()
+        val occupied = mutableListOf<AssetDef>()
+        val sorted = candidates.sortedWith(compareBy({ it.priority.ordinal }, { it.asset.z }, { it.asset.id }))
+        for (candidate in sorted) {
+            val fit = engine.firstFit(candidate.asset, baseId, occupied)
+            if (fit == null) {
+                val winner = occupied.firstOrNull { registry.conflicts(candidate.asset, it) }
+                dropped += DroppedAsset(
+                    candidate.asset.id,
+                    if (winner != null) DropReason.CONFLICT else DropReason.INCOMPATIBLE_BASE,
+                    winner?.id,
+                )
+            } else {
+                accepted += candidate.copy(asset = fit)
+                occupied += fit
+            }
+        }
+        return accepted
+    }
+
+    private fun dropUnsatisfied(accepted: List<Candidate>, dropped: MutableList<DroppedAsset>): List<Candidate> {
+        val remaining = accepted.toMutableList()
+        while (true) {
+            val ids = remaining.map { it.asset.id }.toSet()
+            val losers = remaining.filter { candidate ->
+                candidate.asset.requires.any { registry.canonicalId(it) !in ids }
+            }
+            if (losers.isEmpty()) return remaining
+            remaining.removeAll(losers)
+            losers.forEach { dropped += DroppedAsset(it.asset.id, DropReason.MISSING_REQUIREMENT) }
+        }
+    }
+
+    private fun dropOccluded(accepted: List<Candidate>, dropped: MutableList<DroppedAsset>): List<Candidate> {
+        val cover = accepted.maxOfOrNull { it.asset.occlusion } ?: FaceOcclusion.NONE
+        if (cover == FaceOcclusion.NONE) return accepted
+        val hidden = mutableSetOf(AssetCategory.FACE_EYE, AssetCategory.FACE_BROW)
+        if (cover == FaceOcclusion.FULL) hidden += AssetCategory.FACE_MOUTH
+        val losers = accepted.filter { it.asset.category in hidden }
+        losers.forEach { dropped += DroppedAsset(it.asset.id, DropReason.OCCLUDED) }
+        return accepted.filter { it.asset.category !in hidden }
+    }
+
+    private fun simplify(
+        accepted: List<Candidate>,
+        request: AvatarRenderRequest,
+        dropped: MutableList<DroppedAsset>,
+    ): List<Candidate> {
+        val remaining = accepted.toMutableList()
+        fun mark(predicate: (Candidate) -> Boolean) {
+            val losers = remaining.filter(predicate)
+            if (losers.isEmpty()) return
+            remaining.removeAll(losers)
+            losers.forEach { dropped += DroppedAsset(it.asset.id, DropReason.TARGET_SIMPLIFIED) }
+        }
+        mark { it.asset.minSizePx > request.sizePx }
+        mark { request.sizePx < 64 && !it.asset.widgetSafe }
+        when (request.target) {
+            RenderTarget.COMPACT_WIDGET, RenderTarget.CIRCLE_WIDGET,
+            RenderTarget.FRIEND_TILE, RenderTarget.NOTIFICATION,
+            -> {
+                mark { it.asset.category == AssetCategory.BODY_ACCESSORY }
+                mark { it.priority == LayerPriority.DECORATION && it.asset.category != AssetCategory.REACTION_OVERLAY }
+                mark { it.asset.category == AssetCategory.REACTION_OVERLAY }
+                if (remaining.any { it.asset.category == AssetCategory.ACTIVITY_BADGE }) {
+                    mark { it.asset.category == AssetCategory.FOREGROUND_PROP }
+                } else {
+                    val props = remaining.filter { it.asset.category == AssetCategory.FOREGROUND_PROP }
+                    if (props.size > 1) {
+                        val keep = props.minWith(compareBy<Candidate>({ it.priority.ordinal }, { it.asset.z }, { it.asset.id })).asset.id
+                        mark { it.asset.category == AssetCategory.FOREGROUND_PROP && it.asset.id != keep }
+                    }
+                }
+            }
+            RenderTarget.STANDARD_WIDGET -> {
+                mark { it.priority == LayerPriority.DECORATION && it.asset.category != AssetCategory.REACTION_OVERLAY }
+                capReactions(remaining, dropped, 1)
+            }
+            RenderTarget.LARGE_WIDGET -> capReactions(remaining, dropped, 1)
+            RenderTarget.PROFILE, RenderTarget.SHARE_CARD -> capReactions(remaining, dropped, 3)
+        }
+        return remaining
+    }
+
+    private fun capReactions(remaining: MutableList<Candidate>, dropped: MutableList<DroppedAsset>, max: Int) {
+        val reactions = remaining.filter { it.asset.category == AssetCategory.REACTION_OVERLAY }.sortedBy { it.order }
+        val keep = reactions.take(max).map { it.asset.id }.toSet()
+        val losers = reactions.filter { it.asset.id !in keep }
+        if (losers.isEmpty()) return
+        remaining.removeAll(losers)
+        losers.forEach { dropped += DroppedAsset(it.asset.id, DropReason.TARGET_SIMPLIFIED) }
+    }
+
+    private fun describe(baseId: String, expressionId: String, presence: VisiblePresence): String {
+        val parts = mutableListOf("${registry.asset(baseId)?.accessibilityLabel ?: "Avatar"} avatar")
+        registry.expression(expressionId)?.label?.let { parts += it.replaceFirstChar { c -> c.lowercase(Locale.ROOT) } }
+        presence.availability?.let { parts += it.label.replaceFirstChar { c -> c.lowercase(Locale.ROOT) } }
+        presence.activityType?.takeIf { it != ActivityType.NONE }?.let {
+            parts += it.label.replaceFirstChar { c -> c.lowercase(Locale.ROOT) }
+        }
+        return parts.joinToString(", ")
+    }
+
+    /** SHA-256 of every input that can change pixels, with override keys sorted so map order cannot. */
+    private fun renderKey(request: AvatarRenderRequest): String {
+        val payload = buildString {
+            append(request.rendererVersion).append('|')
+            append(registry.packVersions.joinToString(",")).append('|')
+            append(request.target.wire).append('|')
+            append(request.sizePx).append('|')
+            append(request.wallpaperContrastMode.wire).append('|')
+            append(request.accessibilityMode.wire).append('|')
+            append(IdlJson.encodeToString(AvatarConfiguration.serializer(), request.configuration.withSortedOverrides())).append('|')
+            append(IdlJson.encodeToString(VisiblePresence.serializer(), request.presence)).append('|')
+            append(request.reactionOverlayAssetIds.joinToString(","))
+        }
+        val digest = MessageDigest.getInstance("SHA-256").digest(payload.toByteArray(Charsets.UTF_8))
+        val digits = "0123456789abcdef"
+        return buildString(digest.size * 2) {
+            for (byte in digest) {
+                val value = byte.toInt() and 0xFF
+                append(digits[value ushr 4])
+                append(digits[value and 0x0F])
+            }
+        }
+    }
+
+    private fun sourced(id: String?, priority: LayerPriority, signature: Boolean): Sourced? =
+        if (id.isNullOrBlank()) null else Sourced(id, priority, signature, asset = null)
+
+    private data class Sourced(
+        val id: String,
+        val priority: LayerPriority,
+        val signature: Boolean,
+        val asset: AssetDef?,
+    )
+
+    private data class Candidate(
+        val asset: AssetDef,
+        val priority: LayerPriority,
+        val variant: String?,
+        val order: Int,
+    )
+
+    private companion object {
+        val OVERLAYS = setOf(AssetCategory.EXPRESSION_OVERLAY, AssetCategory.REACTION_OVERLAY)
+    }
+}
+
+private fun AvatarConfiguration.withSortedOverrides(): AvatarConfiguration {
+    val sorted = linkedMapOf<String, SemanticVisualOverride>()
+    for (key in styleDna.semanticVisualOverrides.keys.sorted()) {
+        sorted[key] = styleDna.semanticVisualOverrides.getValue(key)
+    }
+    return copy(styleDna = styleDna.copy(semanticVisualOverrides = sorted))
+}
