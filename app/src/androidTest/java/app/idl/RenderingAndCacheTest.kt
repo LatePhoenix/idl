@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderContrast
+import app.idl.data.local.FriendTetherEntity
 import app.idl.data.local.IdlDatabase
 import app.idl.data.local.WidgetSubscriptionEntity
 import app.idl.data.push.MockPushSource
@@ -164,6 +165,46 @@ class CacheAndWidgetDataTest {
         val gone = WidgetData.friend(dao, clock, 7)
         assertEquals("Not connected", gone.title)
         assertNotEquals(-1, noWidgets.friendUpdates.indexOf("u_ari"))
+        db.close()
+    }
+
+    @Test fun pinningYouDoesNotChangeTheFriendWidget() = runTest {
+        val db = IdlDatabase.inMemory(context)
+        val dao = db.dao()
+        val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
+        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
+        val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler)
+        FriendsRepository(dao, backend, presence, noWidgets).refresh()
+        presence.refreshAllFriends()
+        dao.upsertWidgetSubscription(WidgetSubscriptionEntity(7, WidgetData.KIND_SOLO, "u_ari"))
+
+        val unpinned = WidgetData.friend(dao, clock, 7)
+        dao.upsertTether(FriendTetherEntity("u_ari", hasLocalWidgetInstalled = true, hasRemoteWidgetInstalled = true, tetherActivatedEpochMs = now.toEpochMilli()))
+        val pinned = WidgetData.friend(dao, clock, 7)
+
+        assertEquals(unpinned, pinned)
+        listOf(unpinned, pinned).forEach { model ->
+            val text = model.contentDescription.lowercase()
+            listOf("resonat", "tether", "pinned").forEach { word ->
+                assertFalse(text.contains(word))
+            }
+        }
+        val registry = AssetPacks.registry { path ->
+            context.assets.open(path).bufferedReader().use { it.readText() }
+        }
+        val target = WidgetRenderInputs.targetFor(110f, 110f)
+        fun render(model: WidgetModel): Bitmap {
+            val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
+            val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+            return AvatarRenderer.bitmap(
+                resolved,
+                registry,
+                256,
+                AvatarBadges(),
+                RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
+            )
+        }
+        assertTrue(render(unpinned).sameAs(render(pinned)))
         db.close()
     }
 }

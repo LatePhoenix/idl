@@ -50,8 +50,6 @@ class RenderCache(private val root: File, memoryEntries: Int = 32) {
                 append('|')
                 append(badges?.activity?.wireName())
                 append('|')
-                append(badges?.resonating == true)
-                append('|')
                 append(IdlJson.encodeToString(AvatarConfig.serializer(), config))
             }
             return keyOf(raw)

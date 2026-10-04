@@ -83,13 +83,13 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
             val contrast = RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER)
             val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
             val described = model.copy(avatarDescription = resolved.accessibilityDescription)
-            val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX|resonating=${model.resonating}")
+            val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX")
             val bitmap = context.container.renders.bitmap(key) {
                 AvatarRenderer.bitmap(
                     resolved,
                     registry,
                     AVATAR_PX,
-                    AvatarBadges(resonating = model.resonating),
+                    AvatarBadges(),
                     contrast,
                 )
             }

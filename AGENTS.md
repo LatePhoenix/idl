@@ -62,6 +62,11 @@ Requirements: JDK 17+ and Android SDK platform 35. `local.properties` (gitignore
 8. **Determinism:** the same inputs give the same resolved layers and render key. No `random()`
    without an explicit seed, and no dependence on hash-map iteration order.
 9. **The domain layer stays Android-free.**
+10. **No Charge notifications.** Nothing notifies about Charge, earnings, or a lost tether (D-30b).
+11. **Never show who has or hasn't pinned you.** No per-friend tether mark, count, or exact
+    hourly rate. The Status Deck shows the balance and a qualitative earning state only (D-30a).
+12. **No streaks, decay, or come-back mechanics** (D-30b).
+13. **The 24 h Charge cap is a ceiling, not a penalty**, and is explained in-app (D-30b, C.5).
 
 ## Conventions
 

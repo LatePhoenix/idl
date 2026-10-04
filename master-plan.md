@@ -78,7 +78,7 @@ CI has no device or snapshot tests yet (F-14).
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
 | Render cache | 🟡 | Exists; hygiene issues (F-10) |
-| Charge economy (passive, mutual widget tethers) | 🟡 | Local-only prototype; design open (F-04–F-06, D-30) |
+| Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
 | Push delivery (FCM) | ⬜ | Outbox and `register_device` exist; no edge function or app receiver |
 | Crash reporting / analytics | ⬜ | `CrashReporter` seam only |
 
@@ -200,7 +200,7 @@ in one PR.
 - **Verify:** SQL tests for accrual, the cap and clock independence; the client shows the
   server balance after reinstall.
 
-#### F-05 · "Friend pinned my widget" is a new private behavioural signal · ⬜ P1 (decided 2026-10-04)
+#### F-05 · "Friend pinned my widget" is a new private behavioural signal · ✅ P1 (decided 2026-10-04)
 - **Evidence:** `FriendTether.hasRemoteWidgetInstalled`, the per-friend "resonating" dot
   painted on that friend's widget, and the widget content description "…, resonating" tell me
   whether a *specific* friend has *me* pinned. That works like a read receipt, which the
@@ -219,8 +219,13 @@ in one PR.
   - The debug toggles may stay, fake backend only.
 - **Verify:** UI and widget tests assert no per-friend tether indicator; SQL behaviour test
   proves no RPC exposes `hasRemoteWidgetInstalled`-equivalent data.
+- **Fixed (client, C.2):** the resonating dot, `AvatarBadges.resonating`, `WidgetModel.resonating`,
+  and the ", resonating" content description are gone. Render keys no longer include it. The
+  Status Deck banner shows the balance and "Earning" / "Not earning" only. Debug toggles that
+  set `hasRemoteWidgetInstalled` stay behind the fake backend. The SQL assertion is C.3, not
+  this change: no RPC returns pin state today because the server has no pin field yet.
 
-#### F-06 · Charge guardrails · ⬜ P1 (approved 2026-10-04)
+#### F-06 · Charge guardrails · 🟡 P1 (approved 2026-10-04)
 - **Context:** the user's intent (2026-10-04): Charge is a passive resource that encourages use
   and will be spent on customization and avatar accessories. Recorded as D-30.
 - **Tensions with the product spec:**
@@ -240,6 +245,10 @@ in one PR.
     the one-tap flow
 - **Fix:** add the first four to `AGENTS.md` invariants when the Charge UI is next touched,
   and add a test that the Status Deck quick states stay the first actionable row.
+- **Partial (C.2):** invariants 10–13 are in `AGENTS.md`. The banner is compact and not
+  clickable, and `StatusDeckTest.quickStatesStayTheFirstActionableRow` checks that the quick
+  states are the first tagged action. Still open: explain the 24 h cap in-app (C.5). Cosmetics-only
+  spending is C.4.
 
 #### F-07 · Widgets hard-code dark-wallpaper contrast · 🟡 P1
 - `Widgets.kt` always uses `WallpaperContrastMode.DARK_WALLPAPER`, so light-wallpaper users get
@@ -420,7 +429,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | # | Item | Status | Notes |
 | --- | --- | --- | --- |
 | C.1 | Local prototype: `ChargeEngine`, tethers, Status Deck banner, debug toggles | ✅ | `0ea04a7`; 10 unit tests |
-| C.2 | Apply the decided visibility model and guardrails: remove per-friend tether signals, show qualitative earning state | ⬜ | F-05, F-06; can be done now, locally |
+| C.2 | Apply the decided visibility model and guardrails: remove per-friend tether signals, show qualitative earning state | ✅ | F-05 ✅. F-06 🟡: first four guardrails are invariants; the in-app cap explanation is C.5 |
 | C.3 | Server-authoritative ledger (`charge_ledger`, `claim_charge()` on server time) + server-known widget subscriptions; pin state never exposed | ⬜ | F-04, F-05. SQL can be built and tested locally now; goes live after 1.5 |
 | C.4 | Spending: Charge → avatar decorations, accessories and customizations via `asset_catalog` tiers + an `entitlements` table, with a server-side `purchase_with_charge()` RPC | ⬜ | After Avatar Phase 3; never gates the §17.3 vocabulary |
 | C.5 | Explain Charge in-app (cap, how tethers work) without pressure mechanics | ⬜ | Guardrails F-06 |
@@ -727,3 +736,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
 | 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
 | 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
+| 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | F-05 ✅, F-06 🟡, C.2 ✅ |

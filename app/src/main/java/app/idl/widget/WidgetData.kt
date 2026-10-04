@@ -36,8 +36,6 @@ data class WidgetModel(
     val staleHint: String? = null,
     val deepLink: String,
     val invisible: Boolean = false,
-    /** Mutual widget pin. The renderer draws a small corner mark when this is true. */
-    val resonating: Boolean = false,
     /** Resolver sentence. Replaces the hand-built mood/availability/activity clause. */
     val avatarDescription: String? = null,
 ) {
@@ -52,7 +50,6 @@ data class WidgetModel(
                 activity?.takeIf { it != ActivityType.NONE }?.let { append(", ").append(it.label.lowercase()) }
             }
             if (invisible) append(", invisible")
-            if (resonating) append(", resonating")
         }
 }
 
@@ -113,7 +110,6 @@ object WidgetData {
             },
             staleHint = if (stale) "updated ${Expiry.ago(fetchedAt, now)}" else null,
             deepLink = "idl://friend/$friendId",
-            resonating = dao.tetherNow(friendId)?.isMutuallyTethered == true,
         )
     }
 

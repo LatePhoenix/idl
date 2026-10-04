@@ -235,21 +235,26 @@ fun StatusDeckContent(
 
 @Composable
 private fun ChargeBanner(state: ChargeState) {
-    val tethers = if (state.activeTethers == 1) "1 mutual tether" else "${state.activeTethers} mutual tethers"
+    val earning = if (state.hourlyRate > 0) "Earning" else "Not earning"
     Card(
         Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp)
+            .padding(top = 8.dp)
             .testTag("charge")
-            .semantics { contentDescription = "${state.currentCharge} Charge, plus ${state.hourlyRate} per hour" },
+            .semantics { contentDescription = "${state.currentCharge} Charge, $earning" },
     ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text("Charge", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text("${state.currentCharge}", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.weight(1f))
+            Text("${state.currentCharge}", style = MaterialTheme.typography.titleMedium)
             Text(
-                "+${state.hourlyRate} Charge/hr · $tethers",
-                style = MaterialTheme.typography.bodySmall,
+                earning,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 12.dp),
             )
         }
     }
