@@ -84,3 +84,4 @@ The screen was awake (`KEYCODE_WAKEUP`, `svc power stayon true`). An earlier run
 ## Commits
 
 - `b28e44e` Remove per-friend tether signals so a pin stays private.
+- PR: https://github.com/LatePhoenix/idl/pull/12
