@@ -47,13 +47,13 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | `origin/main` | `5b81bd6` (merge of PR #14). Start new work from here |
 | `avatar-creator` | Same content as `origin/main` minus merge commits. Start new work from `origin/main` |
 | `milestone-1-supabase` | Fully merged; can be deleted |
-| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` when the android job fails. No emulator job |
+| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job |
 
 ### 1.2 Verified numbers (Claude, 2026-10-04 on `origin/main`)
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 183 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. `scripts/check.ps1` printed the same counts. Re-run 2026-10-04 on `chore/docs-tooling-schema3` |
+| `scripts/check.sh` | ✅ 184 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. `scripts/check.ps1` printed the same counts. Re-run 2026-10-04 by Claude on PR #18 with PR #17 merged in |
 | Instrumented tests (Pixel 9 emulator, API 37) | ✅ 18/18 pass on `emulator-5554`. `scripts/check.sh --device` waited for boot and unlocked first (F-20 ✅) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
@@ -76,7 +76,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
-| Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes (F-10 ✅) |
+| Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes. Memory access is locked (F-10 ✅, F-26 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
 | Push delivery (FCM) | ⬜ | Outbox and `register_device` exist; no edge function or app receiver |
 | Crash reporting / analytics | ⬜ | `CrashReporter` seam only |
@@ -391,25 +391,60 @@ in one PR.
 - **Fixed (PR #5 follow-up):** `WidgetRenderInputs.renderCatching` loads the registry and builds
   inputs inside the catch. A throw logs `widget.render_failed` and the widget gets a null bitmap.
 
-#### F-23 · Schema 2 recipes are not upgraded on load · ✅ P1
+#### F-23 · Snapshot diff upload still runs on Node 20 · ✅ P3
+- `actions/upload-artifact@v4` in the android job runs on deprecated Node 20. The other actions
+  were bumped in F-18.
+- **Fixed:** the failure upload uses `actions/upload-artifact@v7` (Node 24). The step still
+  uploads both Roborazzi directories, so `archive` stays at its default and the files are zipped.
+
+#### F-24 · Widget snapshot matrix does not prove target simplification · ✅ P2
+- `busy VR covers compact standard and large` asserts `avail_busy` and `head_vr_headset` at
+  every target. Those layers are kept everywhere, so the three goldens do not show that compact
+  drops anything.
+- **Fixed:** `sleepy compact drops the blanket and keeps the tea` resolves the same sleepy friend
+  at `COMPACT_WIDGET` and `STANDARD_WIDGET`. Compact drops `body_blanket` and keeps `prop_tea`
+  (no activity badge, so the one prop stays). Standard keeps both. The bitmaps differ, and
+  `sleepy_compact` is recorded.
+
+#### F-25 · A missing registry drops availability glyphs · ✅ P1
+- The `AvatarConfig` overloads of `AvatarRenderer.bitmap` and `draw` took
+  `registry: AssetRegistry? = null` and looked up `avail_*` / `badge_*` with `registry?.asset`.
+  A caller that omitted the registry painted availability as color only, which breaks D-28.
+- **Fixed:** both parameters are a required `AssetRegistry`. `AvatarImage` already passed one.
+  `AvatarRendererTest` passes the core pack for the expression and determinism bitmaps.
+
+#### F-26 · Render cache memory access races widget renders · ✅ P1
+- `ByteLruCache` mutated its map off a lock while widgets render on `Dispatchers.Default` and
+  purges run from sync and push. A render that finished after `deleteOwner` could publish a file
+  for an owner that had just been removed. `signOut` deleted those files on the caller thread.
+- **Fixed in PR #14, before merge:** the byte cache and the publish path take a lock, a
+  generation stamp rejects a late publish, and sign-out clears the files on `Dispatchers.IO`.
+  See F-10.
+
+#### F-27 · Schema 2 recipes are not upgraded on load · ✅ P1
 - `migrateRecipe` had no production caller. A decoded schema 2 `AvatarConfiguration` stayed at
   schema 2.
 - **Fixed:** `AvatarConfiguration.decode` decodes and migrates. The widget path migrates the
   saved avatar and a friend's `restingAvatar` through `LegacyAvatarMigration.migrate`, then
   `migrateRecipe`. `AvatarResolver.resolve` migrates before it builds the render key.
 
-#### F-24 · Item order inside a category changes the render key · ✅ P2
+#### F-28 · Item order inside a category changes the render key · ✅ P2
 - `withSortedOverrides` sorted ids inside each `itemIds` list. If that list were drawing order,
   two looks would share a cache entry.
 - **Fixed:** the lists are unordered sets. Drawing order is the asset z-index. The render key
   still sorts the ids, and a test checks that reversing a list does not change the key.
   `docs/AVATAR_RECIPE_SCHEMA.md` says so.
 
-#### F-25 · A newer avatar schema can be written back · ✅ P1
+#### F-29 · A newer avatar schema can be written back · 🟡 P1
 - `IdlJson` drops unknown keys. Saving a decoded schema newer than `SCHEMA_VERSION` would
   overwrite fields this app does not know.
-- **Fixed:** `prepareForWrite` returns "update the app to edit this avatar" and no
-  configuration. Avatar Studio shows that text and does not save when it is given such a recipe.
+- **Guard exists, not wired yet:** `AvatarConfiguration.prepareForWrite` returns
+  `NeedsAppUpdate` ("update the app to edit this avatar") for a newer schema, and
+  `AvatarConfiguration.decode` decodes and migrates. Both are unit-tested. Nothing calls them
+  yet: Room and the server still store v1 `AvatarConfig`, so no saved recipe exists.
+- **Still to do:** wire `decode()` and `prepareForWrite()` into the load and save path when
+  `AvatarConfiguration` becomes the persisted format (vector editor, `docs/ROADMAP.md` step 6).
+  The editor must show the `NeedsAppUpdate` message instead of saving.
 
 ---
 
@@ -797,4 +832,5 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Widget outline contrast follows the wallpaper. Auto / Light / Dark setting. 167 JVM | `820cb81`, PR #16, F-07 ✅, Track 0.5 ✅ |
 | 2026-10-04 | Cursor | Render cache: sign-out clear, per-friend files, 8 MB byte LRU, atomic writes. 165 JVM, 17/17 device | `08be0d3`, PR #14, F-10 ✅, Track 0.4 |
 | 2026-10-04 | Cursor | Render cache memory access is locked. A purged owner does not keep a late file. Sign-out deletes files on IO. 167 JVM, 17/17 device | `6826e6e`, PR #14 |
-| 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-23 ✅, F-24 ✅, F-25 ✅ |
+| 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
+| 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
