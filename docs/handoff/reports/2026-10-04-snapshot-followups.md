@@ -1,6 +1,6 @@
 # 2026-10-04 — Snapshot and renderer follow-ups
 
-Branch `test/snapshot-followups` from `origin/main` after PR #14 (`5b81bd6`).
+Branch `test/snapshot-followups` from `origin/main` after PR #14 (`5b81bd6`). PR #17.
 
 ## Acceptance
 
@@ -38,7 +38,7 @@ The review expected compact sleepy to drop both `body_blanket` and `prop_tea`. C
 
 ## Commit
 
-`492a5ca` on `test/snapshot-followups`.
+`492a5ca` and `d66b55b` on `test/snapshot-followups`. PR #17.
 
 ## Known limitations
 
