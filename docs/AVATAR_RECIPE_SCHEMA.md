@@ -35,7 +35,7 @@ Add fields with defaults so a schema 2 payload still decodes:
 | `packId` | string | `"core_proto"` | Which pack this was authored against. |
 | `packVersion` | int | `1` | Asset-pack version. Randomize and cache include it. |
 | `familyId` | string | derived from `baseAssetId` via the manifest | Round face, cat face, and the other families. |
-| `itemIds` | map category → list of ids | empty | Hair, beard, jewelry, and other multi-slots that schema 2 cannot name. |
+| `itemIds` | map category → unordered set of ids | empty | Hair, beard, jewelry, and other multi-slots that schema 2 cannot name. List order is not drawing order; the asset z-index is. The render key sorts the ids. |
 | `colorOverrides` | map slot → `#RRGGBB` or `#AARRGGBB` | empty | Unset slots use the asset default. |
 | `unlinkedSlots` | list of slot names | empty | Slots the user detached from OKLCH derivation. |
 | `itemTransforms` | map asset id → transform | empty | Translate, uniform scale, rotation, flip. Omitted means the asset default. |
@@ -50,7 +50,7 @@ Timestamps: `createdAt` and `updatedAt` stay on the server row. An exported file
 
 ## 4. Migration rules
 
-- Unknown `schemaVersion` newer than the app: refuse to edit, still attempt to render known fields, keep the original JSON.
+- Unknown `schemaVersion` newer than the app: refuse to edit (`AvatarConfiguration.prepareForWrite` returns "update the app to edit this avatar"), still attempt to render known fields, and do not write the decoded object back. Unknown JSON keys are dropped on decode, so a write would destroy them.
 - Missing asset: follow `retired`, then `fallback`, then the category default, then omit the layer. Keep the original id in the stored recipe.
 - Retired pack: `retired` map on the manifest, already required by invariant 5.
 - Schema 2 → 3: fill the new fields with defaults. `familyId` comes from the base asset's manifest family, or `round_face` only when the base is an explicit round-face id. Do not guess family from a display name.

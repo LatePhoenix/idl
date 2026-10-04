@@ -199,6 +199,13 @@ hair, glasses, hats, jewelry, mouth props, and per-part colors. Specs:
 - Nothing in this decision is implemented yet. The widget already draws availability and
   activity badges (F-01, F-02). A later vector painter has to keep drawing them.
 
+**D-40 · The Charge "Earning" state may reveal when a pin became mutual (user, 2026-10-04).**
+The Status Deck banner flips from "Not earning" to "Earning" when the first mutual tether forms,
+and the balance's growth hints at how many tethers are active. A user who has pinned only one
+friend can infer when that friend pinned them back. Accepted: it only concerns friends the user
+chose to pin themselves, and it never names anyone. D-30a still holds: no per-friend pin state,
+no tether count, no exact rate. The C.3 server ledger does not need batched crediting for this.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

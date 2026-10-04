@@ -392,8 +392,9 @@ before the closed alpha so the server contract only changes once with real users
 
 ## 7. Phase 1 scope adjustment
 
-Phase 1 is **pure domain code and is not wired into the app**. Storage, wire format and server
-switch to the v2 model together in Phase 3, so persisted data changes exactly once. The running
-app keeps using the v1 `AvatarConfig` until then.
+Phase 1 is wired into the widget path. `WidgetRenderInputs` migrates the saved avatar, or a
+friend's `restingAvatar`, and `AvatarResolver` chooses the layers the widget draws. Room and the
+server still store the v1 `AvatarConfig`. Storage, the wire format and the server switch to
+`AvatarConfiguration` together in Phase 3, so persisted data changes exactly once.
 
 Phase 1 task spec for implementers: [`handoff/PHASE_1_TASK.md`](handoff/PHASE_1_TASK.md).

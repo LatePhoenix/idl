@@ -76,6 +76,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
     private val engine = CompatibilityEngine(registry)
 
     fun resolve(request: AvatarRenderRequest): ResolvedAvatar {
+        val request = request.copy(configuration = request.configuration.migrateRecipe())
         val config = request.configuration
         val presence = request.presence
         val dropped = mutableListOf<DroppedAsset>()
@@ -527,6 +528,7 @@ private fun AvatarConfiguration.withSortedOverrides(): AvatarConfiguration {
     }
     return copy(
         styleDna = styleDna.copy(semanticVisualOverrides = sorted),
+        // Lists are unordered sets, so id order must not change the key.
         itemIds = itemIds.keys.sorted().associateWith { key -> itemIds.getValue(key).sorted() },
         colorOverrides = colorOverrides.keys.sorted().associateWith { colorOverrides.getValue(it) },
         unlinkedSlots = unlinkedSlots.sorted(),

@@ -2,6 +2,7 @@ package app.idl.domain.avatar
 
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
+import app.idl.domain.IdlJson
 import app.idl.domain.Mood
 import app.idl.domain.StatusIntent
 import app.idl.domain.WireEnumSerializer
@@ -67,7 +68,10 @@ data class AvatarConfiguration(
      * Never inferred from a display name.
      */
     val familyId: String = "",
-    /** Extra items keyed by category wire name. Hair and jewelry live here; expression does not. */
+    /**
+     * Extra items keyed by category wire name. Hair and jewelry live here; expression does not.
+     * Each list is an unordered set: drawing order is the asset z-index, not this list.
+     */
     val itemIds: Map<String, List<String>> = emptyMap(),
     /** Semantic slot → `#RRGGBB` or `#AARRGGBB`. Absent slots use the asset default. */
     val colorOverrides: Map<String, String> = emptyMap(),
@@ -94,10 +98,33 @@ data class AvatarConfiguration(
         )
     }
 
+    /**
+     * Payload safe to save or upload. A newer schema is not rewritten: unknown fields were
+     * dropped on decode, so writing it back would destroy them.
+     */
+    fun prepareForWrite(baseFamilies: Map<String, String> = emptyMap()): AvatarWrite =
+        if (schemaVersion > SCHEMA_VERSION) {
+            AvatarWrite.NeedsAppUpdate
+        } else {
+            AvatarWrite.Ready(migrateRecipe(baseFamilies))
+        }
+
     companion object {
         const val SCHEMA_VERSION = 3
         const val RENDER_VERSION = 2
         const val DEFAULT_PACK_ID = "core_proto"
+
+        /** Decode a stored or received recipe and upgrade schema 2 to [SCHEMA_VERSION]. */
+        fun decode(json: String, baseFamilies: Map<String, String> = emptyMap()): AvatarConfiguration =
+            IdlJson.decodeFromString(serializer(), json).migrateRecipe(baseFamilies)
+    }
+}
+
+/** Result of trying to save an [AvatarConfiguration]. */
+sealed class AvatarWrite {
+    data class Ready(val configuration: AvatarConfiguration) : AvatarWrite()
+    data object NeedsAppUpdate : AvatarWrite() {
+        const val message = "update the app to edit this avatar"
     }
 }
 

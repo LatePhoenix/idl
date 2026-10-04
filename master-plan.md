@@ -44,8 +44,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `9f033e0`: everything below is merged here (PRs #1–#3) |
-| Local `main` | 13 commits behind `origin/main`. Run `git checkout main && git pull` |
+| `origin/main` | `5b81bd6` (merge of PR #14). Start new work from here |
 | `avatar-creator` | Same content as `origin/main` minus merge commits. Start new work from `origin/main` |
 | `milestone-1-supabase` | Fully merged; can be deleted |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job |
@@ -54,8 +53,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 181 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. Re-run 2026-10-04 on `test/snapshot-followups` |
-| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 18/18 pass on `emulator-5554`. Cold-start flake still open (F-20) |
+| `scripts/check.sh` | ✅ 184 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. `scripts/check.ps1` printed the same counts. Re-run 2026-10-04 by Claude on PR #18 with PR #17 merged in |
+| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 18/18 pass on `emulator-5554`. `scripts/check.sh --device` waited for boot and unlocked first (F-20 ✅) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
 | Secrets | ✅ None tracked (`local.properties` gitignored; anon key only via BuildConfig) |
@@ -90,7 +89,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-39). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-40). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
@@ -224,6 +223,9 @@ in one PR.
   Status Deck banner shows the balance and "Earning" / "Not earning" only. Debug toggles that
   set `hasRemoteWidgetInstalled` stay behind the fake backend. The SQL assertion is C.3, not
   this change: no RPC returns pin state today because the server has no pin field yet.
+- **Residual timing signal accepted (D-40):** "Earning" flips on when a friend you pinned pins you
+  back, so with one pinned friend the moment is inferable. Accepted because it only covers friends
+  you pinned yourself; no change needed in C.3.
 
 #### F-06 · Charge guardrails · 🟡 P1 (approved 2026-10-04)
 - **Context:** the user's intent (2026-10-04): Charge is a passive resource that encourages use
@@ -340,12 +342,16 @@ in one PR.
 - Roborazzi 1.76.0 is built with Kotlin 2.3 metadata. This project is Kotlin 2.0.21, so 1.60.0
   (the newest release still built with 2.0.21) is the pin. No emulator job yet.
 
-#### F-15 · Documentation drift · ⬜ P2
+#### F-15 · Documentation drift · ✅ P2
 - `AGENTS.md` "Current work" still pointed at Phase 1 (fixed in this commit).
 - The README test counts are stale (78 → 141).
 - `IDL_AVATAR_CREATOR_PLAN.md` §7 says Phase 1 isn't wired into the app, but widgets now use
   the resolver.
 - **Fix:** keep counts and status here only; README links here.
+- **Fixed:** §1.1 names `origin/main` `5b81bd6` and no longer says local main is behind.
+  README points at §1.2 for counts. §7 of the creator plan says the widget path uses the
+  resolver. The work log names PRs #7, #8 and #9. `docs/ROADMAP.md` no longer says D-31 is
+  unrecorded.
 
 #### F-16 · Checkpoint report inaccuracy · ⬜ P3
 - `docs/handoff/reports/2026-10-04-charge.md` says "Not committed" and "Commits: none", but it
@@ -369,11 +375,13 @@ in one PR.
   acceptable under D-24 (the server never sends it then). Add a Phase 3 golden vector proving
   the server omits `visual.expression` when mood is hidden.
 
-#### F-20 · Flaky first instrumented test on a cold emulator · ⬜ P3
+#### F-20 · Flaky first instrumented test on a cold emulator · ✅ P3
 - `StatusDeckTest.quickStateIsOneTap` failed with "No compose hierarchies found" on the first
   run after the emulator booted, then passed twice. **Fix:** wait for boot and unlock the screen
   in `scripts/check.sh --device` (`adb wait-for-device`, `input keyevent 82`), or add a test
   rule that retries activity launch once.
+- **Fixed:** `scripts/check.sh --device` and `scripts/check.ps1 -Device` wait for
+  `sys.boot_completed=1`, then send keyevent 82, before the instrumented tests.
 
 #### F-22 · Widget render errors bypass the fallback · ✅ P2 (from PR #5)
 - `Widgets.kt render()` now reads `container.assetRegistry` and calls
@@ -416,6 +424,31 @@ in one PR.
   generation stamp rejects a late publish, and sign-out clears the files on `Dispatchers.IO`.
   See F-10.
 
+#### F-27 · Schema 2 recipes are not upgraded on load · ✅ P1
+- `migrateRecipe` had no production caller. A decoded schema 2 `AvatarConfiguration` stayed at
+  schema 2.
+- **Fixed:** `AvatarConfiguration.decode` decodes and migrates. The widget path migrates the
+  saved avatar and a friend's `restingAvatar` through `LegacyAvatarMigration.migrate`, then
+  `migrateRecipe`. `AvatarResolver.resolve` migrates before it builds the render key.
+
+#### F-28 · Item order inside a category changes the render key · ✅ P2
+- `withSortedOverrides` sorted ids inside each `itemIds` list. If that list were drawing order,
+  two looks would share a cache entry.
+- **Fixed:** the lists are unordered sets. Drawing order is the asset z-index. The render key
+  still sorts the ids, and a test checks that reversing a list does not change the key.
+  `docs/AVATAR_RECIPE_SCHEMA.md` says so.
+
+#### F-29 · A newer avatar schema can be written back · 🟡 P1
+- `IdlJson` drops unknown keys. Saving a decoded schema newer than `SCHEMA_VERSION` would
+  overwrite fields this app does not know.
+- **Guard exists, not wired yet:** `AvatarConfiguration.prepareForWrite` returns
+  `NeedsAppUpdate` ("update the app to edit this avatar") for a newer schema, and
+  `AvatarConfiguration.decode` decodes and migrates. Both are unit-tested. Nothing calls them
+  yet: Room and the server still store v1 `AvatarConfig`, so no saved recipe exists.
+- **Still to do:** wire `decode()` and `prepareForWrite()` into the load and save path when
+  `AvatarConfiguration` becomes the persisted format (vector editor, `docs/ROADMAP.md` step 6).
+  The editor must show the `NeedsAppUpdate` message instead of saving.
+
 ---
 
 ## 4. Roadmap
@@ -446,7 +479,7 @@ PostgREST tests) can be done at any time.
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ✅ |
 | 0.7 | Room migration test (1→2) | F-13 | ✅ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
-| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | 🟡 F-18 done; F-15 and F-20 remain |
+| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | ✅ |
 
 ### Milestone 0 · MVP foundation — ✅ done (2026-10-03)
 
@@ -529,7 +562,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-39). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-40). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -559,6 +592,8 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-39). The most relevant t
   Canvas and the single module stay. Noto SVG is a pinned, replaceable source, not imported
   yet. Specs under `docs/ARCHITECTURE.md` and `docs/ROADMAP.md`. The widget already draws
   availability and activity badges; a vector painter has to keep drawing them.
+- **D-40** The "Earning" banner may reveal when a pin you made became mutual; accepted, since it
+  only concerns friends you pinned yourself (2026-10-04, user)
 
 ---
 
@@ -573,6 +608,7 @@ Answered 2026-10-04:
 | What does Charge buy; is Charge purchasable? | Avatar decorations, accessories, customizations; **yes**, purchasable | D-30, D-32, C.4, C.6, C.7 |
 | Crash-reporting vendor? | Delegated → **Firebase Crashlytics** | D-33, 1.8 |
 | When are the real projects created? | Once avatars, creation and customization feel right | D-34, roadmap order |
+| "Earning" reveals when a friend you pinned pins you back: batch, drop, or accept? | **Accept** (only friends you pinned yourself) | D-40, F-05 |
 
 Answered 2026-10-04 (feature ideas, §7.1):
 
@@ -791,9 +827,9 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Track 0.1–0.2: widget presence, badges from resolved layers, D-31 slot priority. 149 JVM, 11/11 device | `ca70087`, PR #5 |
 | 2026-10-04 | Claude | Review of PR #5: F-01/F-03 fixed; F-02 still fails for non-close friends; new F-21, F-22; D-31 clarified; follow-up spec `docs/handoff/PR5_FOLLOWUP_TASK.md` | PR #5 |
 | 2026-10-04 | Cursor | PR #5 follow-up: STATUS accessories, default 2×2 widget uses STANDARD, render failures stay in the fallback. 154 JVM, 12/12 device | PR #5 |
-| 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
-| 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
-| 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
+| 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md`, PR #7 |
+| 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, PR #8 |
+| 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe`, PR #9 |
 | 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | `b28e44e`, PR #12, F-05 ✅, F-06 🟡, C.2 ✅ |
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
@@ -803,3 +839,5 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Render cache: sign-out clear, per-friend files, 8 MB byte LRU, atomic writes. 165 JVM, 17/17 device | `08be0d3`, PR #14, F-10 ✅, Track 0.4 |
 | 2026-10-04 | Cursor | Render cache memory access is locked. A purged owner does not keep a late file. Sign-out deletes files on IO. 167 JVM, 17/17 device | `6826e6e`, PR #14 |
 | 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
+| 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
+| 2026-10-04 | Claude | Audit of PRs #17–#18. Merged #17 into #18 and renumbered #18's findings to F-27–F-29 (they collided with #17's F-23–F-25). F-29 set to 🟡: the write guard isn't wired because no recipe is persisted yet, so the unused Avatar Studio `recipe` parameter was removed. D-40 recorded (accept the Earning timing signal). 184 JVM, 18/18 device, check.ps1 matches | PR #18, F-29, D-40 |
