@@ -30,6 +30,10 @@ ANDROID_SERIAL=emulator-5554 scripts/check.sh --device
 - `check.ps1`: the same two lines.
 - `--device`: boot wait completed, then 18 instrumented tests, 0 failed, on `emulator-5554`.
 
+## Commit
+
+`a88b1de` on `chore/docs-tooling-schema3`.
+
 ## Deviation
 
 Room and the server still store v1 `AvatarConfig`, not `AvatarConfiguration`. There is no production `decodeFromString` of a recipe. `decode` is the JSON load path, covered by `schema 2 json loaded through decode comes out as schema 3`. The live path that turns a saved avatar or a friend's `restingAvatar` into a recipe is `LegacyAvatarMigration.migrate`, which now calls `migrateRecipe`. `AvatarResolver.resolve` migrates again before the render key.
