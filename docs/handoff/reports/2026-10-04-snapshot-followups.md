@@ -36,6 +36,10 @@ The review expected compact sleepy to drop both `body_blanket` and `prop_tea`. C
 - `app/src/test/snapshots/widget/sleepy_compact.png`
 - `master-plan.md`
 
+## Commit
+
+`492a5ca` on `test/snapshot-followups`.
+
 ## Known limitations
 
 CI for this branch has not run yet. F-26's lock and generation stamp are on main via PR #14; this branch does not change that code.
