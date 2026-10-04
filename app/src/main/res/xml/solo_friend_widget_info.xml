@@ -9,7 +9,7 @@
     android:targetCellWidth="2"
     android:targetCellHeight="2"
     android:maxResizeWidth="400dp"
-    android:maxResizeHeight="200dp"
+    android:maxResizeHeight="320dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:configure="app.idl.widget.SoloFriendWidgetConfigActivity"

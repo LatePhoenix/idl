@@ -50,11 +50,10 @@ import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderCache
 import app.idl.avatar.RenderContrast
-import app.idl.domain.avatar.AvatarRenderRequest
 import app.idl.domain.avatar.AvatarResolver
-import app.idl.domain.avatar.LegacyAvatarMigration
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.WallpaperContrastMode
+import app.idl.domain.wire
 import app.idl.container
 import app.idl.data.local.IdlDao
 import app.idl.data.local.WidgetSubscriptionEntity
@@ -68,34 +67,33 @@ import kotlinx.coroutines.withContext
 
 private val SMALL = DpSize(110.dp, 110.dp)
 private val WIDE = DpSize(250.dp, 110.dp)
+private val SQUARE = DpSize(180.dp, 180.dp)
 private const val AVATAR_PX = 256
-/** Logical widget size. The bitmap stays sharp; simplification follows this, not [AVATAR_PX]. */
-private const val WIDGET_SIMPLIFY_PX = 96
 
 /** Renders a widget model; shared by both widget types. Static: no animation. */
-private suspend fun render(context: Context, model: WidgetModel): Bitmap? = withContext(Dispatchers.Default) {
-    runCatching {
-        model.avatar?.let { config ->
-            val badges = AvatarBadges(model.availability, model.activity, resonating = model.resonating)
+private suspend fun render(context: Context, model: WidgetModel, size: DpSize): Pair<WidgetModel, Bitmap?> =
+    withContext(Dispatchers.Default) {
+        val registry = context.container.assetRegistry
+        val target = WidgetRenderInputs.targetFor(size.width.value, size.height.value)
+        val inputs = WidgetRenderInputs.from(model, registry, target)
+            ?: return@withContext model to null
+        runCatching {
             val contrast = RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER)
-            val registry = context.container.assetRegistry
-            val resolved = AvatarResolver(registry).resolve(
-                AvatarRenderRequest(
-                    configuration = LegacyAvatarMigration.migrate(config, registry),
-                    target = RenderTarget.STANDARD_WIDGET,
-                    sizePx = WIDGET_SIMPLIFY_PX,
-                    wallpaperContrastMode = contrast.wallpaper,
-                ),
-            )
-            val key = RenderCache.keyOf(
-                "${resolved.renderKey}|$AVATAR_PX|${badges.availability}|${badges.activity}|${badges.resonating}|${contrast.wallpaper}",
-            )
-            context.container.renders.bitmap(key) {
-                AvatarRenderer.bitmap(resolved, registry, AVATAR_PX, badges, contrast)
+            val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
+            val described = model.copy(avatarDescription = resolved.accessibilityDescription)
+            val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX|resonating=${model.resonating}")
+            val bitmap = context.container.renders.bitmap(key) {
+                AvatarRenderer.bitmap(
+                    resolved,
+                    registry,
+                    AVATAR_PX,
+                    AvatarBadges(resonating = model.resonating),
+                    contrast,
+                )
             }
-        }
-    }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrNull()
-}
+            described to bitmap
+        }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrElse { model to null }
+    }
 
 private fun openIntent(context: Context, deepLink: String) =
     Intent(Intent.ACTION_VIEW, Uri.parse(deepLink), context, MainActivity::class.java)
@@ -160,38 +158,54 @@ private fun LiveBody(
     context: Context,
     kind: String,
     initial: Pair<WidgetModel, Bitmap?>,
+    target: RenderTarget,
     load: suspend () -> Pair<WidgetModel, Bitmap?>,
 ) {
     val version by context.container.widgets.version.collectAsState()
-    val state by produceState(initial, version) {
-        if (version > 0) value = load()
-        IdlLog.i("widget.render", "kind" to kind, "version" to version, "hasAvatar" to (value.second != null))
+    val state by produceState(initial, version, target) {
+        // The seed bitmap uses the 1×1 target. Any other cell, or a later refresh, re-resolves.
+        if (version > 0 || target != RenderTarget.COMPACT_WIDGET) value = load()
+        IdlLog.i(
+            "widget.render",
+            "kind" to kind,
+            "version" to version,
+            "hasAvatar" to (value.second != null),
+            "target" to target.wire,
+        )
     }
     GlanceTheme { WidgetBody(context, state.first, state.second) }
 }
 
 class SoloFriendWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(setOf(SMALL, WIDE))
+    override val sizeMode = SizeMode.Responsive(setOf(SMALL, WIDE, SQUARE))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
         c.economy.evaluate()
-        suspend fun load() = WidgetData.friend(c.dao, c.clock, appWidgetId).let { it to render(context, it) }
-        val initial = load()
-        provideContent { LiveBody(context, "solo", initial) { load() } }
+        suspend fun load(size: DpSize) = render(context, WidgetData.friend(c.dao, c.clock, appWidgetId), size)
+        val initial = load(SMALL)
+        provideContent {
+            val size = LocalSize.current
+            val target = WidgetRenderInputs.targetFor(size.width.value, size.height.value)
+            LiveBody(context, "solo", initial, target) { load(size) }
+        }
     }
 }
 
 class SelfWidget : GlanceAppWidget() {
-    override val sizeMode = SizeMode.Responsive(setOf(SMALL, WIDE))
+    override val sizeMode = SizeMode.Responsive(setOf(SMALL, WIDE, SQUARE))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
         c.economy.evaluate()
-        suspend fun load() = WidgetData.self(c.dao, c.clock).let { it to render(context, it) }
-        val initial = load()
-        provideContent { LiveBody(context, "self", initial) { load() } }
+        suspend fun load(size: DpSize) = render(context, WidgetData.self(c.dao, c.clock), size)
+        val initial = load(SMALL)
+        provideContent {
+            val size = LocalSize.current
+            val target = WidgetRenderInputs.targetFor(size.width.value, size.height.value)
+            LiveBody(context, "self", initial, target) { load(size) }
+        }
     }
 }
 

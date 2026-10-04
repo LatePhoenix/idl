@@ -127,18 +127,18 @@ object AvatarRenderer {
         val (framed, overlay) = frame.layers.partition { it != Layer.AVAILABILITY_BADGE && it != Layer.ACTIVITY_BADGE }
         val checkpoint = canvas.save()
         try {
-            drawLayers(p, framed, frame.sceneDetail, badges)
+            drawLayers(p, frame, framed, badges)
         } finally {
             canvas.restoreToCount(checkpoint)
         }
-        drawLayers(p, overlay, frame.sceneDetail, badges)
+        drawLayers(p, frame, overlay, badges)
         if (badges?.resonating == true) p.resonance()
     }
 
-    private fun drawLayers(p: Painter, layers: List<Layer>, sceneDetail: Boolean, badges: AvatarBadges?) {
+    private fun drawLayers(p: Painter, frame: PlaceholderFrame, layers: List<Layer>, badges: AvatarBadges?) {
         for (layer in layers) {
             when (layer) {
-                Layer.SCENE -> p.scene(sceneDetail)
+                Layer.SCENE -> p.scene(frame.sceneDetail)
                 Layer.BODY_ACCESSORY -> p.bodyAccessory()
                 Layer.HEAD_BASE -> p.head()
                 Layer.FACE_STYLE -> p.faceStyle()
@@ -149,8 +149,18 @@ object AvatarRenderer {
                 Layer.HEAD_ACCESSORY -> p.headAccessory()
                 Layer.FACE_EXTRA -> p.extra()
                 Layer.PROP -> p.prop()
-                Layer.AVAILABILITY_BADGE -> p.availabilityBadge(badges!!.availability!!)
-                Layer.ACTIVITY_BADGE -> p.activityBadge(badges!!.activity!!)
+                Layer.AVAILABILITY_BADGE -> {
+                    val availability = frame.availability ?: badges?.availability
+                    if (availability != null) {
+                        val glyph = frame.availabilityGlyph ?: StatusGlyphs.availability(availability)
+                        p.availabilityBadge(glyph, availability)
+                    }
+                }
+                Layer.ACTIVITY_BADGE -> {
+                    val glyph = frame.activityGlyph
+                        ?: badges?.activity?.takeIf { it != ActivityType.NONE }?.let(StatusGlyphs::activity)
+                    if (glyph != null) p.activityBadge(glyph)
+                }
             }
         }
     }
@@ -611,20 +621,20 @@ object AvatarRenderer {
             text(emoji, px, py + r * 0.12f, r * 0.36f, ink)
         }
 
-        fun availabilityBadge(a: Availability) {
+        fun availabilityBadge(glyph: String, availability: Availability) {
             val br = s * 0.11f
             val bx = s - br * 1.35f
             val by = s - br * 1.35f
             fill.shader = null
             fill.color = 0xFFFFFFFF.toInt()
             c.drawCircle(bx, by, br * 1.22f, fill)
-            fill.color = AvailabilityColors.of(a)
-            stroke.color = AvailabilityColors.of(a)
+            fill.color = AvailabilityColors.of(availability)
+            stroke.color = AvailabilityColors.of(availability)
             stroke.strokeWidth = (br * 0.22f).coerceAtLeast(1.5f)
-            drawAvailabilityGlyph(StatusGlyphs.availability(a), bx, by, br * 0.72f)
+            drawAvailabilityGlyph(glyph, bx, by, br * 0.72f)
         }
 
-        fun activityBadge(a: ActivityType) {
+        fun activityBadge(glyph: String) {
             val br = s * 0.12f
             val bx = s - br * 1.2f
             val by = br * 1.2f
@@ -634,7 +644,7 @@ object AvatarRenderer {
             fill.color = ink
             stroke.color = ink
             stroke.strokeWidth = (br * 0.16f).coerceAtLeast(1.5f)
-            drawActivityGlyph(StatusGlyphs.activity(a), bx, by, br * 0.55f)
+            drawActivityGlyph(glyph, bx, by, br * 0.55f)
         }
 
         private fun drawAvailabilityGlyph(glyph: String, x: Float, y: Float, r: Float) {

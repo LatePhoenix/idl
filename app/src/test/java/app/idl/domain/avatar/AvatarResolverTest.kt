@@ -3,7 +3,11 @@ package app.idl.domain.avatar
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarComposer
+import app.idl.domain.AvatarConfig
+import app.idl.domain.FaceAccessory
 import app.idl.domain.Mood
+import app.idl.domain.PresenceResolver
+import app.idl.domain.QuickState
 import app.idl.domain.StatusIntent
 import app.idl.domain.wire
 import org.junit.Assert.assertEquals
@@ -12,6 +16,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Instant
 
 class AvatarResolverTest {
     private val registry = coreRegistry()
@@ -160,6 +165,46 @@ class AvatarResolverTest {
         assertEquals("frame_a", layerId(bare, AssetCategory.FRAME))
         assertNull(layerId(bare, AssetCategory.HEAD_ACCESSORY))
         assertNull(layerId(bare, AssetCategory.AVAILABILITY_INDICATOR))
+    }
+
+    @Test fun `an explicit vr headset takes activity priority over signature glasses`() {
+        val saved = config(face = "face_glasses_round")
+        val presence = VisiblePresence(
+            mood = Mood.EXCITED,
+            availability = Availability.TEXT_ONLY,
+            activityType = ActivityType.VR,
+            headAccessoryAssetId = "head_vr_headset",
+        )
+        val resolved = resolver.resolve(request(saved, presence, target = RenderTarget.STANDARD_WIDGET))
+        assertTrue(resolved.has("head_vr_headset"))
+        assertFalse(resolved.has("face_glasses_round"))
+        assertEquals(LayerPriority.ACTIVITY, resolved.layers.first { it.assetId == "head_vr_headset" }.priority)
+        val conflict = resolved.dropped.first { it.assetId == "face_glasses_round" }
+        assertEquals(DropReason.CONFLICT, conflict.reason)
+        assertEquals("head_vr_headset", conflict.detail)
+        assertEquals(saved, request(saved, presence).configuration)
+    }
+
+    @Test fun `quick state vr with signature glasses keeps the headset until the status ends`() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val saved = AvatarConfig(faceAccessory = FaceAccessory.GLASSES)
+        val state = QuickState.ALL.first { it.id == "vr" }.toState(now)
+        val identity = LegacyAvatarMigration.migrate(saved, registry)
+        val presence = LegacyAvatarMigration.presence(PresenceResolver.resolve(listOf(state), now))
+        assertEquals("head_vr_headset", presence.headAccessoryAssetId)
+        assertEquals(ActivityType.VR, presence.activityType)
+        assertEquals("face_glasses_round", identity.signatureFaceAccessoryAssetId)
+        assertNull(identity.signatureHeadAccessoryAssetId)
+
+        val resolved = resolver.resolve(request(identity, presence, target = RenderTarget.STANDARD_WIDGET))
+        assertTrue(resolved.has("head_vr_headset"))
+        assertFalse(resolved.has("face_glasses_round"))
+        assertEquals(DropReason.CONFLICT, resolved.dropped.first { it.assetId == "face_glasses_round" }.reason)
+        assertEquals(identity, request(identity, presence).configuration)
+
+        val ended = resolver.resolve(request(identity))
+        assertTrue(ended.has("face_glasses_round"))
+        assertFalse(ended.has("head_vr_headset"))
     }
 
     @Test fun `signature glasses survive sick and return after vr`() {

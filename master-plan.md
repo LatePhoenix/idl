@@ -54,8 +54,8 @@ CI has no device or snapshot tests yet (F-14).
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 141 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 39 warnings |
-| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 9/9 pass. `StatusDeckTest.quickStateIsOneTap` failed once on a cold emulator, then passed twice (F-20) |
+| `scripts/check.sh` | ✅ 149 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 39 warnings. Re-run 2026-10-04 for Track 0.1–0.2 |
+| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 11/11 pass on `emulator-5554`, including the widget-path bitmap checks. Cold-start flake still open (F-20) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
 | Secrets | ✅ None tracked (`local.properties` gitignored; anon key only via BuildConfig) |
@@ -74,9 +74,9 @@ CI has no device or snapshot tests yet (F-14).
 | Friends, invites (QR display + code), requests, block/remove | ✅ | QR **scanning** not built |
 | Reactions (send, inbox, dismiss, expire, rate limit) | ✅ | |
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
-| Widgets: solo friend + self, pinning, config activity | 🔴 | **Regressed in PR #3: no availability/activity badges, VR headset lost** (F-01, F-02) |
+| Widgets: solo friend + self, pinning, config activity | ✅ | Presence is resolved from the resting avatar (F-01–F-03). Wallpaper contrast is still hard-coded (F-07) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
-| Availability as shape glyphs (D-28) | 🟡 | Drawn in the app; **not drawn on widgets** (F-01) |
+| Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
 | Render cache | 🟡 | Exists; hygiene issues (F-10) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local-only prototype; design open (F-04–F-06, D-30) |
 | Push delivery (FCM) | ⬜ | Outbox and `register_device` exist; no edge function or app receiver |
@@ -90,7 +90,7 @@ CI has no device or snapshot tests yet (F-14).
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-30). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-34). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
@@ -108,7 +108,7 @@ in one PR.
 
 ### P0 — regressions on the primary product surface (the home-screen widget)
 
-#### F-01 · Widgets draw no availability glyph and no activity badge · 🔴 P0
+#### F-01 · Widgets draw no availability glyph and no activity badge · ✅ P0
 - **Evidence:** device probe (Pixel 9, 2026-10-04) rendered the widget path twice, with and
   without `AvatarBadges(BUSY, VR)`; the bitmaps were identical (`badgesDrawn=false`).
   The cause is that `PlaceholderFrames.from()` (`domain/avatar/PlaceholderFrame.kt`) never adds
@@ -122,8 +122,11 @@ in one PR.
   manifest asset's `glyph` field (see F-08).
 - **Verify:** an instrumented or Roborazzi test that renders the widget path and asserts the
   bitmap differs with vs without availability, for every `Availability` value.
+- **Fixed (Track 0.1):** `PlaceholderFrames` copies `avail_*` / `badge_*` and their manifest
+  glyphs. `WidgetRenderPathTest` on a Pixel 9 emulator asserts every availability bitmap differs,
+  and the device renders are in `docs/handoff/reports/screenshots/`.
 
-#### F-02 · VR headset disappears for anyone whose signature is glasses · 🔴 P0
+#### F-02 · VR headset disappears for anyone whose signature is glasses · ✅ P0
 - **Evidence (two independent paths):**
   1. *Widget path:* `widget/Widgets.kt render()` runs `LegacyAvatarMigration.migrate()` on the
      friend's **composed** v1 avatar, which already contains status visuals. `sanitize()` treats
@@ -147,8 +150,12 @@ in one PR.
 - **Verify:** end-to-end test from `QuickState("vr")` with signature glasses → headset present,
   glasses `CONFLICT`. The same through the widget path on a device or snapshot test.
   Re-run the device probe.
+- **Fixed (Track 0.1–0.2):** widgets migrate `restingAvatar` only. A slot takes the highest
+  priority among sources that name the same asset (D-31), so the explicit headset is ACTIVITY
+  and signature glasses are `CONFLICT`. JVM tests cover QuickState and the widget inputs;
+  `widget-vr-over-glasses.png` is the device render.
 
-#### F-03 · Widget rendering ignores presence; status is baked into identity · 🔴 P0
+#### F-03 · Widget rendering ignores presence; status is baked into identity · ✅ P0
 - **Evidence:** `Widgets.kt render()` calls the resolver with the default
   `VisiblePresence.NONE`. Status visuals reach the resolver only as "saved identity" fields
   of the migrated composed avatar.
@@ -161,6 +168,10 @@ in one PR.
   the Glance size (`LocalSize`) instead of the constant `STANDARD_WIDGET`.
 - **Verify:** unit test on a new pure function `WidgetRenderInputs.from(model)`; device check
   of 1×1 and 2×2 widgets.
+- **Fixed (Track 0.1):** `WidgetModel` carries `PresenceView` or `ResolvedPresence`.
+  `WidgetRenderInputs.from` builds the resolver request. Glance `LocalSize` picks compact /
+  standard / large. The widget content description uses `accessibilityDescription`.
+  Device renders: `widget-1x1-busy.png`, `widget-2x2-busy-vr.png`.
 
 ### P1 — correctness, privacy and design issues
 
@@ -318,8 +329,8 @@ PostgREST tests) can be done at any time.
 
 | # | Item | Findings | Status |
 | --- | --- | --- | --- |
-| 0.1 | Widget render path rebuilt on `restingAvatar` + `VisiblePresence`; badges from resolved layers | F-01, F-02(1), F-03 | ⬜ |
-| 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ⬜ |
+| 0.1 | Widget render path rebuilt on `restingAvatar` + `VisiblePresence`; badges from resolved layers | F-01, F-02(1), F-03 | ✅ |
+| 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ✅ |
 | 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ⬜ |
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
@@ -352,8 +363,8 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
-| 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | Reviewed 2026-10-04; F-02(2), F-11, F-12 to fix |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | Partially landed out of order (glyphs, contrast, cache, widget path). **Needs a task spec** (`docs/handoff/PHASE_2_TASK.md`) covering F-01, F-03, F-07–F-10, F-14 |
+| 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-07–F-10 and F-14 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -406,7 +417,9 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-34). The most relevant t
   accessories and customizations (2026-10-04, user)
   - **D-30a:** no per-friend tether visibility
   - **D-30b:** guardrails approved; the balance stays on the Status Deck
-- **D-31 (to record with Track 0.2):** temporary explicit accessories versus signature conflicts.
+- **D-31** A temporary explicit accessory that is also named by a higher-priority source outranks
+  a conflicting signature for the life of the status. The "In VR" headset is ACTIVITY and hides
+  signature glasses; the glasses return when the status ends. Saved identity is not rewritten.
 - **D-32** Charge can be bought with real money via Google Play Billing; this requires a
   server-authoritative ledger with verified purchases (2026-10-04, user)
 - **D-33** Crash reporting = Firebase Crashlytics, with no PII and an opt-out; no Google
@@ -456,3 +469,4 @@ Add new questions here as they come up.
 | 2026-10-04 | Cursor | Widgets painted from resolved avatar (introduced F-01–F-03) | `16f0343`, PR #3 |
 | 2026-10-04 | User/Claude | Decisions D-30a/b, D-32, D-33, D-34 recorded; roadmap reordered (avatars before real backend projects) | this PR |
 | 2026-10-04 | Claude | Full audit: 141 JVM ✅, 9/9 device ✅ (one flake), CI ✅; device and JVM probes confirmed F-01/F-02; this master plan; findings F-01…F-20 | this commit |
+| 2026-10-04 | Cursor | Track 0.1–0.2: widget presence, badges from resolved layers, D-31 slot priority. 149 JVM, 11/11 device | this PR |

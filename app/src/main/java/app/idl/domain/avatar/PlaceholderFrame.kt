@@ -1,5 +1,6 @@
 package app.idl.domain.avatar
 
+import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
 import app.idl.domain.AvatarPalette
 import app.idl.domain.BaseForm
@@ -23,6 +24,11 @@ data class PlaceholderFrame(
     val config: AvatarConfig,
     val layers: List<Layer>,
     val sceneDetail: Boolean,
+    /** Manifest glyph for the availability indicator the resolver kept, if any. */
+    val availabilityGlyph: String? = null,
+    val availability: Availability? = null,
+    /** Manifest glyph for the activity badge the resolver kept, if any. */
+    val activityGlyph: String? = null,
 )
 
 object PlaceholderFrames {
@@ -48,6 +54,10 @@ object PlaceholderFrames {
             scene = scene(resolved.layers.firstOrNull { it.category == AssetCategory.SCENE }?.assetId),
             frameStyle = if ("frame_circle" in ids) FrameStyle.CIRCLE else FrameStyle.SQUIRCLE,
         )
+        val availabilityLayer = resolved.layers.firstOrNull { it.category == AssetCategory.AVAILABILITY_INDICATOR }
+        val activityLayer = resolved.layers.firstOrNull { it.category == AssetCategory.ACTIVITY_BADGE }
+        val availabilityGlyph = availabilityLayer?.let { registry.asset(it.assetId)?.glyph }
+        val activityGlyph = activityLayer?.let { registry.asset(it.assetId)?.glyph }
         val layers = buildList {
             if (AssetCategory.SCENE in categories) add(Layer.SCENE)
             if (AssetCategory.BODY_ACCESSORY in categories) add(Layer.BODY_ACCESSORY)
@@ -60,9 +70,21 @@ object PlaceholderFrames {
             if (AssetCategory.HEAD_ACCESSORY in categories) add(Layer.HEAD_ACCESSORY)
             if (AssetCategory.EXPRESSION_OVERLAY in categories) add(Layer.FACE_EXTRA)
             if (AssetCategory.FOREGROUND_PROP in categories) add(Layer.PROP)
+            if (availabilityLayer != null) add(Layer.AVAILABILITY_BADGE)
+            if (activityLayer != null) add(Layer.ACTIVITY_BADGE)
         }
-        return PlaceholderFrame(config, layers, resolved.sceneDetail)
+        return PlaceholderFrame(
+            config,
+            layers,
+            resolved.sceneDetail,
+            availabilityGlyph = availabilityGlyph,
+            availability = availabilityLayer?.let { availabilityOf(it.assetId) },
+            activityGlyph = activityGlyph,
+        )
     }
+
+    private fun availabilityOf(assetId: String): Availability? =
+        Availability.entries.firstOrNull { "avail_${it.wire}" == assetId }
 
     private fun baseForm(baseId: String, ids: Set<String>): BaseForm {
         if ("frame_pixel" in ids) return BaseForm.PIXEL

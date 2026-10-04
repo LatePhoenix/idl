@@ -285,17 +285,38 @@ class AvatarResolver(private val registry: AssetRegistry) {
         return registry.asset(fallback)?.id ?: fallback
     }
 
+    /**
+     * The first source that resolves chooses the asset. Later sources that name that same
+     * asset can only raise its [LayerPriority] (decision D-31). An explicit VR headset is also
+     * the `activity:vr` mapping, so the slot becomes [LayerPriority.ACTIVITY] and outranks a
+     * signature in another slot for the life of the status.
+     */
     private fun pick(options: List<Sourced?>, category: AssetCategory, dropped: MutableList<DroppedAsset>): Sourced? {
-        for (option in options) {
+        var chosen: Sourced? = null
+        var chosenAt = -1
+        for ((index, option) in options.withIndex()) {
             if (option == null) continue
             val canon = registry.canonicalId(option.id)
             val asset = registry.asset(canon)
-            if (asset != null && asset.category == category) return option.copy(id = asset.id, asset = asset)
+            if (asset != null && asset.category == category) {
+                chosen = option.copy(id = asset.id, asset = asset)
+                chosenAt = index
+                break
+            }
             if (dropped.none { it.assetId == canon && it.reason == DropReason.UNKNOWN_ASSET }) {
                 dropped += DroppedAsset(canon, DropReason.UNKNOWN_ASSET)
             }
         }
-        return null
+        val selected = chosen ?: return null
+        var priority = selected.priority
+        for (option in options.drop(chosenAt + 1)) {
+            if (option == null) continue
+            val asset = registry.asset(registry.canonicalId(option.id)) ?: continue
+            if (asset.id == selected.asset?.id && option.priority.ordinal < priority.ordinal) {
+                priority = option.priority
+            }
+        }
+        return if (priority == selected.priority) selected else selected.copy(priority = priority)
     }
 
     private fun displace(signatureId: String?, chosen: Sourced?, dropped: MutableList<DroppedAsset>) {

@@ -1,5 +1,7 @@
 package app.idl.domain.avatar
 
+import app.idl.domain.ActivityType
+import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
 import app.idl.domain.BaseForm
 import app.idl.domain.Expression
@@ -8,6 +10,7 @@ import app.idl.domain.HeadAccessory
 import app.idl.domain.Layer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -30,6 +33,27 @@ class PlaceholderFrameTest {
         val frame = PlaceholderFrames.from(resolver.resolve(AvatarRenderRequest(v2, sizePx = 256)), registry)
         assertEquals(BaseForm.FOX, frame.config.baseForm)
         assertEquals(Expression.SLEEPY, frame.config.expression)
+    }
+
+    @Test fun `resolved availability and activity become badge layers with manifest glyphs`() {
+        val resolved = resolver.resolve(request(
+            presence = VisiblePresence(availability = Availability.BUSY, activityType = ActivityType.VR),
+            target = RenderTarget.STANDARD_WIDGET,
+        ))
+        val frame = PlaceholderFrames.from(resolved, registry)
+        assertEquals("hourglass", frame.availabilityGlyph)
+        assertEquals(Availability.BUSY, frame.availability)
+        assertEquals("vr", frame.activityGlyph)
+        assertTrue(Layer.AVAILABILITY_BADGE in frame.layers)
+        assertTrue(Layer.ACTIVITY_BADGE in frame.layers)
+    }
+
+    @Test fun `a resting resolve has no badge layers`() {
+        val frame = PlaceholderFrames.from(resolver.resolve(request()), registry)
+        assertFalse(Layer.AVAILABILITY_BADGE in frame.layers)
+        assertFalse(Layer.ACTIVITY_BADGE in frame.layers)
+        assertNull(frame.availabilityGlyph)
+        assertNull(frame.activityGlyph)
     }
 
     @Test fun `a visor removes the eyes from the placeholder frame`() {
