@@ -60,4 +60,5 @@ Disk trim is still a file-count cap (keep the newest 64 pngs once there are more
 
 ## Commits
 
-Recorded on `fix/render-cache-f10`.
+- `08be0d3` Clear friend renders on sign-out and purge, and cache them by bytes.
+- PR: https://github.com/LatePhoenix/idl/pull/14
