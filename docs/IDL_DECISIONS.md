@@ -85,6 +85,30 @@ plumbing and no password storage. Google sign-in can come later.
 same transaction as the change. A `push-fanout` edge function will deliver them through FCM.
 Fan-out happens at enqueue time, so the friend list is evaluated transactionally.
 
+**D-24 · Server filters semantics; client composes visuals.** Asset-pack compatibility rules,
+fallbacks and per-user semantic overrides live client-side, and reimplementing them in SQL would
+duplicate the engine. The server returns only fields the viewer may see (avatar visuals only when
+`avatar` is visible, explicit expression only when `mood` is visible), and the client composes
+from that filtered input. Privacy still comes before composition, because hidden fields never
+reach the device. Golden vectors split into a filtered-view suite (server and Kotlin) and a
+composition suite (Kotlin). Implemented in avatar Phase 3.
+
+**D-25 · Asset packs are data plus code.** JSON manifests whose assets are `procedural` (named
+painter, placeholder art) or `raster` (WebP layers, final art). Both use the same anchors,
+z-order, compatibility and fallbacks, so final art can arrive late without blocking engineering.
+
+**D-26 · Packs ship inside the APK** (`app/src/main/assets/packs/<packId>/v<n>/`) until
+monetization requires remote delivery.
+
+**D-27 · Render cache:** memory LRU plus disk under `cacheDir/renders`, keyed by a SHA-256
+render key. Cached images contain only already-filtered state and are never exposed via URLs.
+
+**D-28 · Availability is shape and color.** Every availability state has a distinct glyph; color
+is never the only cue.
+
+**D-29 · Legacy bases fold into the five MVP bases** (see IDL_AVATAR_CREATOR_PLAN §6.2). Art
+stays placeholder until the product idea is validated.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

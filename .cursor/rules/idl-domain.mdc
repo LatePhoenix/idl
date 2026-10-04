@@ -1,0 +1,14 @@
+---
+description: Rules for the pure-Kotlin domain layer
+globs: app/src/main/java/app/idl/domain/**/*.kt
+alwaysApply: false
+---
+
+- No `android.*` or `androidx.*` imports in `domain/`. It must run on a plain JVM.
+- No `Instant.now()`, `System.currentTimeMillis()` or unseeded randomness. Take time via
+  parameters or `IdlClock`.
+- No dependence on `HashMap`/`HashSet` iteration order in anything that produces output; sort
+  explicitly.
+- Privacy: functions that compose visuals receive already-filtered input (`VisiblePresence`,
+  `PresenceView`). Never re-derive a hidden field from another field.
+- New wire enums use `WireEnumSerializer`; JSON goes through `IdlJson`.

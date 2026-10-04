@@ -1,0 +1,15 @@
+---
+description: Rules for the Supabase server (migrations and SQL tests)
+globs: supabase/**
+alwaysApply: false
+---
+
+- Never edit an existing migration file that has been committed. Add a new, timestamped
+  migration instead.
+- The API is RPC-only: new tables get RLS enabled with no policies and no grants to
+  anon/authenticated; new RPCs are `SECURITY DEFINER`, `set search_path = public, pg_temp`,
+  derive the caller via `idl_private.require_uid()`, and are explicitly granted to `authenticated`.
+- Errors use `idl_private.fail('PTxxx', message, field)` so PostgREST returns HTTP xxx.
+- Any privacy-behaviour change must update the Kotlin `PrivacyFilter` first, regenerate
+  `contract/privacy_vectors.json` (`-Pidl.updateGolden=true`), and make
+  `supabase/tests/run.sh` pass.
