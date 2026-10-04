@@ -59,6 +59,9 @@ import java.time.Instant
 
 @RunWith(AndroidJUnit4::class)
 class AvatarRendererTest {
+    private val registry = AssetPacks.registry { path ->
+        InstrumentationRegistry.getInstrumentation().targetContext.assets.open(path).bufferedReader().use { it.readText() }
+    }
 
     @Test fun everyBaseAndExpressionRendersAtWidgetAndThumbnailSizes() {
         for (base in BaseForm.entries) for (expr in Expression.entries) for (size in listOf(48, 256)) {
@@ -66,16 +69,13 @@ class AvatarRendererTest {
                 AvatarConfig(baseForm = base, expression = expr),
                 size,
                 AvatarBadges(Availability.TEXT_ONLY, ActivityType.VR),
+                registry = registry,
             )
             assertEquals(size, bmp.width)
         }
     }
 
     @Test fun availabilityGlyphsDifferAtCompactSize() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val registry = AssetPacks.registry { path ->
-            context.assets.open(path).bufferedReader().use { it.readText() }
-        }
         val renders = Availability.entries.map { availability ->
             AvatarRenderer.bitmap(AvatarConfig(), 48, AvatarBadges(availability, null), registry = registry)
         }
@@ -85,7 +85,7 @@ class AvatarRendererTest {
     }
 
     @Test fun expressionsAreVisuallyDistinct() {
-        val renders = Expression.entries.map { AvatarRenderer.bitmap(AvatarConfig(expression = it), 128) }
+        val renders = Expression.entries.map { AvatarRenderer.bitmap(AvatarConfig(expression = it), 128, registry = registry) }
         for (i in renders.indices) for (j in i + 1 until renders.size) {
             assertFalse("${Expression.entries[i]} vs ${Expression.entries[j]}", renders[i].sameAs(renders[j]))
         }
@@ -93,7 +93,7 @@ class AvatarRendererTest {
 
     @Test fun renderingIsDeterministic() {
         val cfg = AvatarConfig(baseForm = BaseForm.FOX, expression = Expression.SLEEPY)
-        assertTrue(AvatarRenderer.bitmap(cfg, 200).sameAs(AvatarRenderer.bitmap(cfg, 200)))
+        assertTrue(AvatarRenderer.bitmap(cfg, 200, registry = registry).sameAs(AvatarRenderer.bitmap(cfg, 200, registry = registry)))
     }
 }
 

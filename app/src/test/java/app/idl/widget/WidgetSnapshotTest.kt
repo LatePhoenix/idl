@@ -108,21 +108,25 @@ class WidgetSnapshotTest {
     @Test fun `sleepy at the default size keeps the blanket and tea`() {
         val target = WidgetRenderInputs.targetFor(110f, 110f)
         assertEquals(RenderTarget.STANDARD_WIDGET, target)
-        val saved = AvatarConfig(baseForm = BaseForm.FOX)
-        val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
-        val view = checkNotNull(
-            PrivacyFilter.viewFor(
-                "me", "u_ari", saved, sleepy, PrivacyRules.DEFAULT,
-                Relationship(isFriend = true, isCloseFriend = true), false,
-            ),
-        )
-        val (resolved, bitmap) = draw(
-            WidgetModel(title = "Ari", friendView = view, deepLink = "idl://friend/u_ari"),
-            target,
-        )
+        val (resolved, bitmap) = draw(sleepyAri(), target)
         assertTrue(resolved.has("body_blanket"))
         assertTrue(resolved.has("prop_tea"))
         snap("sleepy_default", bitmap)
+    }
+
+    @Test fun `sleepy compact drops the blanket and keeps the tea`() {
+        val compactTarget = WidgetRenderInputs.targetFor(70f, 70f)
+        val standardTarget = WidgetRenderInputs.targetFor(110f, 110f)
+        assertEquals(RenderTarget.COMPACT_WIDGET, compactTarget)
+        assertEquals(RenderTarget.STANDARD_WIDGET, standardTarget)
+        val (compactResolved, compact) = draw(sleepyAri(), compactTarget)
+        val (standardResolved, standard) = draw(sleepyAri(), standardTarget)
+        assertFalse(compactResolved.has("body_blanket"))
+        assertTrue(compactResolved.has("prop_tea"))
+        assertTrue(standardResolved.has("body_blanket"))
+        assertTrue(standardResolved.has("prop_tea"))
+        assertFalse(pixels(compact).contentEquals(pixels(standard)))
+        snap("sleepy_compact", compact)
     }
 
     @Test fun `light and dark wallpaper contrast differ`() {
@@ -150,6 +154,18 @@ class WidgetSnapshotTest {
             RenderContrast(wallpaper = wallpaper),
         )
         return resolved to bitmap
+    }
+
+    private fun sleepyAri(): WidgetModel {
+        val saved = AvatarConfig(baseForm = BaseForm.FOX)
+        val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
+        val view = checkNotNull(
+            PrivacyFilter.viewFor(
+                "me", "u_ari", saved, sleepy, PrivacyRules.DEFAULT,
+                Relationship(isFriend = true, isCloseFriend = true), false,
+            ),
+        )
+        return WidgetModel(title = "Ari", friendView = view, deepLink = "idl://friend/u_ari")
     }
 
     private fun self(availability: Availability) = WidgetModel(
