@@ -1,6 +1,6 @@
 # 2026-10-04 — Phase 2 PR A: vector domain
 
-Branch `avatar/vector-domain` from `origin/main` (`3223775`). Sections 2–5 of `docs/handoff/PHASE_2_TASK.md` only. No renderer, art, or UI.
+Branch `avatar/vector-domain` from `origin/main` (`3223775`). Sections 2–5 of `docs/handoff/PHASE_2_TASK.md` only. No renderer, art, or UI. PR #21.
 
 ## Acceptance
 
@@ -62,6 +62,5 @@ The same script is run again on the checkpoint commit before it is pushed.
 
 ## Commits
 
-`7f01c94` Add the vector picture domain so later art can resolve without moving today's goldens.
-
-The checkpoint report and the `pictureOf` signature are the following commit on `avatar/vector-domain`.
+- `7f01c94` Add the vector picture domain so later art can resolve without moving today's goldens.
+- `8204759` Record the Phase 2 vector-domain checkpoint and match `CompositeOrder` to the spec.
