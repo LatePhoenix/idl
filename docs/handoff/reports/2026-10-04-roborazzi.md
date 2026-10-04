@@ -20,7 +20,7 @@ Branch `test/roborazzi-f14` from `origin/main` (`94295ce`). PR #11.
 | PR template closes the §7.2 parking-lot item | Met. `.github/pull_request_template.md`. The parking-lot bullet is removed. |
 | Deterministic render, no loosened tolerance | Met. Roborazzi's default validator is an exact threshold of 0. Two verifies of `WidgetSnapshotTest` passed, the second with `--rerun-tasks`. |
 | Mutation: skip availability drawing, tests fail, then revert | Met. See below. |
-| CI green on the PR | Not yet at the time of this report. Confirm on PR #11 after the docs commit. |
+| CI green on the PR | Met. Run [37231593526](https://github.com/LatePhoenix/idl/actions/runs/37231593526) on `2414418`: android pass (5m54s), backend pass (3m6s). Windows-recorded goldens matched Ubuntu with the default exact threshold. |
 
 ## Mutation check
 
@@ -72,7 +72,7 @@ The skipped test is `SupabaseRestIT`. The two warnings above the previous 39 are
 
 ## Limitations
 
-- Goldens were recorded on Windows with Robolectric `GraphicsMode.NATIVE`. Availability and activity marks are Canvas paths. The sleepy tea prop is `Typeface.DEFAULT_BOLD` emoji text. If Ubuntu CI differs by a stable set of pixels, replace the goldens with that run's actual images. Do not raise the compare threshold to hide it.
+- Goldens were recorded on Windows with Robolectric `GraphicsMode.NATIVE`. The sleepy tea prop is `Typeface.DEFAULT_BOLD` emoji text, so a future host-font change can move pixels. CI run 37231593526 verified these goldens on `ubuntu-latest` with the default exact threshold, so this set matches that runner. Do not raise the compare threshold to hide a later diff.
 - Busy+VR at 70, 110, and 180 dp produces one bitmap. That presence has no body accessory and no decoration layer for `simplify()` to drop, and the painter always uses 256 px (the same size `Widgets.kt` uses). Each target still asserts `avail_busy` and `head_vr_headset`.
 - No emulator job. `connectedDebugAndroidTest` stays local.
 
@@ -89,7 +89,8 @@ The skipped test is `SupabaseRestIT`. The two warnings above the previous 39 are
 `git log --oneline origin/main..HEAD` before this report:
 
 ```
+2414418 Record F-14 as done and write the snapshot checkpoint.
 3555e44 Add JVM widget snapshot tests so CI catches visual regressions.
 ```
 
-The commit that adds this report and the master-plan update is the child of `3555e44`.
+The commit after `2414418` only records that CI run and this hash.
