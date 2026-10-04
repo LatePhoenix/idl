@@ -71,8 +71,12 @@ class AvatarRendererTest {
     }
 
     @Test fun availabilityGlyphsDifferAtCompactSize() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val registry = AssetPacks.registry { path ->
+            context.assets.open(path).bufferedReader().use { it.readText() }
+        }
         val renders = Availability.entries.map { availability ->
-            AvatarRenderer.bitmap(AvatarConfig(), 48, AvatarBadges(availability, null))
+            AvatarRenderer.bitmap(AvatarConfig(), 48, AvatarBadges(availability, null), registry = registry)
         }
         for (i in renders.indices) for (j in i + 1 until renders.size) {
             assertFalse("${Availability.entries[i]} vs ${Availability.entries[j]}", renders[i].sameAs(renders[j]))

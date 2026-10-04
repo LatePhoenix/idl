@@ -1,8 +1,8 @@
 package app.idl.domain
 
 /**
- * Shape names for status marks. Color may accompany a glyph; it is never the only cue
- * (decision D-28). Names match the core_proto pack.
+ * Expected shape names for the core pack. Production code reads `glyph` from the manifest.
+ * This stays in tests so a pack edit that drops or renames a glyph fails the cross-check.
  */
 object StatusGlyphs {
     fun availability(a: Availability): String = when (a) {
