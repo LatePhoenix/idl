@@ -81,7 +81,7 @@ object AvatarRenderer {
         badges: AvatarBadges? = null,
         simplifyAtPx: Int = sizePx,
         contrast: RenderContrast = RenderContrast(),
-        registry: AssetRegistry? = null,
+        registry: AssetRegistry,
     ): Bitmap = blank(sizePx).also { bmp ->
         draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx, contrast, registry)
     }
@@ -106,7 +106,7 @@ object AvatarRenderer {
         badges: AvatarBadges? = null,
         simplifyAtPx: Int = size.toInt(),
         contrast: RenderContrast = RenderContrast(),
-        registry: AssetRegistry? = null,
+        registry: AssetRegistry,
     ) {
         val plan = AvatarSpec.plan(
             config, simplifyAtPx,
@@ -121,9 +121,9 @@ object AvatarRenderer {
                 config,
                 plan.layers,
                 plan.sceneDetail,
-                availabilityGlyph = availability?.let { registry?.asset("avail_${it.wire}")?.glyph },
+                availabilityGlyph = availability?.let { registry.asset("avail_${it.wire}")?.glyph },
                 availability = availability,
-                activityGlyph = activity?.let { registry?.asset("badge_${it.wire}")?.glyph },
+                activityGlyph = activity?.let { registry.asset("badge_${it.wire}")?.glyph },
             ),
             size,
             badges,
