@@ -304,8 +304,9 @@ in one PR.
 Order of work (updated 2026-10-04 per user: real backend projects come once avatars feel right):
 
 1. **Track 0** (audit fixes)
-2. **Avatar Phases 2, 4, 5, 6, 7**: the avatar look, creation and customization. This is the
-   current product focus.
+2. **Avatar Phases 2, 4, 5, 6, 7** plus **U.1–U.4**: the avatar look, creation and
+   customization, including bubbles, the friends-first home, per-friend looks and weather.
+   This is the current product focus.
 3. Then, when the user is happy with avatars: **Milestone 1.5–1.6** (the user creates the
    Supabase + Firebase projects), and **Avatar Phase 3** and **Charge C.3/C.6** against the
    real backend. Phase 3 can be built and tested earlier against the local Docker stack.
@@ -374,6 +375,17 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | C.6 | **Buy Charge (D-32):** Google Play Billing consumables; server-side purchase-token verification (Play Developer API, in an edge function) before credit; idempotent ledger entries; refund/void handling via Real-time Developer Notifications | ⬜ | Requires C.3 and the Play Console account. No client-side crediting |
 | C.7 | Paid-currency compliance: Play policy for virtual currency, "Contains in-app purchases" listing, privacy policy update, refund/withdrawal terms (incl. EU), age rating, parental guidance | ⬜ | Before paid Charge ships; needs a human/legal review |
 
+### User feature additions (from §7.1, scheduled 2026-10-04)
+
+| # | Item | Status | Depends on | Notes |
+| --- | --- | --- | --- | --- |
+| U.1 | **Thought bubbles** (≤ 3 words and ≤ 24 chars): `bubble` on `PresenceState`/`VisiblePresence`, a bubble overlay category, Status Deck input, server validation in `put_presence`, `status_note` privacy category, dropped at compact sizes | ⬜ | Track 0 | §7.1-F. Small; good first feature after Track 0 |
+| U.2 | **Friends-first home:** a scrollable list of all friends replaces the current grid; tapping a friend's avatar opens "how I look to them" (reusing `PrivacyFilter.viewFor` preview) with editing from there | ⬜ | Track 0 | §7.1-B, D-36. Decide where the friend's own status and reactions live on that page |
+| U.3 | **Per-friend looks:** an avatar look per friend (any field may differ, D-35), with fallback to the default look. Server: `avatar_variants(owner, viewer, config)` chosen inside `presence_view`; golden vectors; per-viewer render cache keys and widget renders | ⬜ | U.2; avatar Phase 3 for the server part | Design with identity slots (Phase 9) and circles (v0.5) so a look can later be assigned to a circle too |
+| U.4 | **Live weather on my avatar:** opt-in; on-device coarse location or chosen city; weather condition published as an `android_local` presence source with about 3 h expiry; `weather` privacy category + golden vectors; weather scene assets; hourly battery-aware fetch (e.g. Open-Meteo; check its terms) | ⬜ | avatar Phase 2 (scene layers); Phase 3 (privacy category) | §7.1-D, D-37 |
+| U.5 | **Store:** browse and buy accessories, decorations and customizations with Charge; owned/free filter in the Avatar Lab | ⬜ | C.3, C.4, avatar Phase 3; C.6/C.7 for paid Charge | §7.1-E. Never sells §17.3 features |
+| U.6 | **Widget tap action:** "communicate something from the friend" | ⏸ | Q11 | Today it keeps opening the friend profile |
+
 ### Closed alpha checklist (gate)
 
 - [ ] Track 0 done; widgets device-verified on Pixel Launcher + one OEM launcher
@@ -397,7 +409,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-34). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-38). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -413,12 +425,18 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-34). The most relevant t
   Analytics SDK (2026-10-04, delegated to Claude)
 - **D-34** Real Supabase/Firebase projects get created once the user is happy with the avatars,
   avatar creation and customization (2026-10-04, user)
+- **D-35** Per-friend looks may change anything (base, palette, signature, accessories, …)
+- **D-36** The app home is a friends list; tapping a friend's avatar opens "how I look to them"
+- **D-37** Live weather where I am shapes how my avatar appears to friends (opt-in, coarse,
+  on-device location; only the weather condition is shared)
+- **D-38** Platform account connections (Steam, Discord, Xbox, PlayStation, Meta Quest,
+  VRChat) are on hold
 
 ---
 
 ## 6. Open questions for the user
 
-None open. Answered 2026-10-04:
+Answered 2026-10-04:
 
 | Q | Answer | Recorded as |
 | --- | --- | --- |
@@ -428,11 +446,197 @@ None open. Answered 2026-10-04:
 | Crash-reporting vendor? | Delegated → **Firebase Crashlytics** | D-33, 1.8 |
 | When are the real projects created? | Once avatars, creation and customization feel right | D-34, roadmap order |
 
+Answered 2026-10-04 (feature ideas, §7.1):
+
+| Q | Answer | Recorded as |
+| --- | --- | --- |
+| Q6 Spark vs Charge? | "Spark" was a mistake; the name stays **Charge**, and the mutual-pin rule (D-30) is unchanged | Proposal C withdrawn |
+| Q7 What may a per-friend look change? | **Anything**, including base, palette and signature | D-35 |
+| Q8 Tap targets? | In the app, tapping a friend's avatar opens "how I look to them" (config). Tapping a friend's **home-screen widget** should communicate something *from* that friend: **not designed yet** | D-36; open Q11 |
+| Q9 Whose weather? | Live weather where **I** am changes how **my** avatar is presented to friends | D-37 |
+| Q10 Platform account connections? | **Hold off** for now | D-38; proposal A parked |
+
+Open:
+
+11. **Widget tap action (Q8 follow-up):** what should tapping a friend's home-screen widget
+    communicate from that friend? Until decided, it keeps opening the friend profile.
+    Ideas to consider: their latest reaction to you, their bubble or note, a "they're
+    around" prompt, or a quick-react sheet.
+
 Add new questions here as they come up.
 
 ---
 
-## 7. Ideas and parking lot (not scheduled)
+## 7. Ideas and proposals
+
+### 7.1 Feature ideas (user, 2026-10-04): decided, see the status line on each
+
+Each proposal has a summary, constraints (feasibility, privacy and conflicts with existing
+decisions), proposed placement, and the decisions it needs. Once confirmed, move it into §4 with
+task IDs and record a decision in `docs/IDL_DECISIONS.md`.
+
+#### A · Platform sign-ins with presence badges
+
+**Status: ⏸ on hold (D-38, 2026-10-04).** Kept for reference; feature flags stay off.
+
+**Idea:** link Steam, Discord, Xbox, PlayStation, Meta Quest and VRChat accounts. Each shows its
+own badge while the user is seen on that platform (playing, online, in a world). Proposed badge
+looks: Steam = round Steam logo; Discord = blue game controller; Xbox = round Xbox logo;
+PlayStation = PlayStation logo; Meta Quest = round Meta "M"; VRChat = "VRC" chat logo.
+
+**Constraints:**
+- **Integration policy** (product spec non-goals, D-09, feature flags in `Core.kt`): only
+  official, user-authorized APIs; **no scraping**; integrations are optional enrichment and may
+  only add an activity badge, never override manual mood or availability.
+- **Feasibility per platform** (re-verify current API terms before building):
+
+  | Platform | Official path | Assessment |
+  | --- | --- | --- |
+  | Steam | OpenID sign-in + Steam Web API `GetPlayerSummaries` (current game when the profile is public) | ✅ Feasible. Needs a Steam Web API key and server-side polling with a modest interval (no push from Steam) |
+  | Discord | OAuth2 identifies the user but does **not** expose online presence to third-party apps. Presence needs a bot sharing a server with the user (privileged presence intent) or Discord's game-oriented SDK | ⚠️ Hard. Needs research and possibly a Discord app review |
+  | Xbox | Xbox services presence normally requires a registered title / partner program; third-party wrappers are unofficial | ⚠️ Unclear. Research the official access route first |
+  | PlayStation | No public third-party presence API; known endpoints are unofficial | ❌ Not feasible under the no-scraping policy unless Sony offers a program |
+  | Meta Quest | No public API exposing a user's online status to other apps | ❌ Not feasible as a sign-in. Alternative: an iDL Quest companion app that reports its own presence (fits the v1.0 SDK/bridge plan) |
+  | VRChat | No official public API for third parties; unofficial API use is against our policy (master plan, product spec) | ➡️ Use the planned **VRCQ / desktop bridge** (local, user-authorized), which already exists as a contract (`EnvelopeNormalizer.fromVrcq`) |
+
+- **Logos are trademarks.** Using official logos needs each brand's guidelines (and sometimes
+  permission), so get a legal review before shipping. Until then, use neutral glyphs (e.g. a
+  controller, a headset). The asset manifest's `license` field must record the terms for any
+  logo asset. The "blue controller" idea for Discord avoids the logo issue but could be confused
+  with the generic gaming badge.
+- **Privacy:** the platform *source* is new information. Add a visibility category
+  `activity_source` (default `only_me`, like `activity_name`), filter it in `presence_view`, and
+  extend the golden vectors. Account linking needs explicit consent records
+  (`integration_consents` already exists) and one-tap revoke that deletes that source's states.
+- **Server cost:** polling platforms server-side scales with linked users. Use
+  backoff/inactivity-aware intervals and never poll from the phone.
+
+**Placement:** Milestone 3 (v1.0 platform). The **Steam** link is the best first integration once
+the real backend exists (after D-34). VRChat goes through the VRCQ bridge.
+**Needs:** Q10; per-platform API research spike; legal review of logos.
+
+#### B · Friends-first home + per-friend avatars
+
+**Status: ✅ decided, scheduled as U.2 / U.3** (D-35, D-36). The user chose that per-friend looks may change *everything*, so the "keep base/palette fixed" recommendation below is superseded. Keep the friend's name visible next to every render so they stay identifiable.
+
+**Idea:** the app opens on a scrollable list of all iDL friends. Tapping a friend's avatar opens
+a page showing **how my avatar appears to that friend**, where I can change my avatar. I can
+configure my avatar **differently for each friend**. Not every friend needs a widget.
+
+**Constraints:**
+- **Already partly exists:** Privacy Center "preview as a friend" computes exactly what a friend
+  sees (`PrivacyFilter.viewFor`). The new page can reuse it.
+- **Per-friend avatars affect the core architecture:**
+  - The server must return a viewer-specific identity: a new `avatar_variants(owner, viewer | circle,
+    config)` table, chosen inside `presence_view` (D-24). This needs new golden vectors.
+  - Render-cache keys and widget renders become per viewer.
+  - It overlaps with **identity slots** (avatar Phase 9) and **circles** (v0.5). Design them
+    together: "a look" assigned to a friend, a circle, or the default.
+- **Recognizability** (master plan §3.3, §8.5): the avatar must stay identifiable as *you*.
+  Recommend that per-friend looks may change accessories, props, scene, bubble and expression
+  style, but **not** base, palette or signature (Q7).
+- **Privacy:** a per-friend look must never reveal another friend's look, and should pass
+  through the same category filtering.
+- **Home redesign** replaces today's grid plus "my card" (`ui/home/HomeScreen.kt`). Q8 decides
+  how the friend's own status and reactions are reached.
+
+**Placement:** avatar Phase 5/6 timeframe (it's avatar customization, the current focus), after
+Track 0. The server part lands with avatar Phase 3 (privacy contract v2), so the contract changes
+once. **Needs:** Q7, Q8.
+
+#### C · "Spark" from friends pinning your widget
+
+**Status: ❌ withdrawn (Q6, 2026-10-04).** "Spark" was a mistake; it stays **Charge** with the mutual-pin rule (D-30). The notes below are kept only as history.
+
+**Idea:** when a friend uses your avatar widget on their phone, it generates **Spark**.
+
+**Constraints:**
+- This looks like Charge (D-30) under a new name, with a different rule. Today Charge accrues
+  only for *mutual* pins (you pin them **and** they pin you); the idea credits you when *they*
+  pin *you* (Q6).
+- **D-30a (no per-friend pin visibility):** one-way crediting makes pins easier to infer, since
+  any balance change after a friend adds a widget reveals it. Mitigations: credit server-side in
+  daily batches, show only a qualitative earning state, never show per-friend sources.
+- **Farming and abuse:** one-way crediting rewards getting pinned. Combined with purchasable Spark
+  (D-32), add anti-abuse rules: a pin counts only from accepted friends, with per-friend daily
+  caps and diminishing returns, verified server-side (C.3).
+- If confirmed: rename Charge → Spark in code, UI and docs in one PR, and update D-30.
+
+**Placement:** Charge track (C.2/C.3). **Needs:** Q6.
+
+#### D · Weather background addon
+
+**Status: ✅ decided, scheduled as U.4** (D-37). Option (b) chosen: my live weather shapes how
+*my* avatar appears to friends. Design constraints that follow from that choice:
+
+- **Opt-in**, off by default. It gets a new privacy category `weather` (default
+  `close_friends` once enabled), filtered in `presence_view`, with golden vectors.
+- **Location never leaves the phone.** Coarse location or a manually chosen city is used
+  on-device only. The device publishes just a weather *condition* (clear, cloudy, rain, snow,
+  storm, fog, plus day/night).
+- It's sent as an automated presence source (`android_local`, priority 40) with a short expiry
+  (about 3 h). That means manual status wins (D-09), Invisible hides it, and expiry clears it
+  if updates stop.
+- The resolver maps conditions to weather **scene layers** that sit below explicit status
+  scenes and above the default scene.
+
+**Idea:** the widget background updates automatically to the current weather where you are.
+
+**Constraints:**
+- **Location:** the product spec puts exact location out of scope. Use **coarse** location
+  (`ACCESS_COARSE_LOCATION`), or let the user pick a city manually (no permission at all). The
+  manual option is the privacy-friendly default.
+- **Whose weather (Q9):**
+  - (a) the viewer's own weather on their own home screen: no data leaves the device, simplest
+    and private;
+  - (b) my weather shown on friends' widgets: reveals approximate location over time, so it
+    needs a privacy category (e.g. `weather`, default `only_me`), golden vectors and opt-in.
+- **Implementation:**
+  - weather becomes a **scene override layer** in the resolver (below explicit status scenes,
+    above default scenes);
+  - a small set of weather scenes in the asset pack (clear, cloudy, rain, snow, storm,
+    night variants);
+  - fetch from a no-key API such as Open-Meteo (check its attribution/licence terms) via
+    WorkManager at most hourly, battery-aware, never polling for widgets.
+- It must stay subordinate to the face (master plan §6.5) and simplified at compact sizes.
+
+**Placement:** avatar Phase 7 (widget hardening) or right after. **Needs:** Q9.
+
+#### E · Store for accessories, decorations and customizations
+
+**Status: ✅ scheduled as U.5** (follows C.3 and avatar Phase 3; ships with or after C.6/C.7).
+
+**Idea:** a store where Spark (Charge) is spent on accessories, decorations and customizations.
+
+**Constraints:** this is the UI for C.4 (spend), and with C.6 (buy Spark via Play Billing) it
+needs the server-authoritative ledger first (F-04, D-32), plus `asset_catalog` tiers and an
+`entitlements` table (avatar Phase 3). Never sell core vocabulary, privacy, widget or
+accessibility features (§17.3, D-30b). Owned items show in the Avatar Lab with an owned/free
+filter (avatar plan Phase 5).
+
+**Placement:** after avatar Phase 3 + C.3; ship together with or after C.6/C.7.
+
+#### F · Thought bubbles (three words max)
+
+**Status: ✅ scheduled as U.1** (good early win after Track 0).
+
+**Idea:** a small word or thought bubble on the avatar, at most three words.
+
+**Constraints:**
+- **Validation:** "3 words" doesn't work for languages without spaces (CJK, Thai). Use
+  **≤ 3 words and ≤ 24 characters**, validated in the client and server (`put_presence`).
+- **Legibility:** at 48 px a bubble can't be read. Show it at standard/large widget sizes and
+  in-app; at compact sizes drop it (`TARGET_SIMPLIFIED`) or show a "…" bubble glyph.
+- **Privacy:** it's free text like the status note. Either reuse the `status_note` category or
+  add `bubble` (recommend reusing `status_note`, so it's one setting). It expires with the
+  status, and is never logged (`IdlLog` rule).
+- **Model:** add `bubble: String?` to `PresenceState`/`VisiblePresence` and a
+  `speech_bubble`/`thought_bubble` overlay asset category with anchors per base.
+
+**Placement:** avatar Phase 6 (Status Deck v2). Small and self-contained, so it's a good early
+win once Track 0 is done.
+
+### 7.2 Parking lot (not scheduled)
 
 - RenderSheet contact-sheet exporter for comparing art directions at widget size (Avatar Phase 2).
 - On-device "vibe" keyword suggestions mapping to catalog tags, before any LLM (Phase 9).
@@ -454,5 +658,6 @@ Add new questions here as they come up.
 | 2026-10-04 | Cursor | Charge prototype (local), Room v2 | `0ea04a7`, PR #1 |
 | 2026-10-04 | Cursor | Availability shape glyphs | `d4a336e`, PR #2 |
 | 2026-10-04 | Cursor | Widgets painted from resolved avatar (introduced F-01–F-03) | `16f0343`, PR #3 |
+| 2026-10-04 | User/Claude | Feature ideas A–F analysed (§7.1); answers Q6–Q10 → D-35…D-38; scheduled U.1–U.6; platform sign-ins on hold; Spark withdrawn; Q11 open | docs/feature-ideas |
 | 2026-10-04 | User/Claude | Decisions D-30a/b, D-32, D-33, D-34 recorded; roadmap reordered (avatars before real backend projects) | this PR |
 | 2026-10-04 | Claude | Full audit: 141 JVM ✅, 9/9 device ✅ (one flake), CI ✅; device and JVM probes confirmed F-01/F-02; this master plan; findings F-01…F-20 | this commit |
