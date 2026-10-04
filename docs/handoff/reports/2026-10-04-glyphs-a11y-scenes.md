@@ -55,4 +55,5 @@ Disk and server work from the other two pull requests are not in this branch. Ea
 
 ## Commits
 
-Recorded on `fix/glyphs-a11y-scenes-f08-f11-f12`.
+- `cf8134b` Read glyphs from the manifest and stop an unknown scene from replacing a saved one.
+- PR: https://github.com/LatePhoenix/idl/pull/15

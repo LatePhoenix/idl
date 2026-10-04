@@ -760,4 +760,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
 | 2026-10-04 | Cursor | Room 1→2 migration test with the exported schemas. 161 JVM, 16/16 device | `492019e`, PR #13, F-13 ✅, Track 0.7 |
-| 2026-10-04 | Cursor | Glyphs from the manifest, de-duplicated accessibility sentences, unknown scenes fall through. 163 JVM, 15/15 device | F-08 ✅, F-11 ✅, F-12 ✅, Track 0.6 |
+| 2026-10-04 | Cursor | Glyphs from the manifest, de-duplicated accessibility sentences, unknown scenes fall through. 163 JVM, 15/15 device | `cf8134b`, PR #15, F-08 ✅, F-11 ✅, F-12 ✅, Track 0.6 |
