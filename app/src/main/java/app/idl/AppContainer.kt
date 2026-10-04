@@ -77,14 +77,14 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val economy = EconomyRepository(dao, clock, scope, widgets)
     val scheduler = WorkSyncScheduler(app)
 
-    val session = SessionRepository(db, dao, backend, auth, widgets)
+    val session = SessionRepository(db, dao, backend, auth, widgets, renders)
     val avatars = AvatarRepository(dao, backend, widgets)
-    val presence = PresenceRepository(dao, backend, clock, widgets, scheduler)
-    val friends = FriendsRepository(dao, backend, presence, widgets)
+    val presence = PresenceRepository(dao, backend, clock, widgets, scheduler, renders)
+    val friends = FriendsRepository(dao, backend, presence, widgets, renders)
     val reactions = ReactionRepository(dao, backend, clock)
     val privacy = PrivacyRepository(dao, backend)
     val sync = SyncManager(dao, clock, presence, friends, reactions, privacy, widgets, economy, onUnauthorized = { session.signOut() })
-    val pushHandler = PushHandler(dao, presence, friends, reactions, widgets, settings, notifier)
+    val pushHandler = PushHandler(dao, presence, friends, reactions, widgets, settings, notifier, renders)
 
     fun start() {
         notifier.createChannels()

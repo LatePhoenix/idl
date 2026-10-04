@@ -3,6 +3,7 @@ package app.idl.data.repo
 import app.idl.IdlClock
 import app.idl.IdlLog
 import app.idl.data.local.AvatarEntity
+import app.idl.avatar.RenderCache
 import app.idl.data.local.FriendEntity
 import app.idl.data.local.FriendPresenceEntity
 import app.idl.data.local.IdlDao
@@ -92,6 +93,7 @@ class SessionRepository(
     private val backend: IdlBackend,
     val auth: AuthGateway,
     private val widgets: WidgetRefresher,
+    private val renders: RenderCache,
 ) {
     val me: Flow<Me?> = dao.session().map { it?.toMe() }
 
@@ -116,6 +118,7 @@ class SessionRepository(
     suspend fun signOut() {
         auth.signOut()
         withContext(Dispatchers.IO) { db.clearAllTables() }
+        renders.clear()
         widgets.all()
         IdlLog.i("account.signed_out")
     }
@@ -157,6 +160,7 @@ class PresenceRepository(
     private val clock: IdlClock,
     private val widgets: WidgetRefresher,
     private val scheduler: SyncScheduler,
+    private val renders: RenderCache,
 ) {
     val ownStates: Flow<List<PresenceState>> =
         dao.ownPresence().map { rows -> rows.map { decodeState(it.json) } }
@@ -214,7 +218,7 @@ class PresenceRepository(
         } catch (e: IdlException) {
             if (e.error == IdlError.Forbidden || e.error == IdlError.NotFound) {
                 // Access revoked: purge immediately (IDL_PRIVACY_MODEL §5).
-                dao.purgeUser(userId)
+                purgeCachedUser(dao, renders, userId)
                 IdlLog.i("friend.purged", "reason" to e.error)
             } else throw e
         }
@@ -237,6 +241,7 @@ class FriendsRepository(
     private val backend: IdlBackend,
     private val presence: PresenceRepository,
     private val widgets: WidgetRefresher,
+    private val renders: RenderCache,
 ) {
     val friends: Flow<List<Friend>> = dao.friends().map { rows -> rows.map { it.toFriend() } }
 
@@ -252,7 +257,7 @@ class FriendsRepository(
         dao.replaceFriends(list.map { it.toEntity() })
         // Anyone no longer returned has removed or blocked us: purge their cached data.
         val gone = previous - list.map { it.userId }.toSet()
-        gone.forEach { dao.purgeUser(it) }
+        gone.forEach { purgeCachedUser(dao, renders, it) }
         if (gone.isNotEmpty()) widgets.friendsChanged(gone)
     }
 
@@ -275,19 +280,19 @@ class FriendsRepository(
 
     suspend fun decline(userId: String): Result<Unit> = attempt {
         backend.declineRequest(userId)
-        dao.purgeUser(userId)
+        purgeCachedUser(dao, renders, userId)
     }
 
     suspend fun remove(userId: String): Result<Unit> = attempt {
         backend.removeFriend(userId)
-        dao.purgeUser(userId)
+        purgeCachedUser(dao, renders, userId)
         widgets.friendsChanged(listOf(userId))
         IdlLog.i("friend.removed")
     }
 
     suspend fun block(userId: String): Result<Unit> = attempt {
         backend.block(userId)
-        dao.purgeUser(userId)
+        purgeCachedUser(dao, renders, userId)
         widgets.friendsChanged(listOf(userId))
         IdlLog.i("friend.blocked")
     }
@@ -391,4 +396,10 @@ class SyncManager(
         if (result.exceptionOrNull()?.idlError == IdlError.Unauthorized) onUnauthorized()
         return result
     }
+}
+
+/** Room revocation plus that friend's render files. Every purge path goes through here. */
+internal suspend fun purgeCachedUser(dao: IdlDao, renders: RenderCache, userId: String) {
+    dao.purgeUser(userId)
+    renders.deleteOwner(userId)
 }

@@ -77,7 +77,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
-| Render cache | 🟡 | Exists; hygiene issues (F-10) |
+| Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes (F-10 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
 | Push delivery (FCM) | ⬜ | Outbox and `register_device` exist; no edge function or app receiver |
 | Crash reporting / analytics | ⬜ | `CrashReporter` seam only |
@@ -273,13 +273,18 @@ in one PR.
 - **Fix in Phase 2:** paint each `ResolvedLayer` by `AssetDef.painterKey`, then delete the
   adapter.
 
-#### F-10 · Render cache hygiene · 🟡 P1
+#### F-10 · Render cache hygiene · ✅ P1
 - Rendered friend images in `cacheDir/renders` survive friend removal, block and sign-out. They
   aren't displayed again, but revoked data should leave the device (privacy rules 5–6).
 - `LruCache` counts entries, not bytes (D-27 targets about 8 MB; share-card renders are 1 MB each).
 - File writes aren't atomic.
 - **Fix:** clear the cache in `signOut()`; key or tag files by friend and delete them in
   `purgeUser`; size the LRU by `bitmap.byteCount`; write to a temp file then rename.
+- **Fixed:** `SessionRepository.signOut()` clears memory and disk. Friend files live in a
+  per-user directory and `purgeCachedUser` deletes only that directory (remove, block, decline,
+  refresh purge, and the friend-removed push). The memory cache evicts by bitmap bytes with an
+  8 MB budget (D-27). Publishes rename a temp file in the same directory, so a failed write
+  leaves the previous png in place and no `.tmp`.
 
 #### F-11 · Accessibility sentence repeats itself · ✅ P1
 - DND produces "Blob avatar, do not disturb, do not disturb" (expression label plus
@@ -404,7 +409,7 @@ PostgREST tests) can be done at any time.
 | 0.1 | Widget render path rebuilt on `restingAvatar` + `VisiblePresence`; badges from resolved layers | F-01, F-02(1), F-03 | ✅ |
 | 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ✅ |
 | 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ✅ |
-| 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
+| 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ✅ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ✅ |
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ✅ |
 | 0.7 | Room migration test (1→2) | F-13 | ✅ |
@@ -437,7 +442,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-09 and F-10 |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-09. F-10 is fixed in Track 0.4 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -763,3 +768,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Room 1→2 migration test with the exported schemas. 161 JVM, 16/16 device | `492019e`, PR #13, F-13 ✅, Track 0.7 |
 | 2026-10-04 | Cursor | Glyphs from the manifest, de-duplicated accessibility sentences, unknown scenes fall through. 163 JVM, 15/15 device | `cf8134b`, PR #15, F-08 ✅, F-11 ✅, F-12 ✅, Track 0.6 |
 | 2026-10-04 | Cursor | Widget outline contrast follows the wallpaper. Auto / Light / Dark setting. 167 JVM | `820cb81`, PR #16, F-07 ✅, Track 0.5 ✅ |
+| 2026-10-04 | Cursor | Render cache: sign-out clear, per-friend files, 8 MB byte LRU, atomic writes. 165 JVM, 17/17 device | F-10 ✅, Track 0.4 |

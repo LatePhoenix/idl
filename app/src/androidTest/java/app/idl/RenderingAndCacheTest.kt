@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.idl.avatar.AvatarBadges
+import app.idl.avatar.RenderCache
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderContrast
 import app.idl.data.local.FriendTetherEntity
@@ -107,6 +108,8 @@ class CacheAndWidgetDataTest {
         override suspend fun friendsChanged(userIds: Collection<String>) { friendUpdates += userIds }
         override suspend fun all() = Unit
     }
+    private fun testRenders() = RenderCache(File(context.cacheDir, "renders-test-${System.nanoTime()}"))
+
     private val noScheduler = object : SyncScheduler {
         var retries = 0
         override fun scheduleRetry() { retries++ }
@@ -116,8 +119,9 @@ class CacheAndWidgetDataTest {
     @Test fun offlineStatusIsSavedLocallyAndSyncedLater() = runTest {
         val db = IdlDatabase.inMemory(context)
         val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
-        SessionRepository(db, db.dao(), backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
-        val presence = PresenceRepository(db.dao(), backend, clock, noWidgets, noScheduler)
+        val renders = testRenders()
+        SessionRepository(db, db.dao(), backend, LocalAuthGateway, noWidgets, renders).register("Matt", "matt")
+        val presence = PresenceRepository(db.dao(), backend, clock, noWidgets, noScheduler, renders)
 
         backend.simulateOffline = true
         val state = QuickState.ALL.first { it.id == "sleepy" }.toState(now)
@@ -140,9 +144,10 @@ class CacheAndWidgetDataTest {
         val db = IdlDatabase.inMemory(context)
         val dao = db.dao()
         val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
-        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
-        val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler)
-        val friends = FriendsRepository(dao, backend, presence, noWidgets)
+        val renders = testRenders()
+        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets, renders).register("Matt", "matt")
+        val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler, renders)
+        val friends = FriendsRepository(dao, backend, presence, noWidgets, renders)
         friends.refresh()
         presence.refreshAllFriends()
         dao.upsertWidgetSubscription(WidgetSubscriptionEntity(7, WidgetData.KIND_SOLO, "u_ari"))
@@ -176,9 +181,10 @@ class CacheAndWidgetDataTest {
         val db = IdlDatabase.inMemory(context)
         val dao = db.dao()
         val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
-        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
-        val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler)
-        FriendsRepository(dao, backend, presence, noWidgets).refresh()
+        val renders = testRenders()
+        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets, renders).register("Matt", "matt")
+        val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler, renders)
+        FriendsRepository(dao, backend, presence, noWidgets, renders).refresh()
         presence.refreshAllFriends()
         dao.upsertWidgetSubscription(WidgetSubscriptionEntity(7, WidgetData.KIND_SOLO, "u_ari"))
 
