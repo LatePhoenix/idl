@@ -50,7 +50,6 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
     val fake = c.fakeBackend
     val friendIds = remember(sync) { fake?.demoFriendIds().orEmpty() }
     val chosen = target ?: friendIds.firstOrNull()
-    val charge by c.economy.state.collectAsState()
     var remotePinned by remember(chosen) { mutableStateOf(false) }
     var localPinned by remember(chosen) { mutableStateOf(false) }
     LaunchedEffect(chosen) {
@@ -101,11 +100,6 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
                 }
                 Text("Demo friend", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 ChoiceChips(friendIds, chosen, { fake.displayNameOf(it) }, { target = it }, allowNone = false)
-                Text(
-                    "${charge.currentCharge} Charge · +${charge.hourlyRate} Charge/hr",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
                 Toggle(
                     "Their widget is on my home screen",
                     "Demo stand-in for pinning their widget here",

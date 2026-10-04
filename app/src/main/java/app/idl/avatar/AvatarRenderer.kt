@@ -37,8 +37,6 @@ import kotlin.math.sin
 data class AvatarBadges(
     val availability: Availability? = null,
     val activity: ActivityType? = null,
-    /** Mutual widget pin. Draws a small corner mark; it is not derived from mood. */
-    val resonating: Boolean = false,
 )
 
 /** Sticker outline and stroke weight for a render target's surroundings. */
@@ -132,7 +130,6 @@ object AvatarRenderer {
             canvas.restoreToCount(checkpoint)
         }
         drawLayers(p, frame, overlay, badges)
-        if (badges?.resonating == true) p.resonance()
     }
 
     private fun drawLayers(p: Painter, frame: PlaceholderFrame, layers: List<Layer>, badges: AvatarBadges?) {
@@ -738,17 +735,6 @@ object AvatarRenderer {
                 "custom" -> star(x, y, r, ink)
                 else -> c.drawCircle(x, y, r * 0.35f, fill)
             }
-        }
-
-        fun resonance() {
-            val br = s * 0.035f
-            val bx = br * 2.4f
-            val by = br * 2.4f
-            fill.shader = null
-            fill.color = 0x552E8792
-            c.drawCircle(bx, by, br * 2.1f, fill)
-            fill.color = 0xFF2E8792.toInt()
-            c.drawCircle(bx, by, br, fill)
         }
 
         private fun text(t: String, x: Float, y: Float, size: Float, color: Int) {
