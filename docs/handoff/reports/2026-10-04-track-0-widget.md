@@ -79,6 +79,9 @@ After adding the screenshot log line, the same class was re-run with `am instrum
 
 ```text
 ca70087 Restore widget presence so badges and an explicit VR headset survive.
+5aa7da0 Record the Track 0.1 commit hash in the checkpoint report.
 ```
+
+PR: https://github.com/LatePhoenix/idl/pull/5
 
 Range: `git log --oneline origin/main..HEAD`.
