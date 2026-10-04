@@ -22,11 +22,13 @@ test in the PR (CI has no device tests yet).
 ## Commands
 
 ```bash
-scripts/check.sh            # REQUIRED before every commit: unit tests + lint + debug build
+scripts/check.sh            # REQUIRED before every commit: unit tests + snapshot verify + lint + debug build
 scripts/check.sh --sql      # also the Supabase SQL suite + PostgREST IT (needs Docker running)
 scripts/check.sh --device   # also instrumented tests (emulator; set ANDROID_SERIAL=emulator-5554)
 ./gradlew testDebugUnitTest --tests '*AvatarResolverTest*'   # one test class
 ./gradlew testDebugUnitTest -Pidl.updateGolden=true           # regenerate contract/privacy_vectors.json
+./gradlew recordRoborazziDebug                            # record widget snapshot goldens into app/src/test/snapshots
+./gradlew verifyRoborazziDebug                            # fail when a golden differs; scripts/check.sh runs this
 ```
 
 Requirements: JDK 17+ and Android SDK platform 35. `local.properties` (gitignored) needs `sdk.dir`.
