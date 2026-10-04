@@ -661,3 +661,4 @@ win once Track 0 is done.
 | 2026-10-04 | User/Claude | Feature ideas A–F analysed (§7.1); answers Q6–Q10 → D-35…D-38; scheduled U.1–U.6; platform sign-ins on hold; Spark withdrawn; Q11 open | docs/feature-ideas |
 | 2026-10-04 | User/Claude | Decisions D-30a/b, D-32, D-33, D-34 recorded; roadmap reordered (avatars before real backend projects) | this PR |
 | 2026-10-04 | Claude | Full audit: 141 JVM ✅, 9/9 device ✅ (one flake), CI ✅; device and JVM probes confirmed F-01/F-02; this master plan; findings F-01…F-20 | this commit |
+| 2026-10-04 | Cursor | Avatar base exploration v2: 12 faceless bases scored, pixel grids authored, 48px expression sheets. No canonical lock | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
