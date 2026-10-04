@@ -1,3 +1,4 @@
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import java.util.Properties
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.roborazzi)
 }
 
 // Supabase project settings come from local.properties (never committed):
@@ -54,6 +56,7 @@ android {
         buildConfig = true
     }
     testOptions {
+        unitTests.isIncludeAndroidResources = true
         unitTests.isReturnDefaultValues = true
         unitTests.all {
             // PrivacyVectorsTest: -Pidl.updateGolden=true regenerates contract/privacy_vectors.json.
@@ -67,6 +70,14 @@ android {
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+@OptIn(ExperimentalRoborazziApi::class)
+roborazzi {
+    outputDir.set(file("src/test/snapshots"))
+    compare {
+        outputDir.set(layout.buildDirectory.dir("outputs/roborazzi"))
+    }
 }
 
 dependencies {
@@ -101,6 +112,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)

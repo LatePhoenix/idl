@@ -16,8 +16,17 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
-      - name: Unit tests, lint, debug build
-        run: ./gradlew testDebugUnitTest lintDebug assembleDebug
+      - name: Unit tests with snapshot verify, lint, debug build
+        run: ./gradlew verifyRoborazziDebug lintDebug assembleDebug
+      - name: Upload snapshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roborazzi-diffs
+          path: |
+            app/build/outputs/roborazzi/
+            app/build/reports/roborazzi/
+          if-no-files-found: ignore
 
   backend:
     # Pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19.

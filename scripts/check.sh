@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One command to verify the repo. Run before every commit and before asking for review.
-#   scripts/check.sh            unit tests + lint + debug build (always)
+#   scripts/check.sh            unit tests + snapshot verify + lint + debug build (always)
 #   scripts/check.sh --sql      + Supabase SQL suite and Kotlin↔PostgREST IT (needs Docker)
 #   scripts/check.sh --device   + instrumented tests (needs an emulator; set ANDROID_SERIAL
 #                                 if more than one device is attached)
@@ -18,8 +18,8 @@ for arg in "$@"; do
   esac
 done
 
-echo "== Gradle: unit tests, lint, debug build"
-./gradlew testDebugUnitTest lintDebug assembleDebug --console=plain -q
+echo "== Gradle: unit tests, snapshot verify, lint, debug build"
+./gradlew verifyRoborazziDebug lintDebug assembleDebug --console=plain -q
 
 summarize() {
   python - "$1" <<'PY'
