@@ -48,7 +48,7 @@ object LegacyAvatarMigration {
             defaultFrameAssetId = if (v1.baseForm == BaseForm.PIXEL) "frame_pixel" else frameId(v1.frameStyle),
             restingExpressionId = v1.expression.wire,
         )
-        return CompatibilityEngine(registry).sanitize(mapped).first
+        return CompatibilityEngine(registry).sanitize(mapped).first.migrateRecipe()
     }
 
     /** Copies only fields the viewer was sent. Expression is set only when mood is visible. */

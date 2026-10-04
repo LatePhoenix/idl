@@ -63,6 +63,38 @@ class AvatarConfigurationSchemaTest {
         assertEquals(once, twice)
     }
 
+    @Test fun `schema 2 json loaded through decode comes out as schema 3`() {
+        val json = """
+            {"baseAssetId":"base_blob","paletteAssetId":"palette_sunny","restingExpressionId":"happy","schemaVersion":2}
+        """.trimIndent()
+        val loaded = AvatarConfiguration.decode(json)
+        assertEquals(3, loaded.schemaVersion)
+        assertEquals("base_blob", loaded.baseAssetId)
+        assertEquals("happy", loaded.restingExpressionId)
+        assertEquals("", loaded.familyId)
+        assertEquals(AvatarConfiguration.DEFAULT_PACK_ID, loaded.packId)
+    }
+
+    @Test fun `item ids in one category are an unordered set`() {
+        val resolver = AvatarResolver(coreRegistry())
+        val forward = config().copy(itemIds = mapOf("jewelry" to listOf("pin_a", "pin_b")))
+        val reverse = config().copy(itemIds = mapOf("jewelry" to listOf("pin_b", "pin_a")))
+        assertEquals(
+            resolver.resolve(AvatarRenderRequest(forward)).renderKey,
+            resolver.resolve(AvatarRenderRequest(reverse)).renderKey,
+        )
+    }
+
+    @Test fun `a newer schema is not written back`() {
+        val newer = sample().copy(schemaVersion = 4)
+        val blocked = newer.prepareForWrite()
+        assertTrue(blocked is AvatarWrite.NeedsAppUpdate)
+        assertEquals(AvatarWrite.NeedsAppUpdate.message, (blocked as AvatarWrite.NeedsAppUpdate).message)
+        val saved = sample().copy(schemaVersion = 2, familyId = "").prepareForWrite()
+        assertTrue(saved is AvatarWrite.Ready)
+        assertEquals(3, (saved as AvatarWrite.Ready).configuration.schemaVersion)
+    }
+
     @Test fun `color override key order does not change the render key`() {
         val resolver = AvatarResolver(coreRegistry())
         val first = config().copy(

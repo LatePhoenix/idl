@@ -80,7 +80,7 @@ data class WidgetRenderInputs(
                 else -> VisiblePresence.NONE
             }
             return WidgetRenderInputs(
-                configuration = LegacyAvatarMigration.migrate(resting, registry),
+                configuration = LegacyAvatarMigration.migrate(resting, registry).migrateRecipe(),
                 presence = presence,
                 target = target,
             )

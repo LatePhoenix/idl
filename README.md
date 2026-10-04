@@ -47,6 +47,7 @@ docs/       product spec, architecture, data model, privacy, widgets, API, roadm
 ## Status and roadmap
 
 See [`master-plan.md`](master-plan.md) for the current state, open issues and roadmap.
+Verified test counts are in §1.2 of that file.
 
 ## Known limitations
 

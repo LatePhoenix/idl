@@ -23,6 +23,7 @@ test in the PR (CI has no device tests yet).
 
 ```bash
 scripts/check.sh            # REQUIRED before every commit: unit tests + snapshot verify + lint + debug build
+scripts/check.ps1           # the same checks in Windows PowerShell, when bash is not on PATH. check.sh stays canonical
 scripts/check.sh --sql      # also the Supabase SQL suite + PostgREST IT (needs Docker running)
 scripts/check.sh --device   # also instrumented tests (emulator; set ANDROID_SERIAL=emulator-5554)
 ./gradlew testDebugUnitTest --tests '*AvatarResolverTest*'   # one test class

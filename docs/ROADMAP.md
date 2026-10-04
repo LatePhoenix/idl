@@ -51,4 +51,3 @@
 
 - Whether the first pictures are original (recommended in step 4) or a small pinned Noto import. The license rules allow either. Original first is the smaller legal change.
 - Whether hair, beard, and jewelry become new `AssetCategory` values or reuse `SIGNATURE_FEATURE` / `HEAD_ACCESSORY`. Prefer new categories when the editor tabs need them, in the schema 3 change, not before.
-- D-31 (temporary accessory versus signature) is still unrecorded and still blocks a correct VR-headset interaction. Unrelated to emoji art, still open.

@@ -44,8 +44,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `9f033e0`: everything below is merged here (PRs #1–#3) |
-| Local `main` | 13 commits behind `origin/main`. Run `git checkout main && git pull` |
+| `origin/main` | `5b81bd6` (merge of PR #14). Start new work from here |
 | `avatar-creator` | Same content as `origin/main` minus merge commits. Start new work from `origin/main` |
 | `milestone-1-supabase` | Fully merged; can be deleted |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` when the android job fails. No emulator job |
@@ -54,8 +53,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 165 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 41 warnings. The two new warnings are `NewerVersionAvailable` for Roborazzi 1.76.0, which this Kotlin 2.0.21 tree cannot compile (see F-14). Re-run 2026-10-04 on `test/roborazzi-f14` |
-| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 12/12 pass on `emulator-5554`, including the widget-path bitmap checks. Cold-start flake still open (F-20) |
+| `scripts/check.sh` | ✅ 183 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. `scripts/check.ps1` printed the same counts. Re-run 2026-10-04 on `chore/docs-tooling-schema3` |
+| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 18/18 pass on `emulator-5554`. `scripts/check.sh --device` waited for boot and unlocked first (F-20 ✅) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
 | Secrets | ✅ None tracked (`local.properties` gitignored; anon key only via BuildConfig) |
@@ -340,12 +339,16 @@ in one PR.
 - Roborazzi 1.76.0 is built with Kotlin 2.3 metadata. This project is Kotlin 2.0.21, so 1.60.0
   (the newest release still built with 2.0.21) is the pin. No emulator job yet.
 
-#### F-15 · Documentation drift · ⬜ P2
+#### F-15 · Documentation drift · ✅ P2
 - `AGENTS.md` "Current work" still pointed at Phase 1 (fixed in this commit).
 - The README test counts are stale (78 → 141).
 - `IDL_AVATAR_CREATOR_PLAN.md` §7 says Phase 1 isn't wired into the app, but widgets now use
   the resolver.
 - **Fix:** keep counts and status here only; README links here.
+- **Fixed:** §1.1 names `origin/main` `5b81bd6` and no longer says local main is behind.
+  README points at §1.2 for counts. §7 of the creator plan says the widget path uses the
+  resolver. The work log names PRs #7, #8 and #9. `docs/ROADMAP.md` no longer says D-31 is
+  unrecorded.
 
 #### F-16 · Checkpoint report inaccuracy · ⬜ P3
 - `docs/handoff/reports/2026-10-04-charge.md` says "Not committed" and "Commits: none", but it
@@ -369,11 +372,13 @@ in one PR.
   acceptable under D-24 (the server never sends it then). Add a Phase 3 golden vector proving
   the server omits `visual.expression` when mood is hidden.
 
-#### F-20 · Flaky first instrumented test on a cold emulator · ⬜ P3
+#### F-20 · Flaky first instrumented test on a cold emulator · ✅ P3
 - `StatusDeckTest.quickStateIsOneTap` failed with "No compose hierarchies found" on the first
   run after the emulator booted, then passed twice. **Fix:** wait for boot and unlock the screen
   in `scripts/check.sh --device` (`adb wait-for-device`, `input keyevent 82`), or add a test
   rule that retries activity launch once.
+- **Fixed:** `scripts/check.sh --device` and `scripts/check.ps1 -Device` wait for
+  `sys.boot_completed=1`, then send keyevent 82, before the instrumented tests.
 
 #### F-22 · Widget render errors bypass the fallback · ✅ P2 (from PR #5)
 - `Widgets.kt render()` now reads `container.assetRegistry` and calls
@@ -385,6 +390,26 @@ in one PR.
   registry that throws.
 - **Fixed (PR #5 follow-up):** `WidgetRenderInputs.renderCatching` loads the registry and builds
   inputs inside the catch. A throw logs `widget.render_failed` and the widget gets a null bitmap.
+
+#### F-23 · Schema 2 recipes are not upgraded on load · ✅ P1
+- `migrateRecipe` had no production caller. A decoded schema 2 `AvatarConfiguration` stayed at
+  schema 2.
+- **Fixed:** `AvatarConfiguration.decode` decodes and migrates. The widget path migrates the
+  saved avatar and a friend's `restingAvatar` through `LegacyAvatarMigration.migrate`, then
+  `migrateRecipe`. `AvatarResolver.resolve` migrates before it builds the render key.
+
+#### F-24 · Item order inside a category changes the render key · ✅ P2
+- `withSortedOverrides` sorted ids inside each `itemIds` list. If that list were drawing order,
+  two looks would share a cache entry.
+- **Fixed:** the lists are unordered sets. Drawing order is the asset z-index. The render key
+  still sorts the ids, and a test checks that reversing a list does not change the key.
+  `docs/AVATAR_RECIPE_SCHEMA.md` says so.
+
+#### F-25 · A newer avatar schema can be written back · ✅ P1
+- `IdlJson` drops unknown keys. Saving a decoded schema newer than `SCHEMA_VERSION` would
+  overwrite fields this app does not know.
+- **Fixed:** `prepareForWrite` returns "update the app to edit this avatar" and no
+  configuration. Avatar Studio shows that text and does not save when it is given such a recipe.
 
 ---
 
@@ -416,7 +441,7 @@ PostgREST tests) can be done at any time.
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ✅ |
 | 0.7 | Room migration test (1→2) | F-13 | ✅ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
-| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | 🟡 F-18 done; F-15 and F-20 remain |
+| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | ✅ |
 
 ### Milestone 0 · MVP foundation — ✅ done (2026-10-03)
 
@@ -761,9 +786,9 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Track 0.1–0.2: widget presence, badges from resolved layers, D-31 slot priority. 149 JVM, 11/11 device | `ca70087`, PR #5 |
 | 2026-10-04 | Claude | Review of PR #5: F-01/F-03 fixed; F-02 still fails for non-close friends; new F-21, F-22; D-31 clarified; follow-up spec `docs/handoff/PR5_FOLLOWUP_TASK.md` | PR #5 |
 | 2026-10-04 | Cursor | PR #5 follow-up: STATUS accessories, default 2×2 widget uses STANDARD, render failures stay in the fallback. 154 JVM, 12/12 device | PR #5 |
-| 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
-| 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
-| 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
+| 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md`, PR #7 |
+| 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, PR #8 |
+| 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe`, PR #9 |
 | 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | `b28e44e`, PR #12, F-05 ✅, F-06 🟡, C.2 ✅ |
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
@@ -772,3 +797,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Widget outline contrast follows the wallpaper. Auto / Light / Dark setting. 167 JVM | `820cb81`, PR #16, F-07 ✅, Track 0.5 ✅ |
 | 2026-10-04 | Cursor | Render cache: sign-out clear, per-friend files, 8 MB byte LRU, atomic writes. 165 JVM, 17/17 device | `08be0d3`, PR #14, F-10 ✅, Track 0.4 |
 | 2026-10-04 | Cursor | Render cache memory access is locked. A purged owner does not keep a late file. Sign-out deletes files on IO. 167 JVM, 17/17 device | `6826e6e`, PR #14 |
+| 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | F-15 ✅, F-20 ✅, F-23 ✅, F-24 ✅, F-25 ✅ |

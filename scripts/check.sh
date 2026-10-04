@@ -48,7 +48,25 @@ if $sql; then
   ./gradlew testDebugUnitTest --tests '*SupabaseRestIT*' -Pidl.postgrestUrl=http://localhost:54330 --console=plain -q
 fi
 
+adb_cmd() {
+  if [[ -n "${ANDROID_SERIAL:-}" ]]; then
+    adb -s "$ANDROID_SERIAL" "$@"
+  else
+    adb "$@"
+  fi
+}
+
 if $device; then
+  echo "== Wait for the device to finish booting"
+  adb_cmd wait-for-device
+  boot=""
+  for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do
+    boot=$(adb_cmd shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+    [[ "$boot" == "1" ]] && break
+    sleep 2
+  done
+  [[ "$boot" == "1" ]] || { echo "device did not finish booting" >&2; exit 1; }
+  adb_cmd shell input keyevent 82
   echo "== Instrumented tests on ${ANDROID_SERIAL:-the attached device}"
   ./gradlew connectedDebugAndroidTest --console=plain -q
 fi
