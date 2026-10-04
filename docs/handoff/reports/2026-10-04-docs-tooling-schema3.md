@@ -11,8 +11,8 @@ Branch `chore/docs-tooling-schema3` from `origin/main` (`5b81bd6`). PR #18.
 | F-15 doc drift | Met. §1.1 names `5b81bd6` and the "local main is behind" line is gone. Work log rows for the base exploration, D-39, and schema 3 name PRs #7, #8, and #9. `docs/ROADMAP.md` no longer says D-31 is unrecorded. README points at `master-plan.md` §1.2 instead of embedding a count. Creator plan §7 says the widget path uses the resolver. |
 | Schema 2 upgraded on load | Met. `AvatarConfiguration.decode` migrates. The widget path runs `migrateRecipe` for the saved avatar and a friend's `restingAvatar`. |
 | `itemIds` order | Met. Lists are unordered sets. The render key sorts ids. Reversing a list does not change the key. |
-| Newer schema is not written back | Met. `prepareForWrite` returns "update the app to edit this avatar" and no configuration. Avatar Studio shows that text and does not save when given such a recipe. |
-| F-15, F-20, Track 0.8, F-23–F-25 | Met in `master-plan.md`. |
+| Newer schema is not written back | Partly met. `prepareForWrite` returns "update the app to edit this avatar" and no configuration, and it is unit-tested. Nothing calls it yet, because no `AvatarConfiguration` is persisted. The Avatar Studio `recipe` parameter was never passed by `MainActivity`; Claude removed it during review. Wiring is tracked as F-29 (🟡). |
+| F-15, F-20, Track 0.8, F-27–F-29 | Met in `master-plan.md`. These were F-23–F-25 on the branch and were renumbered during review because PR #17 had already used those numbers. |
 
 ## Decision
 
@@ -45,6 +45,13 @@ Room and the server still store v1 `AvatarConfig`, not `AvatarConfiguration`. Th
 - `app/src/main/java/app/idl/domain/avatar/AvatarResolver.kt`
 - `app/src/main/java/app/idl/domain/avatar/LegacyAvatarMigration.kt`
 - `app/src/main/java/app/idl/widget/WidgetRenderInputs.kt`
-- `app/src/main/java/app/idl/ui/avatar/AvatarStudioScreen.kt`
 - `app/src/test/java/app/idl/domain/avatar/AvatarConfigurationSchemaTest.kt`
 - `docs/AVATAR_RECIPE_SCHEMA.md`, `docs/ROADMAP.md`, `docs/IDL_AVATAR_CREATOR_PLAN.md`, `README.md`, `master-plan.md`
+
+## Review follow-up (Claude, 2026-10-04)
+
+- Merged `test/snapshot-followups` (PR #17) into this branch so the two `master-plan.md` edits land together. #18's findings are now F-27, F-28 and F-29.
+- F-29 is 🟡. The guard exists and is tested; it gets wired when the vector editor persists `AvatarConfiguration`.
+- Removed the unused `recipe` parameter from `AvatarStudioScreen`. That file now matches `main`.
+- Recorded D-40: the "Earning" banner's timing signal is accepted.
+- Checks after the follow-up are listed in the PR comment and the master-plan work log.

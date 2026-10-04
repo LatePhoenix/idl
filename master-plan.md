@@ -89,7 +89,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-39). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-40). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
@@ -223,6 +223,9 @@ in one PR.
   Status Deck banner shows the balance and "Earning" / "Not earning" only. Debug toggles that
   set `hasRemoteWidgetInstalled` stay behind the fake backend. The SQL assertion is C.3, not
   this change: no RPC returns pin state today because the server has no pin field yet.
+- **Residual timing signal accepted (D-40):** "Earning" flips on when a friend you pinned pins you
+  back, so with one pinned friend the moment is inferable. Accepted because it only covers friends
+  you pinned yourself; no change needed in C.3.
 
 #### F-06 · Charge guardrails · 🟡 P1 (approved 2026-10-04)
 - **Context:** the user's intent (2026-10-04): Charge is a passive resource that encourages use
@@ -559,7 +562,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-39). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-40). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -589,6 +592,8 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-39). The most relevant t
   Canvas and the single module stay. Noto SVG is a pinned, replaceable source, not imported
   yet. Specs under `docs/ARCHITECTURE.md` and `docs/ROADMAP.md`. The widget already draws
   availability and activity badges; a vector painter has to keep drawing them.
+- **D-40** The "Earning" banner may reveal when a pin you made became mutual; accepted, since it
+  only concerns friends you pinned yourself (2026-10-04, user)
 
 ---
 
@@ -603,6 +608,7 @@ Answered 2026-10-04:
 | What does Charge buy; is Charge purchasable? | Avatar decorations, accessories, customizations; **yes**, purchasable | D-30, D-32, C.4, C.6, C.7 |
 | Crash-reporting vendor? | Delegated → **Firebase Crashlytics** | D-33, 1.8 |
 | When are the real projects created? | Once avatars, creation and customization feel right | D-34, roadmap order |
+| "Earning" reveals when a friend you pinned pins you back: batch, drop, or accept? | **Accept** (only friends you pinned yourself) | D-40, F-05 |
 
 Answered 2026-10-04 (feature ideas, §7.1):
 
@@ -834,3 +840,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Render cache memory access is locked. A purged owner does not keep a late file. Sign-out deletes files on IO. 167 JVM, 17/17 device | `6826e6e`, PR #14 |
 | 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
 | 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
+| 2026-10-04 | Claude | Audit of PRs #17–#18. Merged #17 into #18 and renumbered #18's findings to F-27–F-29 (they collided with #17's F-23–F-25). F-29 set to 🟡: the write guard isn't wired because no recipe is persisted yet, so the unused Avatar Studio `recipe` parameter was removed. D-40 recorded (accept the Earning timing signal). 184 JVM, 18/18 device, check.ps1 matches | PR #18, F-29, D-40 |

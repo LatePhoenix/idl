@@ -39,8 +39,6 @@ import app.idl.AppContainer
 import app.idl.avatar.AvatarImage
 import app.idl.domain.AvatarConfig
 import app.idl.domain.AvatarPalette
-import app.idl.domain.avatar.AvatarConfiguration
-import app.idl.domain.avatar.AvatarWrite
 import app.idl.domain.BaseForm
 import app.idl.domain.BodyAccessory
 import app.idl.domain.Expression
@@ -97,15 +95,9 @@ fun AvatarStudioScreen(
     firstRun: Boolean,
     onDone: () -> Unit,
     vm: AvatarStudioViewModel = viewModel { AvatarStudioViewModel(c) },
-    recipe: AvatarConfiguration? = null,
 ) {
     val cfg by vm.config.collectAsState()
-    val blocked = recipe?.prepareForWrite() as? AvatarWrite.NeedsAppUpdate
     Scaffold(topBar = { IdlTopBar(if (firstRun) "Build your iDL" else "Avatar Studio", onBack = if (firstRun) null else onDone) }) { pad ->
-        if (blocked != null) {
-            Text(blocked.message, modifier = Modifier.padding(pad).padding(24.dp))
-            return@Scaffold
-        }
         Column(Modifier.padding(pad).fillMaxSize()) {
             Box(Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.Center) {
                 AvatarImage(cfg, "Your avatar preview", size = 168.dp)
