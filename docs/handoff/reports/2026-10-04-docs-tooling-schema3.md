@@ -1,6 +1,6 @@
 # 2026-10-04 — Housekeeping and schema 3 follow-ups
 
-Branch `chore/docs-tooling-schema3` from `origin/main` (`5b81bd6`).
+Branch `chore/docs-tooling-schema3` from `origin/main` (`5b81bd6`). PR #18.
 
 ## Acceptance
 
@@ -32,7 +32,7 @@ ANDROID_SERIAL=emulator-5554 scripts/check.sh --device
 
 ## Commit
 
-`a88b1de` on `chore/docs-tooling-schema3`.
+`a88b1de` on `chore/docs-tooling-schema3`. PR #18.
 
 ## Deviation
 
