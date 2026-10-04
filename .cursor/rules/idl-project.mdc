@@ -1,0 +1,16 @@
+---
+description: iDL project rules — always applied
+alwaysApply: true
+---
+
+Follow `AGENTS.md` at the repo root. It holds the invariants, commands, conventions and the
+required checkpoint report.
+
+The current task spec is `docs/handoff/PHASE_1_TASK.md`; follow it exactly and record any
+deviation in the report.
+
+Before every commit, run `scripts/check.sh` and make sure it passes. Never weaken or delete a
+test to make it pass.
+
+Don't add dependencies, change `supabase/migrations/`, or change `contract/privacy_vectors.json`
+by hand unless the task says to.

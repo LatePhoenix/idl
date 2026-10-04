@@ -1,61 +1,67 @@
-# iDL API Contract (v0.1 sketch)
+# iDL API Contract (v0.1, implemented)
 
-JSON over HTTPS, `Authorization: Bearer <jwt>` (Supabase auth). Timestamps ISO-8601 UTC.
-Implemented on Supabase as PostgREST views + RPC functions; paths below are the logical
-contract mirrored by the Kotlin `IdlBackend` interface.
+JSON over HTTPS. Auth is Supabase GoTrue (passwordless email code); data is PostgREST **RPC
+only**: `POST {SUPABASE_URL}/rest/v1/rpc/<name>` with headers `apikey: <anon key>` and
+`Authorization: Bearer <access token>`, and the arguments as a JSON object of named parameters.
+The server derives the caller from the JWT; no RPC takes a "current user" argument.
+Timestamps are ISO-8601 UTC with second precision (`2026-10-03T14:00:00Z`).
+
+Source of truth: `supabase/migrations/*.sql` (server) and
+`app/.../data/remote/supabase/SupabaseIdlBackend.kt` (client). `SupabaseRestIT` exercises both
+together against real PostgREST.
 
 ## 1. Errors
 
-```json
-{ "error": { "code": "forbidden", "message": "Not friends", "retryable": false } }
-```
+RPCs raise `PTxxx` SQLSTATEs, which PostgREST turns into HTTP status `xxx` with the body
+`{"code":"PT400","message":"That username is taken","details":"username","hint":null}`.
 
-| HTTP | code | Client mapping |
+| HTTP | Meaning | Client mapping |
 | --- | --- | --- |
-| 400 | `invalid` | `IdlError.Invalid` (show field error) |
-| 401 | `unauthorized` | refresh token once, else sign out |
-| 403 | `forbidden` | purge cached data for that user |
-| 404 | `not_found` | purge cached data for that user |
-| 409 | `conflict` | refetch then retry once |
-| 429 | `rate_limited` | backoff per `Retry-After` |
-| 5xx | `server` | WorkManager retry |
+| 400 | validation (`details` = field, `message` = user-facing text) | `IdlError.Invalid(field, message)` |
+| 401 | missing/expired JWT | refresh once and retry; else sign out locally |
+| 403 | not friends / blocked / not allowed | `Forbidden` → purge cached data for that user |
+| 404 | `no_profile` (signed in, no username yet) or unknown request | `NotFound` |
+| 409 | conflict | `Conflict` |
+| 429 | rate limited (reactions: 10/hour per recipient) | `RateLimited` |
+| 5xx / network | server or transport failure | `Server` / `Offline` → WorkManager retry |
 
-## 2. Endpoints
+## 2. Auth (GoTrue)
 
-| Method | Path | Body → Response |
+| Call | Body | Notes |
 | --- | --- | --- |
-| POST | `/auth/register` | `{email, password}` → session (Supabase) |
-| POST | `/auth/login` | → session |
-| GET | `/me` | → `Me {id, username, displayName, bio, pronouns, timeZone}` |
-| PATCH | `/me/profile` | partial `Me` |
-| GET | `/friends` | → `[Friend {userId, username, displayName, status, isCloseFriend}]` |
-| POST | `/friend-invites` | `{}` → `{id, code, url, expiresAt}` |
-| POST | `/friend-invites/redeem` | `{code}` → `Friend(status=outgoing)` |
-| POST | `/friend-invites/{id}/accept` | → `Friend(status=accepted)` |
-| POST | `/friend-invites/{id}/decline` | → 204 |
-| POST | `/friendships/{userId}/remove` | → 204 |
-| PUT | `/friendships/{userId}/close` | `{close: bool}` → 204 |
-| POST | `/users/{userId}/block` | → 204 |
-| DELETE | `/users/{userId}/block` | → 204 |
-| GET | `/avatar` | → `AvatarConfiguration` |
-| PUT | `/avatar` | `AvatarConfiguration` → same |
-| GET | `/presence/me` | → `[PresenceEnvelope]` (all own sources) |
-| PUT | `/presence/me` | `PresenceEnvelope` (source=manual) → stored envelope |
-| DELETE | `/presence/me` | clear manual state → 204 |
-| PUT | `/presence/me/invisible` | `{invisible: bool}` → 204 |
-| GET | `/presence/friends` | → `[PresenceView]` (server-filtered, resolved) |
-| GET | `/presence/friends/{userId}` | → `PresenceView` |
-| POST | `/reactions` | `{recipientId, template}` → `Reaction` |
-| GET | `/reactions/inbox` | → `[Reaction]` (not dismissed, not expired) |
-| POST | `/reactions/{id}/dismiss` | → 204 |
-| GET/PUT | `/privacy-rules` | `[{category, audience, audienceIds}]` |
-| GET/POST/PATCH/DELETE | `/circles…` | v0.5 |
-| POST | `/devices/register` | `{fcmToken}` → `{id}` |
-| DELETE | `/devices/{id}` | → 204 |
+| `POST /auth/v1/otp` | `{email, create_user: true}` | emails a 6-digit code (template must include `{{ .Token }}`) |
+| `POST /auth/v1/verify` | `{type: "email", email, token}` | → session (access + refresh token) |
+| `POST /auth/v1/token?grant_type=refresh_token` | `{refresh_token}` | refreshed when <60 s from expiry, and after a 401 |
+| `POST /auth/v1/logout` | — | best effort; local session and cache are wiped regardless |
 
-Rate limits (alpha): presence PUT 30/min, reactions 60/hour per sender, invites 20/day.
+## 3. RPCs
 
-## 3. PresenceView (what a friend receives)
+| RPC | Args | Returns |
+| --- | --- | --- |
+| `register_profile` | `p_username, p_display_name` | `Me` (idempotent for an existing profile) |
+| `me` | — | `Me {userId, username, displayName, invisible}`; 404 `no_profile` before registration |
+| `get_avatar` / `put_avatar` | — / `p_config` | `AvatarConfig` |
+| `put_presence` | `p_envelope` (PresenceState, `source` must be `manual`) | stored envelope |
+| `clear_presence` | — | 204 |
+| `set_invisible` | `p_invisible` | 204 |
+| `friend_presence` | — | `[PresenceView]` for all accepted friends (server-filtered) |
+| `friend_presence_one` | `p_user_id` | `PresenceView`; 403 if not visible |
+| `friends` | — | `[Friend {userId, username, displayName, status, isCloseFriend}]` (accepted, incoming, outgoing) |
+| `create_invite` | — | `{code: "ABCDE-FGHJK", url: "idl://invite/…", expiresAt}` (7 days; reused while >1 day left) |
+| `redeem_invite` | `p_code` (code or link) | `Friend` (`outgoing`, or `accepted` if they already asked us) |
+| `accept_request` / `decline_request` | `p_user_id` | `Friend` / 204 |
+| `remove_friend` | `p_user_id` | 204 |
+| `set_close_friend` | `p_user_id, p_close` | 204 |
+| `block_user` / `unblock_user` / `blocked_users` | `p_user_id` / — | 204 / `[Friend]` |
+| `send_reaction` | `p_recipient_id, p_template` | `Reaction` |
+| `reaction_inbox` | — | `[Reaction]` (not dismissed, not expired, newest first) |
+| `dismiss_reaction` | `p_id` | 204 |
+| `get_privacy_rules` / `put_privacy_rules` | — / `p_rules` (`PrivacyRules`, full replace) | `PrivacyRules` |
+| `register_device` / `delete_device` | `p_token, p_platform` / `p_id` | `{id}` / 204 |
+
+Circles RPCs arrive in v0.5; the tables and the circle audience evaluation already exist.
+
+## 4. PresenceView (what a friend receives)
 
 All fields optional; absent = not visible to this viewer.
 
@@ -73,7 +79,7 @@ All fields optional; absent = not visible to this viewer.
 }
 ```
 
-## 4. Presence Envelope (what a source sends)
+## 5. Presence Envelope (what a source sends)
 
 ```json
 {
@@ -95,11 +101,11 @@ All fields optional; absent = not visible to this viewer.
 Validation: `expiresAt > startedAt`, `expiresAt - startedAt <= 7d`, `note ≤ 80 chars`,
 `joinUrl` must be https or a registered scheme (`discord:`, `steam:`, `vrchat:`) — v0.5.
 
-## 5. Push payloads (FCM data messages, no PII in notification body server-side)
+## 6. Push payloads (FCM data messages, no PII in notification body server-side)
 
 ```json
 { "type": "presence_changed", "userId": "u_ari" }
-{ "type": "reaction_received", "reactionId": "r_123" }
+{ "type": "reaction_received", "reactionId": "r_123", "userId": "u_ari" }
 { "type": "friend_request", "inviteId": "i_9" }
 { "type": "friend_removed", "userId": "u_ari" }
 ```
@@ -107,7 +113,7 @@ Validation: `expiresAt > startedAt`, `expiresAt - startedAt <= 7d`, `note ≤ 80
 The client fetches details after the push, so payloads never carry visible content and
 privacy rules are applied at fetch time.
 
-## 6. Future bridge contract (VRCQ, v1.0 — not implemented)
+## 7. Future bridge contract (VRCQ, v1.0 — not implemented)
 
 ```json
 {

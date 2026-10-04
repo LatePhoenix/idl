@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,16 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
+
+// Supabase project settings come from local.properties (never committed):
+//   supabase.url=https://<ref>.supabase.co
+//   supabase.anonKey=<anon public key>
+// When absent the app runs on the in-process FakeIdlBackend.
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+fun localProp(key: String) = (localProps.getProperty(key) ?: System.getenv(key.uppercase().replace('.', '_')) ?: "")
+    .replace("\\", "\\\\").replace("\"", "\\\"")
 
 android {
     namespace = "app.idl"
@@ -17,6 +29,8 @@ android {
         versionCode = 1
         versionName = "0.1.0-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "SUPABASE_URL", "\"${localProp("supabase.url")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProp("supabase.anonKey")}\"")
     }
 
     buildTypes {
@@ -41,6 +55,13 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+        unitTests.all {
+            // PrivacyVectorsTest: -Pidl.updateGolden=true regenerates contract/privacy_vectors.json.
+            it.systemProperty("idl.updateGolden", project.findProperty("idl.updateGolden") ?: "false")
+            it.inputs.files(rootProject.file("contract"))
+            // SupabaseRestIT runs only when PostgREST from supabase/tests/run.sh --rest is up.
+            it.systemProperty("idl.postgrestUrl", project.findProperty("idl.postgrestUrl") ?: "")
+        }
     }
 }
 
@@ -75,9 +96,11 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.zxing.core)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
 
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)

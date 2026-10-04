@@ -1,0 +1,198 @@
+package app.idl.domain.avatar
+
+import app.idl.domain.ActivityType
+import app.idl.domain.Availability
+import app.idl.domain.Mood
+import app.idl.domain.StatusIntent
+import app.idl.domain.WireEnumSerializer
+import app.idl.domain.wire
+import kotlinx.serialization.Serializable
+
+/*
+ * Avatar model v2 (IDL_Avatar_Creator_Master_Plan §12). Everything visual is referenced by
+ * asset ID from a versioned asset pack (AssetManifest), so art can change without changing
+ * this schema. Storage metadata (owner, timestamps) lives on the server row, not in here.
+ */
+
+/** Persistent identity: rarely changes, and must stay recognizable through every status. */
+@Serializable
+data class AvatarConfiguration(
+    val baseAssetId: String,
+    val paletteAssetId: String,
+    val eyeFamilyAssetId: String? = null,
+    val mouthFamilyAssetId: String? = null,
+    /** Silhouette features such as ears, antennae or a muzzle. */
+    val signatureFeatureAssetIds: List<String> = emptyList(),
+    val signatureHeadAccessoryAssetId: String? = null,
+    val signatureFaceAccessoryAssetId: String? = null,
+    val signatureBodyAccessoryAssetId: String? = null,
+    val defaultPropAssetId: String? = null,
+    val defaultSceneAssetId: String? = null,
+    val defaultFrameAssetId: String? = null,
+    /** Expression shown when no status sets one (an expression ID from the manifest). */
+    val restingExpressionId: String = "neutral",
+    val styleDna: StyleDna = StyleDna(),
+    val renderVersion: Int = RENDER_VERSION,
+    val schemaVersion: Int = SCHEMA_VERSION,
+) {
+    companion object {
+        const val SCHEMA_VERSION = 2
+        const val RENDER_VERSION = 2
+    }
+}
+
+/**
+ * How a user's avatar behaves. Palette family and signature accessories live on
+ * [AvatarConfiguration] (the plan duplicates them here; one source of truth is safer).
+ */
+@Serializable
+data class StyleDna(
+    val styleFamily: StyleFamily = StyleFamily.COZY,
+    val expressionIntensity: ExpressionIntensity = ExpressionIntensity.MEDIUM,
+    val sceneDetailPreference: SceneDetailPreference = SceneDetailPreference.LOW_DETAIL,
+    val motionPreference: MotionPreference = MotionPreference.SUBTLE,
+    /**
+     * Per-user visual choices for a semantic state, keyed by [SemanticKey.wire]
+     * (e.g. `mood:sleepy` → tea + blanket). Applied only when that state is visible to the viewer.
+     */
+    val semanticVisualOverrides: Map<String, SemanticVisualOverride> = emptyMap(),
+)
+
+@Serializable
+data class SemanticVisualOverride(
+    val expressionId: String? = null,
+    val eyesAssetId: String? = null,
+    val propAssetId: String? = null,
+    val headAccessoryAssetId: String? = null,
+    val bodyAccessoryAssetId: String? = null,
+    val sceneAssetId: String? = null,
+    val availabilityIndicatorAssetId: String? = null,
+    val overlayAssetIds: List<String> = emptyList(),
+)
+
+/** A semantic presence state that visuals can be attached to. */
+data class SemanticKey(val kind: Kind, val value: String) {
+    enum class Kind { MOOD, AVAILABILITY, INTENT, ACTIVITY }
+
+    val wire: String get() = "${kind.name.lowercase()}:$value"
+
+    companion object {
+        fun mood(m: Mood) = SemanticKey(Kind.MOOD, m.wire)
+        fun availability(a: Availability) = SemanticKey(Kind.AVAILABILITY, a.wire)
+        fun intent(i: StatusIntent) = SemanticKey(Kind.INTENT, i.wire)
+        fun activity(a: ActivityType) = SemanticKey(Kind.ACTIVITY, a.wire)
+    }
+}
+
+/** Future multi-identity support (§8.5); the MVP has exactly one active slot. */
+@Serializable
+data class IdentitySlot(
+    val slotId: String,
+    val name: String,
+    val configuration: AvatarConfiguration,
+    val active: Boolean,
+)
+
+@Serializable(with = StyleFamily.Serializer::class)
+enum class StyleFamily(val label: String) {
+    COZY("Cozy"), CHAOTIC("Chaotic"), TECHY("Techy"), CUTE("Cute"), COOL("Cool"),
+    FANTASY("Fantasy"), SPOOKY("Spooky"), RETRO("Retro"), MINIMAL("Minimal"), DREAMY("Dreamy");
+
+    object Serializer : WireEnumSerializer<StyleFamily>("StyleFamily", entries, COZY)
+}
+
+@Serializable(with = ExpressionIntensity.Serializer::class)
+enum class ExpressionIntensity {
+    LOW, MEDIUM, HIGH;
+
+    object Serializer : WireEnumSerializer<ExpressionIntensity>("ExpressionIntensity", entries, MEDIUM)
+}
+
+@Serializable(with = SceneDetailPreference.Serializer::class)
+enum class SceneDetailPreference {
+    NONE, LOW_DETAIL, FULL;
+
+    object Serializer : WireEnumSerializer<SceneDetailPreference>("SceneDetailPreference", entries, LOW_DETAIL)
+}
+
+@Serializable(with = MotionPreference.Serializer::class)
+enum class MotionPreference {
+    NONE, SUBTLE, LIVELY;
+
+    object Serializer : WireEnumSerializer<MotionPreference>("MotionPreference", entries, SUBTLE)
+}
+
+/** Where a render is shown (§12.4); each target has its own simplification policy. */
+@Serializable(with = RenderTarget.Serializer::class)
+enum class RenderTarget(val defaultSizePx: Int) {
+    COMPACT_WIDGET(48),
+    FRIEND_TILE(64),
+    STANDARD_WIDGET(96),
+    LARGE_WIDGET(128),
+    CIRCLE_WIDGET(48),
+    NOTIFICATION(64),
+    PROFILE(256),
+    SHARE_CARD(512);
+
+    object Serializer : WireEnumSerializer<RenderTarget>("RenderTarget", entries, PROFILE)
+}
+
+@Serializable(with = WallpaperContrastMode.Serializer::class)
+enum class WallpaperContrastMode {
+    /** In-app surfaces; no wallpaper behind the art. */
+    NONE,
+    LIGHT_WALLPAPER,
+    DARK_WALLPAPER;
+
+    object Serializer : WireEnumSerializer<WallpaperContrastMode>("WallpaperContrastMode", entries, NONE)
+}
+
+@Serializable(with = AccessibilityRenderMode.Serializer::class)
+enum class AccessibilityRenderMode {
+    STANDARD, HIGH_CONTRAST;
+
+    object Serializer : WireEnumSerializer<AccessibilityRenderMode>("AccessibilityRenderMode", entries, STANDARD)
+}
+
+/**
+ * Presence as the *viewer* is allowed to see it — the server has already filtered it
+ * (decision D-24), so absent fields are hidden or unset. Visual fields are asset IDs.
+ */
+@Serializable
+data class VisiblePresence(
+    val mood: Mood? = null,
+    val availability: Availability? = null,
+    val intent: StatusIntent? = null,
+    val activityType: ActivityType? = null,
+    /** Explicit visuals the user chose for this status (e.g. from a Status Deck preset). */
+    val expressionId: String? = null,
+    val propAssetId: String? = null,
+    val headAccessoryAssetId: String? = null,
+    val bodyAccessoryAssetId: String? = null,
+    val sceneAssetId: String? = null,
+) {
+    /** Semantic keys in the order their visuals take precedence: activity, intent, availability, mood. */
+    fun semanticKeys(): List<SemanticKey> = listOfNotNull(
+        activityType?.takeIf { it != ActivityType.NONE }?.let(SemanticKey::activity),
+        intent?.takeIf { it != StatusIntent.NO_PREFERENCE }?.let(SemanticKey::intent),
+        availability?.let(SemanticKey::availability),
+        mood?.let(SemanticKey::mood),
+    )
+
+    companion object {
+        val NONE = VisiblePresence()
+    }
+}
+
+@Serializable
+data class AvatarRenderRequest(
+    val configuration: AvatarConfiguration,
+    val presence: VisiblePresence = VisiblePresence.NONE,
+    /** Reaction overlay asset IDs, newest first. */
+    val reactionOverlayAssetIds: List<String> = emptyList(),
+    val target: RenderTarget = RenderTarget.PROFILE,
+    val sizePx: Int = target.defaultSizePx,
+    val wallpaperContrastMode: WallpaperContrastMode = WallpaperContrastMode.NONE,
+    val accessibilityMode: AccessibilityRenderMode = AccessibilityRenderMode.STANDARD,
+    val rendererVersion: Int = AvatarConfiguration.RENDER_VERSION,
+)

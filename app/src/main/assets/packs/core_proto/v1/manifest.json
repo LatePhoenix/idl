@@ -1,0 +1,1778 @@
+{
+  "packId": "core_proto",
+  "version": 1,
+  "minimumRendererVersion": 2,
+  "defaults": {
+    "base": "base_blob",
+    "palette": "palette_sunny",
+    "scene": "scene_plain",
+    "frame": "frame_squircle",
+    "eyeFamily": "eyefam_round",
+    "mouthFamily": "mouthfam_classic"
+  },
+  "assets": [
+    {
+      "id": "base_blob",
+      "category": "base",
+      "accessibilityLabel": "Blob",
+      "render": {
+        "type": "procedural"
+      },
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.25
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.55
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.53
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.66
+        },
+        "prop_hand": {
+          "x": 0.2,
+          "y": 0.8
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.28,
+        "top": 0.38,
+        "right": 0.72,
+        "bottom": 0.75
+      }
+    },
+    {
+      "id": "base_bot",
+      "category": "base",
+      "accessibilityLabel": "Bot",
+      "render": {
+        "type": "procedural"
+      },
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.25
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.55
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.53
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.66
+        },
+        "prop_hand": {
+          "x": 0.2,
+          "y": 0.8
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.28,
+        "top": 0.38,
+        "right": 0.72,
+        "bottom": 0.75
+      }
+    },
+    {
+      "id": "base_ghost",
+      "category": "base",
+      "accessibilityLabel": "Ghost",
+      "render": {
+        "type": "procedural"
+      },
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.25
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.55
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.53
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.66
+        },
+        "prop_hand": {
+          "x": 0.2,
+          "y": 0.8
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.28,
+        "top": 0.38,
+        "right": 0.72,
+        "bottom": 0.75
+      }
+    },
+    {
+      "id": "base_critter",
+      "category": "base",
+      "accessibilityLabel": "Critter",
+      "render": {
+        "type": "procedural"
+      },
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.25
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.55
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.53
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.66
+        },
+        "prop_hand": {
+          "x": 0.2,
+          "y": 0.8
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.28,
+        "top": 0.38,
+        "right": 0.72,
+        "bottom": 0.75
+      }
+    },
+    {
+      "id": "base_orb",
+      "category": "base",
+      "accessibilityLabel": "Orb",
+      "render": {
+        "type": "procedural"
+      },
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.25
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.55
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.53
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.66
+        },
+        "prop_hand": {
+          "x": 0.2,
+          "y": 0.8
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.9
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.28,
+        "top": 0.38,
+        "right": 0.72,
+        "bottom": 0.75
+      }
+    },
+    {
+      "id": "palette_sunny",
+      "category": "palette",
+      "accessibilityLabel": "Sunny yellow",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -11172,
+        "accent": -8622862,
+        "outline": -5928645,
+        "name": "Sunny yellow"
+      }
+    },
+    {
+      "id": "palette_peach",
+      "category": "palette",
+      "accessibilityLabel": "Peach",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -544153,
+        "accent": -881556,
+        "outline": -6261950,
+        "name": "Peach"
+      }
+    },
+    {
+      "id": "palette_tan",
+      "category": "palette",
+      "accessibilityLabel": "Tan",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -2514822,
+        "accent": -1722293,
+        "outline": -7509937,
+        "name": "Tan"
+      }
+    },
+    {
+      "id": "palette_cocoa",
+      "category": "palette",
+      "accessibilityLabel": "Cocoa",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -7513282,
+        "accent": -10851444,
+        "outline": -10798296,
+        "name": "Cocoa"
+      }
+    },
+    {
+      "id": "palette_bubblegum",
+      "category": "palette",
+      "accessibilityLabel": "Bubblegum",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -24649,
+        "accent": -9715879,
+        "outline": -5937290,
+        "name": "Bubblegum"
+      }
+    },
+    {
+      "id": "palette_sky",
+      "category": "palette",
+      "accessibilityLabel": "Sky blue",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -6631188,
+        "accent": -11553857,
+        "outline": -10188903,
+        "name": "Sky blue"
+      }
+    },
+    {
+      "id": "palette_mint",
+      "category": "palette",
+      "accessibilityLabel": "Mint",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -4661080,
+        "accent": -9715879,
+        "outline": -8941203,
+        "name": "Mint"
+      }
+    },
+    {
+      "id": "palette_lavender",
+      "category": "palette",
+      "accessibilityLabel": "Lavender",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -3952159,
+        "accent": -8622862,
+        "outline": -8490094,
+        "name": "Lavender"
+      }
+    },
+    {
+      "id": "palette_moonlight",
+      "category": "palette",
+      "accessibilityLabel": "Moonlight",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -724502,
+        "accent": -8622862,
+        "outline": -6382440,
+        "name": "Moonlight"
+      }
+    },
+    {
+      "id": "palette_steel",
+      "category": "palette",
+      "accessibilityLabel": "Steel",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -5195580,
+        "accent": -11553857,
+        "outline": -9275521,
+        "name": "Steel"
+      }
+    },
+    {
+      "id": "palette_ember",
+      "category": "palette",
+      "accessibilityLabel": "Ember",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -24763,
+        "accent": -881556,
+        "outline": -5937364,
+        "name": "Ember"
+      }
+    },
+    {
+      "id": "palette_lime",
+      "category": "palette",
+      "accessibilityLabel": "Lime",
+      "render": {
+        "type": "procedural"
+      },
+      "colors": {
+        "body": -8399734,
+        "accent": -9715879,
+        "outline": -11368103,
+        "name": "Lime"
+      }
+    },
+    {
+      "id": "eyefam_round",
+      "category": "eye_family",
+      "accessibilityLabel": "Round eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyefam_dot",
+      "category": "eye_family",
+      "accessibilityLabel": "Dot eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyefam_visor",
+      "category": "eye_family",
+      "accessibilityLabel": "Visor eyes",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_bot"
+      ],
+      "fallback": "eyefam_round"
+    },
+    {
+      "id": "eyefam_pixel",
+      "category": "eye_family",
+      "accessibilityLabel": "Pixel eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouthfam_classic",
+      "category": "mouth_family",
+      "accessibilityLabel": "Classic mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouthfam_fang",
+      "category": "mouth_family",
+      "accessibilityLabel": "Fang mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouthfam_screen",
+      "category": "mouth_family",
+      "accessibilityLabel": "Screen mouth",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_bot"
+      ],
+      "fallback": "mouthfam_classic"
+    },
+    {
+      "id": "feature_ears_cat",
+      "category": "signature_feature",
+      "accessibilityLabel": "Cat ears",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_critter"
+      ],
+      "conflictsWith": [
+        "head_helmet"
+      ]
+    },
+    {
+      "id": "feature_ears_fox",
+      "category": "signature_feature",
+      "accessibilityLabel": "Fox ears",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_critter"
+      ],
+      "conflictsWith": [
+        "head_helmet"
+      ]
+    },
+    {
+      "id": "feature_ears_bear",
+      "category": "signature_feature",
+      "accessibilityLabel": "Bear ears",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_critter"
+      ],
+      "conflictsWith": [
+        "head_helmet"
+      ]
+    },
+    {
+      "id": "feature_muzzle",
+      "category": "signature_feature",
+      "accessibilityLabel": "Muzzle",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_critter"
+      ]
+    },
+    {
+      "id": "feature_antennae",
+      "category": "signature_feature",
+      "accessibilityLabel": "Antennae",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_blob",
+        "base_bot",
+        "base_orb"
+      ],
+      "conflictsWith": [
+        "head_helmet",
+        "head_hood"
+      ]
+    },
+    {
+      "id": "feature_blush",
+      "category": "signature_feature",
+      "accessibilityLabel": "Blush cheeks",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 64,
+      "widgetSafe": false
+    },
+    {
+      "id": "feature_freckles",
+      "category": "signature_feature",
+      "accessibilityLabel": "Freckles",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 64,
+      "widgetSafe": false
+    },
+    {
+      "id": "eyes_open",
+      "category": "face_eye",
+      "accessibilityLabel": "Open eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_happy_arc",
+      "category": "face_eye",
+      "accessibilityLabel": "Happy eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_sparkle",
+      "category": "face_eye",
+      "accessibilityLabel": "Sparkle eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_closed_line",
+      "category": "face_eye",
+      "accessibilityLabel": "Closed eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_half_lid",
+      "category": "face_eye",
+      "accessibilityLabel": "Half-lid eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_tearful",
+      "category": "face_eye",
+      "accessibilityLabel": "Tearful eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_wide",
+      "category": "face_eye",
+      "accessibilityLabel": "Wide eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_angry_slant",
+      "category": "face_eye",
+      "accessibilityLabel": "Angry eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_spiral",
+      "category": "face_eye",
+      "accessibilityLabel": "Spiral eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_narrow",
+      "category": "face_eye",
+      "accessibilityLabel": "Narrow eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_wink",
+      "category": "face_eye",
+      "accessibilityLabel": "Winking eye",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_side_glance",
+      "category": "face_eye",
+      "accessibilityLabel": "Side glance",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_dot",
+      "category": "face_eye",
+      "accessibilityLabel": "Dot eyes",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "eyes_scan",
+      "category": "face_eye",
+      "accessibilityLabel": "Scan line",
+      "render": {
+        "type": "procedural"
+      },
+      "compatibleBases": [
+        "base_bot"
+      ]
+    },
+    {
+      "id": "brows_relaxed",
+      "category": "face_brow",
+      "accessibilityLabel": "Relaxed brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "brows_raised",
+      "category": "face_brow",
+      "accessibilityLabel": "Raised brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "brows_determined",
+      "category": "face_brow",
+      "accessibilityLabel": "Determined brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "brows_worried",
+      "category": "face_brow",
+      "accessibilityLabel": "Worried brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "brows_angry",
+      "category": "face_brow",
+      "accessibilityLabel": "Angry brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "brows_flat",
+      "category": "face_brow",
+      "accessibilityLabel": "Flat brows",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_flat",
+      "category": "face_mouth",
+      "accessibilityLabel": "Flat mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_smile",
+      "category": "face_mouth",
+      "accessibilityLabel": "Smile",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_big_grin",
+      "category": "face_mouth",
+      "accessibilityLabel": "Big grin",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_small_o",
+      "category": "face_mouth",
+      "accessibilityLabel": "Small open mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_frown",
+      "category": "face_mouth",
+      "accessibilityLabel": "Frown",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_wavy",
+      "category": "face_mouth",
+      "accessibilityLabel": "Wavy mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_smirk",
+      "category": "face_mouth",
+      "accessibilityLabel": "Smirk",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_zip",
+      "category": "face_mouth",
+      "accessibilityLabel": "Zipped mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "mouth_open_o",
+      "category": "face_mouth",
+      "accessibilityLabel": "Open mouth",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_blush",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Blush",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_sparkles",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sparkles",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 64
+    },
+    {
+      "id": "overlay_sleep_zs",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sleeping Zs",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_tear",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Tear",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_sweat",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sweat drop",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_anger_mark",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Anger mark",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_steam",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Steam",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_afk_tag",
+      "category": "expression_overlay",
+      "accessibilityLabel": "AFK tag",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_dnd_bar",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Do not disturb bar",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_thermometer",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Thermometer",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_bandage",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Bandage",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "overlay_confetti",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Confetti",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "face_glasses_round",
+      "category": "face_accessory",
+      "accessibilityLabel": "Round glasses",
+      "render": {
+        "type": "procedural"
+      },
+      "conflictsWith": [
+        "head_vr_headset"
+      ]
+    },
+    {
+      "id": "face_sunglasses",
+      "category": "face_accessory",
+      "accessibilityLabel": "Sunglasses",
+      "render": {
+        "type": "procedural"
+      },
+      "conflictsWith": [
+        "head_vr_headset"
+      ]
+    },
+    {
+      "id": "face_visor",
+      "category": "face_accessory",
+      "accessibilityLabel": "Face visor",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_headphones",
+      "category": "head_accessory",
+      "accessibilityLabel": "Headphones",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_vr_headset",
+      "category": "head_accessory",
+      "accessibilityLabel": "VR headset",
+      "render": {
+        "type": "procedural"
+      },
+      "occlusion": "eyes"
+    },
+    {
+      "id": "head_beanie",
+      "category": "head_accessory",
+      "accessibilityLabel": "Beanie",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_crown",
+      "category": "head_accessory",
+      "accessibilityLabel": "Crown",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_wizard_hat",
+      "category": "head_accessory",
+      "accessibilityLabel": "Wizard hat",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_cat_ears",
+      "category": "head_accessory",
+      "accessibilityLabel": "Cat-ear headband",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_helmet",
+      "category": "head_accessory",
+      "accessibilityLabel": "Helmet",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_sleep_cap",
+      "category": "head_accessory",
+      "accessibilityLabel": "Sleep cap",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "head_hood",
+      "category": "head_accessory",
+      "accessibilityLabel": "Hood",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "body_hoodie",
+      "category": "body_accessory",
+      "accessibilityLabel": "Hoodie",
+      "render": {
+        "type": "procedural"
+      },
+      "zIndex": 15
+    },
+    {
+      "id": "body_blanket",
+      "category": "body_accessory",
+      "accessibilityLabel": "Blanket",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "prop_coffee",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Coffee",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_tea",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Tea",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_controller",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Controller",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_book",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Book",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_phone",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Phone",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_keyboard",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Keyboard",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_microphone",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Microphone",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_potion",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Potion",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_snack",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Snack",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_wrench",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Wrench",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_sword",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Sword",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_gamepad",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Gamepad",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "prop_open_hand",
+      "category": "foreground_prop",
+      "accessibilityLabel": "Open hand",
+      "render": {
+        "type": "procedural"
+      },
+      "anchor": "prop_hand"
+    },
+    {
+      "id": "scene_plain",
+      "category": "scene",
+      "accessibilityLabel": "Plain scene",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_cozy_bedroom",
+      "category": "scene",
+      "accessibilityLabel": "Cozy bedroom",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_desk",
+      "category": "scene",
+      "accessibilityLabel": "Desk",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_campfire",
+      "category": "scene",
+      "accessibilityLabel": "Campfire",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_tavern",
+      "category": "scene",
+      "accessibilityLabel": "Tavern",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_space_station",
+      "category": "scene",
+      "accessibilityLabel": "Space station",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_rainy_window",
+      "category": "scene",
+      "accessibilityLabel": "Rainy window",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_neon_city",
+      "category": "scene",
+      "accessibilityLabel": "Neon city",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_forest",
+      "category": "scene",
+      "accessibilityLabel": "Forest",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "scene_clouds",
+      "category": "scene",
+      "accessibilityLabel": "Clouds",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "frame_squircle",
+      "category": "frame",
+      "accessibilityLabel": "Squircle frame",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "frame_circle",
+      "category": "frame",
+      "accessibilityLabel": "Circle frame",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "frame_sticker",
+      "category": "frame",
+      "accessibilityLabel": "Sticker frame",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "frame_pixel",
+      "category": "frame",
+      "accessibilityLabel": "Pixel frame",
+      "render": {
+        "type": "procedural"
+      }
+    },
+    {
+      "id": "avail_available",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Available",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "circle"
+    },
+    {
+      "id": "avail_text_only",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Text only",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "speech_bubble"
+    },
+    {
+      "id": "avail_call_ok",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Call OK",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "handset"
+    },
+    {
+      "id": "avail_gaming",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Gaming",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "controller"
+    },
+    {
+      "id": "avail_busy",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Busy",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "hourglass"
+    },
+    {
+      "id": "avail_do_not_disturb",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Do not disturb",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "crescent"
+    },
+    {
+      "id": "avail_afk",
+      "category": "availability_indicator",
+      "accessibilityLabel": "AFK",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "clock"
+    },
+    {
+      "id": "avail_offline",
+      "category": "availability_indicator",
+      "accessibilityLabel": "Offline",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "hollow_ring"
+    },
+    {
+      "id": "badge_working",
+      "category": "activity_badge",
+      "accessibilityLabel": "Working",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "working"
+    },
+    {
+      "id": "badge_coding",
+      "category": "activity_badge",
+      "accessibilityLabel": "Coding",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "coding"
+    },
+    {
+      "id": "badge_gaming",
+      "category": "activity_badge",
+      "accessibilityLabel": "Gaming",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "gaming"
+    },
+    {
+      "id": "badge_vr",
+      "category": "activity_badge",
+      "accessibilityLabel": "In VR",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "vr"
+    },
+    {
+      "id": "badge_watching",
+      "category": "activity_badge",
+      "accessibilityLabel": "Watching",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "watching"
+    },
+    {
+      "id": "badge_listening",
+      "category": "activity_badge",
+      "accessibilityLabel": "Listening",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "listening"
+    },
+    {
+      "id": "badge_reading",
+      "category": "activity_badge",
+      "accessibilityLabel": "Reading",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "reading"
+    },
+    {
+      "id": "badge_traveling",
+      "category": "activity_badge",
+      "accessibilityLabel": "Traveling",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "traveling"
+    },
+    {
+      "id": "badge_exercising",
+      "category": "activity_badge",
+      "accessibilityLabel": "Exercising",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "exercising"
+    },
+    {
+      "id": "badge_sleeping",
+      "category": "activity_badge",
+      "accessibilityLabel": "Sleeping",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "sleeping"
+    },
+    {
+      "id": "badge_custom",
+      "category": "activity_badge",
+      "accessibilityLabel": "Custom activity",
+      "render": {
+        "type": "procedural"
+      },
+      "glyph": "custom"
+    },
+    {
+      "id": "reaction_heart",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Heart",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_coffee",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Coffee reaction",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_tea",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Tea reaction",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_snack",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Snack reaction",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_hug",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Hug",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_high_five",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "High five",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_same",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Same",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_you_okay",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "You okay",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_want_company",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Want company",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_join",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Join",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_call_later",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Call later",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_im_around",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "I'm around",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_nice",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Nice",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    },
+    {
+      "id": "reaction_good_luck",
+      "category": "reaction_overlay",
+      "accessibilityLabel": "Good luck",
+      "render": {
+        "type": "procedural"
+      },
+      "minSizePx": 96
+    }
+  ],
+  "expressions": [
+    {
+      "id": "neutral",
+      "label": "Neutral",
+      "eyes": "eyes_open",
+      "mouth": "mouth_flat"
+    },
+    {
+      "id": "happy",
+      "label": "Happy",
+      "eyes": "eyes_happy_arc",
+      "mouth": "mouth_smile",
+      "brows": "brows_relaxed",
+      "extras": [
+        "overlay_blush"
+      ]
+    },
+    {
+      "id": "excited",
+      "label": "Excited",
+      "eyes": "eyes_sparkle",
+      "mouth": "mouth_big_grin",
+      "brows": "brows_raised",
+      "extras": [
+        "overlay_sparkles"
+      ]
+    },
+    {
+      "id": "sleepy",
+      "label": "Sleepy",
+      "eyes": "eyes_closed_line",
+      "mouth": "mouth_small_o",
+      "brows": "brows_relaxed",
+      "overlays": [
+        "overlay_sleep_zs"
+      ]
+    },
+    {
+      "id": "tired",
+      "label": "Tired",
+      "eyes": "eyes_half_lid",
+      "mouth": "mouth_flat",
+      "brows": "brows_flat"
+    },
+    {
+      "id": "sad",
+      "label": "Sad",
+      "eyes": "eyes_tearful",
+      "mouth": "mouth_frown",
+      "brows": "brows_worried",
+      "overlays": [
+        "overlay_tear"
+      ]
+    },
+    {
+      "id": "anxious",
+      "label": "Anxious",
+      "eyes": "eyes_wide",
+      "mouth": "mouth_wavy",
+      "brows": "brows_worried",
+      "overlays": [
+        "overlay_sweat"
+      ]
+    },
+    {
+      "id": "angry",
+      "label": "Angry",
+      "eyes": "eyes_angry_slant",
+      "mouth": "mouth_frown",
+      "brows": "brows_angry",
+      "overlays": [
+        "overlay_anger_mark"
+      ]
+    },
+    {
+      "id": "sick",
+      "label": "Sick",
+      "eyes": "eyes_half_lid",
+      "mouth": "mouth_wavy",
+      "brows": "brows_worried",
+      "extras": [
+        "overlay_thermometer",
+        "overlay_bandage"
+      ]
+    },
+    {
+      "id": "focused",
+      "label": "Focused",
+      "eyes": "eyes_narrow",
+      "mouth": "mouth_flat",
+      "brows": "brows_determined",
+      "baseOverrides": {
+        "base_bot": {
+          "eyes": "eyes_scan"
+        }
+      }
+    },
+    {
+      "id": "overwhelmed",
+      "label": "Overwhelmed",
+      "eyes": "eyes_spiral",
+      "mouth": "mouth_open_o",
+      "brows": "brows_raised",
+      "overlays": [
+        "overlay_steam"
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Social",
+      "eyes": "eyes_wink",
+      "mouth": "mouth_big_grin",
+      "brows": "brows_raised"
+    },
+    {
+      "id": "mischievous",
+      "label": "Mischievous",
+      "eyes": "eyes_side_glance",
+      "mouth": "mouth_smirk",
+      "brows": "brows_determined"
+    },
+    {
+      "id": "afk",
+      "label": "AFK",
+      "eyes": "eyes_dot",
+      "mouth": "mouth_flat",
+      "overlays": [
+        "overlay_afk_tag"
+      ]
+    },
+    {
+      "id": "dnd",
+      "label": "Do not disturb",
+      "eyes": "eyes_closed_line",
+      "mouth": "mouth_zip",
+      "brows": "brows_relaxed",
+      "overlays": [
+        "overlay_dnd_bar"
+      ]
+    }
+  ],
+  "semantics": {
+    "mood:neutral": {
+      "expressionId": "neutral"
+    },
+    "mood:good": {
+      "expressionId": "happy"
+    },
+    "mood:happy": {
+      "expressionId": "happy"
+    },
+    "mood:excited": {
+      "expressionId": "excited"
+    },
+    "mood:sleepy": {
+      "expressionId": "sleepy"
+    },
+    "mood:tired": {
+      "expressionId": "tired"
+    },
+    "mood:low_energy": {
+      "expressionId": "tired"
+    },
+    "mood:stressed": {
+      "expressionId": "anxious"
+    },
+    "mood:anxious": {
+      "expressionId": "anxious"
+    },
+    "mood:sad": {
+      "expressionId": "sad"
+    },
+    "mood:sick": {
+      "expressionId": "sick"
+    },
+    "mood:focused": {
+      "expressionId": "focused"
+    },
+    "mood:chaotic": {
+      "expressionId": "mischievous"
+    },
+    "mood:social": {
+      "expressionId": "social"
+    },
+    "mood:overwhelmed": {
+      "expressionId": "overwhelmed"
+    },
+    "availability:available": {
+      "availabilityIndicator": "avail_available"
+    },
+    "availability:text_only": {
+      "availabilityIndicator": "avail_text_only"
+    },
+    "availability:call_ok": {
+      "availabilityIndicator": "avail_call_ok"
+    },
+    "availability:gaming": {
+      "availabilityIndicator": "avail_gaming"
+    },
+    "availability:busy": {
+      "availabilityIndicator": "avail_busy"
+    },
+    "availability:do_not_disturb": {
+      "availabilityIndicator": "avail_do_not_disturb",
+      "expressionId": "dnd"
+    },
+    "availability:afk": {
+      "availabilityIndicator": "avail_afk",
+      "expressionId": "afk"
+    },
+    "availability:offline": {
+      "availabilityIndicator": "avail_offline"
+    },
+    "activity:working": {
+      "activityBadge": "badge_working",
+      "propAssetId": "prop_keyboard"
+    },
+    "activity:coding": {
+      "activityBadge": "badge_coding",
+      "propAssetId": "prop_keyboard"
+    },
+    "activity:gaming": {
+      "activityBadge": "badge_gaming",
+      "propAssetId": "prop_controller"
+    },
+    "activity:vr": {
+      "activityBadge": "badge_vr",
+      "headAccessoryAssetId": "head_vr_headset"
+    },
+    "activity:watching": {
+      "activityBadge": "badge_watching"
+    },
+    "activity:listening": {
+      "activityBadge": "badge_listening",
+      "headAccessoryAssetId": "head_headphones"
+    },
+    "activity:reading": {
+      "activityBadge": "badge_reading",
+      "propAssetId": "prop_book"
+    },
+    "activity:traveling": {
+      "activityBadge": "badge_traveling"
+    },
+    "activity:exercising": {
+      "activityBadge": "badge_exercising"
+    },
+    "activity:sleeping": {
+      "activityBadge": "badge_sleeping"
+    },
+    "activity:custom": {
+      "activityBadge": "badge_custom"
+    },
+    "intent:want_company": {
+      "propAssetId": "prop_open_hand"
+    },
+    "intent:celebrating": {
+      "overlayAssetIds": [
+        "overlay_confetti"
+      ]
+    }
+  },
+  "retired": {}
+}

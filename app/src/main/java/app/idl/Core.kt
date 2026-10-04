@@ -24,8 +24,8 @@ object FeatureFlags {
     const val INTEGRATION_VRCQ = false
     const val INTEGRATION_DESKTOP_BRIDGE = false
     const val INTEGRATION_SDK = false
-    /** Real backend adapter (Supabase). Off: the app runs on FakeIdlBackend. */
-    const val REMOTE_BACKEND = false
+    /** Supabase backend: on when supabase.url/anonKey are set in local.properties. */
+    val REMOTE_BACKEND = BuildConfig.SUPABASE_URL.isNotBlank() && BuildConfig.SUPABASE_ANON_KEY.isNotBlank()
     val MOCK_PUSH = BuildConfig.DEBUG
 }
 

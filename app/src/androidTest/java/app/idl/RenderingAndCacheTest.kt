@@ -9,6 +9,7 @@ import app.idl.data.local.WidgetSubscriptionEntity
 import app.idl.data.push.MockPushSource
 import app.idl.data.remote.FakeIdlBackend
 import app.idl.data.remote.InMemoryFakeWorldStore
+import app.idl.data.remote.supabase.LocalAuthGateway
 import app.idl.data.repo.FriendsRepository
 import app.idl.data.repo.PresenceRepository
 import app.idl.data.repo.SessionRepository
@@ -80,7 +81,7 @@ class CacheAndWidgetDataTest {
     @Test fun offlineStatusIsSavedLocallyAndSyncedLater() = runTest {
         val db = IdlDatabase.inMemory(context)
         val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
-        SessionRepository(db.dao(), backend, noWidgets).register("Matt", "matt")
+        SessionRepository(db, db.dao(), backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
         val presence = PresenceRepository(db.dao(), backend, clock, noWidgets, noScheduler)
 
         backend.simulateOffline = true
@@ -104,7 +105,7 @@ class CacheAndWidgetDataTest {
         val db = IdlDatabase.inMemory(context)
         val dao = db.dao()
         val backend = FakeIdlBackend(InMemoryFakeWorldStore(), clock, MockPushSource(), backgroundScope, autoAcceptDelay = null)
-        SessionRepository(dao, backend, noWidgets).register("Matt", "matt")
+        SessionRepository(db, dao, backend, LocalAuthGateway, noWidgets).register("Matt", "matt")
         val presence = PresenceRepository(dao, backend, clock, noWidgets, noScheduler)
         val friends = FriendsRepository(dao, backend, presence, noWidgets)
         friends.refresh()

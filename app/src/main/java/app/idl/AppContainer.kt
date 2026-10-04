@@ -9,7 +9,15 @@ import app.idl.data.push.PushHandler
 import app.idl.data.remote.FakeIdlBackend
 import app.idl.data.remote.FileFakeWorldStore
 import app.idl.data.remote.IdlBackend
+import app.idl.data.remote.supabase.AuthGateway
+import app.idl.data.remote.supabase.LocalAuthGateway
+import app.idl.data.remote.supabase.SupabaseAuth
+import app.idl.data.remote.supabase.SupabaseConfig
+import app.idl.data.remote.supabase.SupabaseIdlBackend
+import app.idl.data.local.DataStoreSessionStore
+import okhttp3.OkHttpClient
 import app.idl.data.repo.AvatarRepository
+import app.idl.data.repo.EconomyRepository
 import app.idl.data.repo.FriendsRepository
 import app.idl.data.repo.PresenceRepository
 import app.idl.data.repo.PrivacyRepository
@@ -25,6 +33,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /** Manual DI: the whole object graph, created once per process (IDL_DECISIONS D-02). */
 class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
@@ -37,20 +46,36 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val notifier = Notifier(app)
 
     val mockPush = MockPushSource()
-    /** Alpha backend. `FeatureFlags.REMOTE_BACKEND` will select the Supabase adapter instead. */
-    val fakeBackend = FakeIdlBackend(FileFakeWorldStore(File(app.filesDir, "fake_world.json")), clock, mockPush, scope)
-    val backend: IdlBackend = fakeBackend
+
+    /** Supabase when configured in local.properties; otherwise the in-process demo backend. */
+    val supabase = SupabaseConfig(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY)
+    val isRemote = supabase.isConfigured
+    private val http by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .callTimeout(20, TimeUnit.SECONDS)
+            .build()
+    }
+    private val supabaseAuth by lazy { SupabaseAuth(http, supabase, DataStoreSessionStore(app), clock) }
+
+    /** Debug-only simulation hooks exist only on the fake backend. */
+    val fakeBackend: FakeIdlBackend? =
+        if (isRemote) null else FakeIdlBackend(FileFakeWorldStore(File(app.filesDir, "fake_world.json")), clock, mockPush, scope)
+    val auth: AuthGateway = if (isRemote) supabaseAuth else LocalAuthGateway
+    val backend: IdlBackend = fakeBackend ?: SupabaseIdlBackend(http, supabase, supabaseAuth)
 
     val widgets = GlanceWidgetRefresher(app, dao)
+    val economy = EconomyRepository(dao, clock, scope, widgets)
     val scheduler = WorkSyncScheduler(app)
 
-    val session = SessionRepository(dao, backend, widgets)
+    val session = SessionRepository(db, dao, backend, auth, widgets)
     val avatars = AvatarRepository(dao, backend, widgets)
     val presence = PresenceRepository(dao, backend, clock, widgets, scheduler)
     val friends = FriendsRepository(dao, backend, presence, widgets)
     val reactions = ReactionRepository(dao, backend, clock)
     val privacy = PrivacyRepository(dao, backend)
-    val sync = SyncManager(dao, clock, presence, friends, reactions, privacy, widgets)
+    val sync = SyncManager(dao, clock, presence, friends, reactions, privacy, widgets, economy, onUnauthorized = { session.signOut() })
     val pushHandler = PushHandler(dao, presence, friends, reactions, widgets, settings, notifier)
 
     fun start() {
@@ -60,9 +85,10 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
                 runCatching { pushHandler.handle(event) }.onFailure { IdlLog.e("push.handle_failed", it) }
             }
         }
-        scope.launch {
-            settings.simulateOffline.distinctUntilChanged().collect { fakeBackend.simulateOffline = it }
+        fakeBackend?.let { fake ->
+            scope.launch { settings.simulateOffline.distinctUntilChanged().collect { fake.simulateOffline = it } }
         }
+        IdlLog.i("app.start", "backend" to if (isRemote) "supabase" else "fake")
         scheduler.schedulePeriodicReconcile()
         scope.launch { sync.reconcile() }
     }
