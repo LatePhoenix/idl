@@ -80,7 +80,9 @@ Stable z-bands, not selection order. An asset may emit more than one part (glass
 | 70 | Front hair and bangs |
 | 80 | Eyewear |
 | 90 | Front jewelry and head accessories |
+| 95 | Expression overlays (procedural) |
 | 100 | Mouth-held props |
+| 105 | Foreground props (procedural) |
 | 110 | Foreground effects on the character |
 
 | z | iDL presence chrome (not part of the emoji editor's character) |
@@ -90,7 +92,7 @@ Stable z-bands, not selection order. An asset may emit more than one part (glass
 | 220 | Activity badge |
 | 230 | Reaction overlays |
 
-`AssetCategory.defaultZ` in the current manifest is the procedural painter's order. Do not renumber it in place. Vector parts carry their own `zBand`. A later migration can align the two once the procedural pack is no longer what widgets draw.
+`AssetCategory.defaultZ` in the current manifest is the procedural painter's order. Do not renumber it in place. Vector parts carry their own `zBand`. `CompositeOrder` paints procedural categories on the bands in the table above, including 95 and 105, and paints vector parts on their own `zBand`. A category drawn by a vector asset is not also drawn procedurally. A later migration can align `defaultZ` with these bands once the procedural pack is no longer what widgets draw.
 
 Masks are data on the part (`clip` referencing another part id, or a named occluder such as `head.front`). The first slice needs only clip-to-path. Hair-behind-head, beard-around-mouth, lens tint, and a pipe stem into the mouth are the cases that justify clips. Do not add Kotlin `if (assetId == ...)` branches for them.
 

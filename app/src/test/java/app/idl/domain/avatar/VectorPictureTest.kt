@@ -1,0 +1,134 @@
+package app.idl.domain.avatar
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class VectorPictureTest {
+    private val asset = AssetDef(
+        id = "hair_round_bob",
+        category = AssetCategory.HAIR,
+        accessibilityLabel = "Bob",
+        render = AssetRender(type = "vector", file = "pictures/hair_round_bob.json"),
+        contentVersion = 3,
+        colorSlots = mapOf("hair.primary" to "#FF332211", "hair.shadow" to "#FF110000"),
+    )
+
+    @Test fun `a picture round trips and ignores unknown keys`() {
+        val picture = sample()
+        val parsed = VectorPicture.parse(VectorPicture.encode(picture))
+        assertEquals(picture, parsed)
+        val withExtra = VectorPicture.encode(picture).replace("{", "{\"note\":\"later\",")
+        assertEquals(picture.id, VectorPicture.parse(withExtra).id)
+    }
+
+    @Test fun `schemaVersion 2 is rejected`() {
+        val json = VectorPicture.encode(sample()).replace("\"schemaVersion\": 1", "\"schemaVersion\": 2")
+            .replace("\"schemaVersion\":1", "\"schemaVersion\":2")
+        try {
+            VectorPicture.parse(json)
+            throw AssertionError("schema 2 should be rejected")
+        } catch (error: IllegalArgumentException) {
+            assertTrue(error.message!!.contains("schemaVersion"))
+        }
+    }
+
+    @Test fun `validator accepts a picture that matches the asset`() {
+        assertEquals(emptyList<String>(), VectorPictureValidator.validate(sample(), asset))
+    }
+
+    @Test fun `validator reports each picture rule`() {
+        val picture = sample()
+        assertReported(picture.copy(schemaVersion = 2), "schemaVersion")
+        assertReported(picture.copy(id = "other"), "does not match")
+        assertReported(picture.copy(contentVersion = 0), "contentVersion")
+        assertReported(picture.copy(contentVersion = 9), "does not match asset")
+        assertReported(picture.copy(viewBox = 100), "viewBox")
+        assertReported(picture.copy(parts = picture.parts + picture.parts[0]), "duplicate part")
+        assertReported(
+            picture.copy(clipPaths = picture.clipPaths + picture.clipPaths[0]),
+            "duplicate clip",
+        )
+        assertReported(picture.copy(parts = listOf(picture.parts[0].copy(zBand = 200))), "character band")
+        assertReported(picture.copy(parts = listOf(picture.parts[0].copy(zBand = 15))), "character band")
+        assertReported(picture.copy(parts = listOf(picture.parts[0].copy(fillRule = "winding"))), "fillRule")
+        assertReported(picture.copy(parts = listOf(picture.parts[0].copy(opacity = 2f))), "opacity")
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill()))),
+            "exactly one fill",
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill(slot = "missing")))),
+            "not on the asset",
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(clip = VectorClip("nope", "intersect")))),
+            "missing path",
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(clip = VectorClip("head", "xor")))),
+            "clip mode",
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(commands = "M 0 0 A 1 1"))),
+            "unreadable",
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -100 0"))),
+            "outside",
+        )
+        assertEquals(
+            emptyList<String>(),
+            VectorPictureValidator.validate(
+                picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -100 0", allowOverflow = true))),
+                asset,
+            ),
+        )
+        val short = LinearGradient(0f, 0f, 1f, 1f, stops = listOf(GradientStop(0f, "hair.primary")))
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill(linear = short)))),
+            "at least two stops",
+        )
+        val decreasing = LinearGradient(
+            0f, 0f, 1f, 1f,
+            stops = listOf(GradientStop(0.8f, "hair.primary"), GradientStop(0.2f, "hair.shadow")),
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill(linear = decreasing)))),
+            "offsets",
+        )
+        val alpha = RadialGradient(
+            0f, 0f, 1f,
+            stops = listOf(
+                GradientStop(0f, "hair.primary", alpha = 2f),
+                GradientStop(1f, "hair.shadow"),
+            ),
+        )
+        assertReported(
+            picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill(radial = alpha)))),
+            "alpha",
+        )
+    }
+
+    private fun assertReported(picture: VectorPicture, fragment: String) {
+        val issues = VectorPictureValidator.validate(picture, asset)
+        assertTrue(issues.joinToString("\n"), issues.any { fragment in it })
+    }
+
+    private fun sample() = VectorPicture(
+        schemaVersion = 1,
+        id = "hair_round_bob",
+        contentVersion = 3,
+        viewBox = 1024,
+        parts = listOf(
+            VectorPart(
+                id = "back",
+                zBand = 20,
+                fill = VectorFill(slot = "hair.primary"),
+                commands = "M 0 0 L 10 0",
+                clip = VectorClip("head", "intersect"),
+            ),
+        ),
+        clipPaths = listOf(ClipPath("head", "M 0 0 Z")),
+    )
+}

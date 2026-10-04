@@ -507,7 +507,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-09. F-10 is fixed in Track 0.4 |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | Spec is `docs/handoff/PHASE_2_TASK.md`. PR A (sections 2–5) landed the picture model, path parser, validator, item ids, color slots, and composite order. JVM only; existing Roborazzi goldens unchanged. Renderer (PR B) and the emoji slice (PR C) are not started. F-09 stays 🟡. F-10 is fixed in Track 0.4 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -841,3 +841,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
 | 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
 | 2026-10-04 | Claude | Audit of PRs #17–#18. Merged #17 into #18 and renumbered #18's findings to F-27–F-29 (they collided with #17's F-23–F-25). F-29 set to 🟡: the write guard isn't wired because no recipe is persisted yet, so the unused Avatar Studio `recipe` parameter was removed. D-40 recorded (accept the Earning timing signal). 184 JVM, 18/18 device, check.ps1 matches | PR #18, F-29, D-40 |
+| 2026-10-04 | Cursor | Phase 2 PR A: vector picture model, path parser, validator, item ids, color slots, composite order. JVM only. Existing Roborazzi goldens unchanged. 207 JVM. F-09 stays 🟡 | `docs/handoff/PHASE_2_TASK.md` §2–5, `docs/handoff/reports/2026-10-04-vector-domain.md` |

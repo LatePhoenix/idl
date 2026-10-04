@@ -66,6 +66,10 @@ data class ResolvedAvatar(
     val sceneDetail: Boolean,
     val renderKey: String,
     val accessibilityDescription: String,
+    /** Resolved sRGB colors for vector slots, sorted by slot name. Empty when no vector layer is drawn. */
+    val colorSlots: Map<String, Int> = emptyMap(),
+    /** Recipe transforms for assets that survived into [layers]. */
+    val itemTransforms: Map<String, ItemTransform> = emptyMap(),
 )
 
 /**
@@ -76,7 +80,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
     private val engine = CompatibilityEngine(registry)
 
     fun resolve(request: AvatarRenderRequest): ResolvedAvatar {
-        val request = request.copy(configuration = request.configuration.migrateRecipe())
+        val request = request.copy(configuration = request.configuration.migrateRecipe(registry.baseFamilies))
         val config = request.configuration
         val presence = request.presence
         val dropped = mutableListOf<DroppedAsset>()
@@ -230,9 +234,9 @@ class AvatarResolver(private val registry: AssetRegistry) {
         config.signatureFeatureAssetIds.forEach { raw ->
             addId(raw, setOf(AssetCategory.SIGNATURE_FEATURE), LayerPriority.BASE)
         }
-        eyesId?.let { addId(it, setOf(AssetCategory.FACE_EYE), LayerPriority.FACE, eyeVariant) }
+        eyesId?.let { addId(it, setOf(AssetCategory.FACE_EYE), LayerPriority.FACE, variantForAsset(it, eyeVariant)) }
         parts?.brows?.let { addId(it, setOf(AssetCategory.FACE_BROW), LayerPriority.FACE) }
-        parts?.mouth?.let { addId(it, setOf(AssetCategory.FACE_MOUTH), LayerPriority.FACE, mouthVariant) }
+        parts?.mouth?.let { addId(it, setOf(AssetCategory.FACE_MOUTH), LayerPriority.FACE, variantForAsset(it, mouthVariant)) }
         expression?.overlays?.forEach { addId(it, OVERLAYS, LayerPriority.EXPRESSION) }
         expression?.extras?.forEach { addId(it, OVERLAYS, LayerPriority.DECORATION) }
         keys.forEach { key ->
@@ -246,6 +250,27 @@ class AvatarResolver(private val registry: AssetRegistry) {
         registry.asset(frameId)?.let { add(it, LayerPriority.BASE) }
         request.reactionOverlayAssetIds.forEachIndexed { index, raw ->
             addId(raw, setOf(AssetCategory.REACTION_OVERLAY), LayerPriority.DECORATION, order = index)
+        }
+        // Worn items. Hair and facial hair are identity, so they use SIGNATURE and lose to a status.
+        for (categoryWire in config.itemIds.keys.sorted()) {
+            val category = AssetCategory.entries.firstOrNull { it.wire == categoryWire }
+            val ids = config.itemIds.getValue(categoryWire)
+            if (category == null) {
+                ids.forEach { drop(registry.canonicalId(it), DropReason.UNKNOWN_ASSET) }
+                continue
+            }
+            for (raw in ids.sorted()) {
+                val canon = registry.canonicalId(raw)
+                val asset = registry.asset(canon)
+                when {
+                    asset == null || asset.category != category -> drop(canon, DropReason.UNKNOWN_ASSET)
+                    !category.multiple && candidates.any { it.asset.category == category } -> {
+                        val winner = candidates.first { it.asset.category == category }
+                        drop(asset.id, DropReason.CONFLICT, winner.asset.id)
+                    }
+                    else -> add(asset, LayerPriority.SIGNATURE)
+                }
+            }
         }
 
         // Steps 4–8.
@@ -276,8 +301,10 @@ class AvatarResolver(private val registry: AssetRegistry) {
             layers = layers,
             dropped = dropped.sortedWith(compareBy({ it.assetId }, { it.reason.ordinal })),
             sceneDetail = sceneDetail,
-            renderKey = renderKey(request),
+            renderKey = renderKey(request, layers),
             accessibilityDescription = describe(baseId, expressionId, presence),
+            colorSlots = ColorSlots.resolve(layers, config, registry),
+            itemTransforms = config.itemTransforms.filterKeys { key -> layers.any { it.assetId == key } }.toSortedMap(),
         )
     }
 
@@ -352,6 +379,12 @@ class AvatarResolver(private val registry: AssetRegistry) {
             }
         }
         return "neutral"
+    }
+
+    /** A vector asset id is the whole choice. Family suffixes stay on procedural painters. */
+    private fun variantForAsset(assetId: String, familyVariant: String): String? {
+        val asset = registry.asset(assetId)
+        return if (asset?.render?.type == "vector") null else familyVariant
     }
 
     private fun variantFor(familyId: String, baseId: String, hardFallback: String): String {
@@ -476,7 +509,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
     }
 
     /** SHA-256 of every input that can change pixels, with override keys sorted so map order cannot. */
-    private fun renderKey(request: AvatarRenderRequest): String {
+    private fun renderKey(request: AvatarRenderRequest, layers: List<ResolvedLayer>): String {
         val payload = buildString {
             append(request.rendererVersion).append('|')
             append(registry.packVersions.joinToString(",")).append('|')
@@ -487,6 +520,11 @@ class AvatarResolver(private val registry: AssetRegistry) {
             append(IdlJson.encodeToString(AvatarConfiguration.serializer(), request.configuration.withSortedOverrides())).append('|')
             append(IdlJson.encodeToString(VisiblePresence.serializer(), request.presence)).append('|')
             append(request.reactionOverlayAssetIds.joinToString(","))
+            val vectors = layers.mapNotNull { layer ->
+                val asset = registry.asset(layer.assetId) ?: return@mapNotNull null
+                if (asset.render.type != "vector") null else "${asset.id}@${asset.contentVersion}"
+            }.sorted()
+            if (vectors.isNotEmpty()) append('|').append(vectors.joinToString(","))
         }
         val digest = MessageDigest.getInstance("SHA-256").digest(payload.toByteArray(Charsets.UTF_8))
         val digits = "0123456789abcdef"
