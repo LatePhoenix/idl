@@ -1,9 +1,11 @@
 package app.idl.data.push
 
 import app.idl.IdlLog
+import app.idl.avatar.RenderCache
 import app.idl.data.local.AppSettings
 import app.idl.data.local.IdlDao
 import app.idl.data.repo.FriendsRepository
+import app.idl.data.repo.purgeCachedUser
 import app.idl.data.repo.PresenceRepository
 import app.idl.data.repo.ReactionRepository
 import app.idl.data.repo.WidgetRefresher
@@ -21,6 +23,7 @@ class PushHandler(
     private val widgets: WidgetRefresher,
     private val settings: AppSettings,
     private val notifier: Notifier,
+    private val renders: RenderCache,
 ) {
     suspend fun handle(event: PushEvent) {
         IdlLog.i("push.received", "type" to event::class.simpleName)
@@ -58,7 +61,7 @@ class PushHandler(
                 }
             }
             is PushEvent.FriendRemoved -> {
-                dao.purgeUser(event.userId)
+                purgeCachedUser(dao, renders, event.userId)
                 widgets.friendsChanged(listOf(event.userId))
             }
         }

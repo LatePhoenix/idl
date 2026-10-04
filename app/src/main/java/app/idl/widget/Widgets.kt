@@ -83,7 +83,8 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
             val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
             val described = model.copy(avatarDescription = resolved.accessibilityDescription)
             val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX")
-            val bitmap = context.container.renders.bitmap(key) {
+            val ownerId = model.friendView?.userId ?: RenderCache.OWNER_SELF
+            val bitmap = context.container.renders.bitmap(key, ownerId) {
                 AvatarRenderer.bitmap(
                     resolved,
                     registry,
