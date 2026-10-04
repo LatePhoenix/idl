@@ -48,6 +48,7 @@ import app.idl.IdlLog
 import app.idl.MainActivity
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
+import app.idl.avatar.RenderCache
 import app.idl.container
 import app.idl.data.local.IdlDao
 import app.idl.data.local.WidgetSubscriptionEntity
@@ -62,15 +63,18 @@ import kotlinx.coroutines.withContext
 private val SMALL = DpSize(110.dp, 110.dp)
 private val WIDE = DpSize(250.dp, 110.dp)
 private const val AVATAR_PX = 256
+/** Logical widget size. The bitmap stays sharp; simplification follows this, not [AVATAR_PX]. */
+private const val WIDGET_SIMPLIFY_PX = 96
 
 /** Renders a widget model; shared by both widget types. Static: no animation. */
 private suspend fun render(context: Context, model: WidgetModel): Bitmap? = withContext(Dispatchers.Default) {
     runCatching {
-        model.avatar?.let {
-            AvatarRenderer.bitmap(
-                it, AVATAR_PX,
-                AvatarBadges(model.availability, model.activity, resonating = model.resonating),
-            )
+        model.avatar?.let { config ->
+            val badges = AvatarBadges(model.availability, model.activity, resonating = model.resonating)
+            val key = RenderCache.key(config, AVATAR_PX, badges, WIDGET_SIMPLIFY_PX)
+            context.container.renders.bitmap(key) {
+                AvatarRenderer.bitmap(config, AVATAR_PX, badges, WIDGET_SIMPLIFY_PX)
+            }
         }
     }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrNull()
 }

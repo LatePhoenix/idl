@@ -5,6 +5,7 @@ import app.idl.domain.Availability
 import app.idl.domain.AvatarComposer
 import app.idl.domain.AvatarPalette
 import app.idl.domain.Mood
+import app.idl.domain.StatusGlyphs
 import app.idl.domain.StatusIntent
 import app.idl.domain.wire
 import org.junit.Assert.assertEquals
@@ -103,6 +104,12 @@ class AssetPackTest {
         (registry.ofCategory(AssetCategory.AVAILABILITY_INDICATOR) + registry.ofCategory(AssetCategory.ACTIVITY_BADGE)).forEach {
             assertTrue(it.widgetSafe)
             assertFalse(it.glyph.isNullOrBlank())
+        }
+        Availability.entries.forEach { a ->
+            assertEquals(StatusGlyphs.availability(a), registry.asset("avail_${a.wire}")!!.glyph)
+        }
+        ActivityType.entries.filter { it != ActivityType.NONE }.forEach { a ->
+            assertEquals(StatusGlyphs.activity(a), registry.asset("badge_${a.wire}")!!.glyph)
         }
         assertEquals(15, registry.asset("body_hoodie")!!.z)
         assertEquals(FaceOcclusion.EYES, registry.asset("head_vr_headset")!!.occlusion)

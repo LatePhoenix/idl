@@ -2,6 +2,7 @@ package app.idl
 
 import android.app.Application
 import android.content.Context
+import app.idl.avatar.RenderCache
 import app.idl.data.local.AppSettings
 import app.idl.data.local.IdlDatabase
 import app.idl.data.push.MockPushSource
@@ -44,6 +45,7 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val dao = db.dao()
     val settings = AppSettings(app)
     val notifier = Notifier(app)
+    val renders = RenderCache(File(app.cacheDir, "renders"))
 
     val mockPush = MockPushSource()
 
