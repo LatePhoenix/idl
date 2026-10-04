@@ -285,9 +285,12 @@ in one PR.
   source. **Fix:** unknown non-identity sources fall through; only identity slots fall back to
   defaults. (Open question from Cursor's Phase 1 report.)
 
-#### F-13 · No Room migration test · ⬜ P1
+#### F-13 · No Room migration test · ✅ P1
 - DB v1→v2 (`MIGRATION_1_2`) has no `MigrationTestHelper` test, although schemas 1 and 2 are
   exported. Required by invariant 5 before the next schema change.
+- **Fixed:** `Migration1To2Test` loads the exported schemas, inserts one row in every v1 table,
+  migrates, and checks those rows plus empty `user_economy` / `friend_tethers` tables. The
+  nullable `tetherActivatedEpochMs` defaults to null.
 
 #### F-21 · Default-size widget is simplified as a 48 px compact render · ✅ P1 (from PR #5)
 - `WidgetRenderInputs.targetFor()` maps the `SMALL` (110×110 dp) Glance bucket to
@@ -394,7 +397,7 @@ PostgREST tests) can be done at any time.
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ⬜ |
-| 0.7 | Room migration test (1→2) | F-13 | ⬜ |
+| 0.7 | Room migration test (1→2) | F-13 | ✅ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
 | 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | 🟡 F-18 done; F-15 and F-20 remain |
 
@@ -747,3 +750,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | `b28e44e`, PR #12, F-05 ✅, F-06 🟡, C.2 ✅ |
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
+| 2026-10-04 | Cursor | Room 1→2 migration test with the exported schemas. 161 JVM, 16/16 device | `492019e`, PR #13, F-13 ✅, Track 0.7 |

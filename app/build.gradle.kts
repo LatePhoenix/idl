@@ -55,6 +55,9 @@ android {
         compose = true
         buildConfig = true
     }
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.isReturnDefaultValues = true
@@ -122,4 +125,6 @@ dependencies {
     // Espresso >= 3.7 is required on API 36+ (older builds reflect on removed InputManager APIs).
     androidTestImplementation(libs.androidx.test.espresso)
     androidTestImplementation(libs.kotlinx.coroutines.test)
+    // Same Room version as the app. MigrationTestHelper reads the exported schemas.
+    androidTestImplementation(libs.room.testing)
 }
