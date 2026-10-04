@@ -7,9 +7,13 @@ import app.idl.domain.AvatarConfig
 import app.idl.domain.FaceAccessory
 import app.idl.domain.Mood
 import app.idl.domain.PresenceResolver
+import app.idl.domain.PrivacyFilter
+import app.idl.domain.PrivacyRules
 import app.idl.domain.QuickState
+import app.idl.domain.Relationship
 import app.idl.domain.StatusIntent
 import app.idl.domain.wire
+import app.idl.widget.WidgetRenderInputs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -108,8 +112,9 @@ class AvatarResolverTest {
         assertEquals("scene_p", layerId(all, AssetCategory.SCENE))
         assertEquals(LayerPriority.SCENE, all.layers.first { it.category == AssetCategory.SCENE }.priority)
         assertEquals("head_p", layerId(all, AssetCategory.HEAD_ACCESSORY))
-        assertEquals(LayerPriority.CONTEXT, all.layers.first { it.assetId == "head_p" }.priority)
+        assertEquals(LayerPriority.STATUS, all.layers.first { it.assetId == "head_p" }.priority)
         assertEquals("body_p", layerId(all, AssetCategory.BODY_ACCESSORY))
+        assertEquals(LayerPriority.STATUS, all.layers.first { it.assetId == "body_p" }.priority)
         assertEquals("prop_p", layerId(all, AssetCategory.FOREGROUND_PROP))
         assertEquals(LayerPriority.CONTEXT, all.layers.first { it.assetId == "prop_p" }.priority)
         assertEquals("face_sig", layerId(all, AssetCategory.FACE_ACCESSORY))
@@ -205,6 +210,95 @@ class AvatarResolverTest {
         val ended = resolver.resolve(request(identity))
         assertTrue(ended.has("face_glasses_round"))
         assertFalse(ended.has("head_vr_headset"))
+    }
+
+    @Test fun `a non-close friend sees an explicit vr headset over signature glasses`() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val saved = AvatarConfig(faceAccessory = FaceAccessory.GLASSES)
+        val state = QuickState.ALL.first { it.id == "vr" }.toState(now)
+        val view = checkNotNull(
+            PrivacyFilter.viewFor(
+                viewerId = "me",
+                ownerId = "u_mo",
+                baseAvatar = saved,
+                presence = PresenceResolver.resolve(listOf(state), now),
+                rules = PrivacyRules.DEFAULT,
+                rel = Relationship(isFriend = true, isCloseFriend = false),
+                ownerInvisible = false,
+            ),
+        )
+        val presence = LegacyAvatarMigration.presence(view)
+        assertNull(presence.activityType)
+        assertNull(presence.mood)
+        assertEquals("head_vr_headset", presence.headAccessoryAssetId)
+        val identity = LegacyAvatarMigration.migrate(view.restingAvatar, registry)
+        val resolved = resolver.resolve(request(identity, presence, target = RenderTarget.STANDARD_WIDGET))
+        assertTrue(resolved.has("head_vr_headset"))
+        assertEquals(LayerPriority.STATUS, resolved.layers.first { it.assetId == "head_vr_headset" }.priority)
+        assertFalse(resolved.has("face_glasses_round"))
+        assertEquals(DropReason.CONFLICT, resolved.dropped.first { it.assetId == "face_glasses_round" }.reason)
+        assertEquals(identity, request(identity, presence).configuration)
+
+        val ended = resolver.resolve(request(identity))
+        assertTrue(ended.has("face_glasses_round"))
+        assertFalse(ended.has("head_vr_headset"))
+    }
+
+    @Test fun `a close friend sees the vr headset at activity priority`() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val saved = AvatarConfig(faceAccessory = FaceAccessory.GLASSES)
+        val state = QuickState.ALL.first { it.id == "vr" }.toState(now)
+        val view = checkNotNull(
+            PrivacyFilter.viewFor(
+                viewerId = "me",
+                ownerId = "u_juno",
+                baseAvatar = saved,
+                presence = PresenceResolver.resolve(listOf(state), now),
+                rules = PrivacyRules.DEFAULT,
+                rel = Relationship(isFriend = true, isCloseFriend = true),
+                ownerInvisible = false,
+            ),
+        )
+        val presence = LegacyAvatarMigration.presence(view)
+        assertEquals(ActivityType.VR, presence.activityType)
+        val identity = LegacyAvatarMigration.migrate(view.restingAvatar, registry)
+        val resolved = resolver.resolve(request(identity, presence, target = RenderTarget.STANDARD_WIDGET))
+        assertEquals(LayerPriority.ACTIVITY, resolved.layers.first { it.assetId == "head_vr_headset" }.priority)
+        assertFalse(resolved.has("face_glasses_round"))
+    }
+
+    @Test fun `a mood override headset beats signature glasses only while the mood is visible`() {
+        val saved = config(
+            face = "face_glasses_round",
+            dna = StyleDna(
+                semanticVisualOverrides = mapOf(
+                    "mood:sleepy" to SemanticVisualOverride(headAccessoryAssetId = "head_vr_headset"),
+                ),
+            ),
+        )
+        val visible = VisiblePresence(mood = Mood.SLEEPY)
+        val shown = resolver.resolve(request(saved, visible, target = RenderTarget.STANDARD_WIDGET))
+        assertTrue(shown.has("head_vr_headset"))
+        assertEquals(LayerPriority.STATUS, shown.layers.first { it.assetId == "head_vr_headset" }.priority)
+        assertFalse(shown.has("face_glasses_round"))
+        assertEquals(saved, request(saved, visible).configuration)
+
+        val hidden = resolver.resolve(
+            request(saved, VisiblePresence(availability = Availability.TEXT_ONLY), target = RenderTarget.STANDARD_WIDGET),
+        )
+        assertTrue(hidden.has("face_glasses_round"))
+        assertFalse(hidden.has("head_vr_headset"))
+    }
+
+    @Test fun `sleepy keeps the blanket at the default widget target`() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val state = QuickState.ALL.first { it.id == "sleepy" }.toState(now)
+        val presence = LegacyAvatarMigration.presence(PresenceResolver.resolve(listOf(state), now))
+        val target = WidgetRenderInputs.targetFor(110f, 110f)
+        assertEquals(RenderTarget.STANDARD_WIDGET, target)
+        val resolved = resolver.resolve(request(config(), presence, target = target))
+        assertTrue(resolved.has("body_blanket"))
+        assertTrue(resolved.has("prop_tea"))
     }
 
     @Test fun `signature glasses survive sick and return after vr`() {

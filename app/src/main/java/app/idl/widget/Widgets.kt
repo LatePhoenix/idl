@@ -73,11 +73,13 @@ private const val AVATAR_PX = 256
 /** Renders a widget model; shared by both widget types. Static: no animation. */
 private suspend fun render(context: Context, model: WidgetModel, size: DpSize): Pair<WidgetModel, Bitmap?> =
     withContext(Dispatchers.Default) {
-        val registry = context.container.assetRegistry
-        val target = WidgetRenderInputs.targetFor(size.width.value, size.height.value)
-        val inputs = WidgetRenderInputs.from(model, registry, target)
-            ?: return@withContext model to null
-        runCatching {
+        WidgetRenderInputs.renderCatching(
+            model,
+            size.width.value,
+            size.height.value,
+            registry = { context.container.assetRegistry },
+            onFailure = { IdlLog.e("widget.render_failed", it) },
+        ) { registry, inputs ->
             val contrast = RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER)
             val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
             val described = model.copy(avatarDescription = resolved.accessibilityDescription)
@@ -92,7 +94,7 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
                 )
             }
             described to bitmap
-        }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrElse { model to null }
+        }
     }
 
 private fun openIntent(context: Context, deepLink: String) =
@@ -114,13 +116,14 @@ private fun WidgetBody(context: Context, model: WidgetModel, bitmap: Bitmap?) {
             .semantics { contentDescription = model.contentDescription },
         contentAlignment = Alignment.Center,
     ) {
+        val drawn = WidgetRenderInputs.avatarDrawnDp(LocalSize.current.width.value, LocalSize.current.height.value)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalAlignment = Alignment.CenterHorizontally) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (bitmap != null) {
                     Image(
                         provider = ImageProvider(bitmap),
                         contentDescription = model.contentDescription,
-                        modifier = GlanceModifier.size(if (wide) 92.dp else 76.dp),
+                        modifier = GlanceModifier.size(drawn.dp),
                     )
                 } else {
                     // Text-only fallback when nothing can be drawn.
@@ -163,8 +166,8 @@ private fun LiveBody(
 ) {
     val version by context.container.widgets.version.collectAsState()
     val state by produceState(initial, version, target) {
-        // The seed bitmap uses the 1×1 target. Any other cell, or a later refresh, re-resolves.
-        if (version > 0 || target != RenderTarget.COMPACT_WIDGET) value = load()
+        // The seed bitmap uses the default 2×2 target. Any other cell, or a later refresh, re-resolves.
+        if (version > 0 || target != RenderTarget.STANDARD_WIDGET) value = load()
         IdlLog.i(
             "widget.render",
             "kind" to kind,

@@ -27,7 +27,11 @@ import app.idl.domain.Expression
 import app.idl.domain.FaceAccessory
 import app.idl.domain.HeadAccessory
 import app.idl.domain.Mood
+import app.idl.domain.PresenceResolver
+import app.idl.domain.PrivacyFilter
+import app.idl.domain.PrivacyRules
 import app.idl.domain.QuickState
+import app.idl.domain.Relationship
 import app.idl.domain.ResolvedPresence
 import app.idl.domain.Scene
 import app.idl.domain.VisualOverride
@@ -185,9 +189,11 @@ class WidgetRenderPathTest {
         val compactBusy = bitmap(Availability.BUSY, null, RenderTarget.COMPACT_WIDGET)
         val compactRest = bitmap(null, null, RenderTarget.COMPACT_WIDGET)
         assertFalse(compactBusy.sameAs(compactRest))
+        val defaultBusy = bitmap(Availability.BUSY, null, WidgetRenderInputs.targetFor(110f, 110f))
         val largeBusy = bitmap(Availability.BUSY, ActivityType.VR, RenderTarget.LARGE_WIDGET)
         assertFalse(largeBusy.sameAs(bitmap(Availability.BUSY, null, RenderTarget.LARGE_WIDGET)))
-        save("widget-1x1-busy.png", compactBusy)
+        assertFalse(defaultBusy.sameAs(resting))
+        save("widget-2x2-default-busy.png", defaultBusy)
         save("widget-2x2-busy-vr.png", largeBusy)
         save("widget-standard-resting.png", resting)
     }
@@ -198,6 +204,50 @@ class WidgetRenderPathTest {
         assertFalse(glasses.sameAs(vr))
         save("widget-glasses.png", glasses)
         save("widget-vr-over-glasses.png", vr)
+    }
+
+    @Test fun nonCloseVrHeadsetAndSleepyBlanketAtTheDefaultWidgetSize() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val target = WidgetRenderInputs.targetFor(110f, 110f)
+        assertEquals(RenderTarget.STANDARD_WIDGET, target)
+
+        val moSaved = AvatarConfig(baseForm = BaseForm.ROBOT, faceAccessory = FaceAccessory.GLASSES)
+        val vr = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "vr" }.toState(now)), now)
+        val moView = checkNotNull(
+            PrivacyFilter.viewFor(
+                "me", "u_mo", moSaved, vr, PrivacyRules.DEFAULT,
+                Relationship(isFriend = true, isCloseFriend = false), false,
+            ),
+        )
+        val mo = widgetBitmap(WidgetModel(title = "Mo", friendView = moView, deepLink = "idl://friend/u_mo"), target)
+        val glassesOnly = widgetBitmap(WidgetModel(title = "Mo", restingAvatar = moSaved, deepLink = "idl://friend/u_mo"), target)
+        assertFalse(mo.sameAs(glassesOnly))
+        save("widget-vr-over-glasses-nonclose.png", mo)
+
+        val ariSaved = AvatarConfig(baseForm = BaseForm.FOX)
+        val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
+        val ariView = checkNotNull(
+            PrivacyFilter.viewFor(
+                "me", "u_ari", ariSaved, sleepy, PrivacyRules.DEFAULT,
+                Relationship(isFriend = true, isCloseFriend = true), false,
+            ),
+        )
+        val ari = widgetBitmap(WidgetModel(title = "Ari", friendView = ariView, deepLink = "idl://friend/u_ari"), target)
+        val resting = widgetBitmap(WidgetModel(title = "Ari", restingAvatar = ariSaved, deepLink = "idl://friend/u_ari"), target)
+        assertFalse(ari.sameAs(resting))
+        save("widget-2x2-default-sleepy.png", ari)
+    }
+
+    private fun widgetBitmap(model: WidgetModel, target: RenderTarget): Bitmap {
+        val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
+        val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+        return AvatarRenderer.bitmap(
+            resolved,
+            registry,
+            256,
+            AvatarBadges(),
+            RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
+        )
     }
 
     private fun bitmap(

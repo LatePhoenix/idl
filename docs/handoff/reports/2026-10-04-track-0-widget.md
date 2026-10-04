@@ -2,6 +2,8 @@
 
 Date: 2026-10-04. Branch: `fix/widget-presence-f01-f03`. Findings: F-01, F-02, F-03.
 
+The PR #5 follow-up (F-02 for non-close friends, F-21, F-22) is at the bottom of this file. It supersedes the "stays CONTEXT" deviation and the 1×1 seed note below.
+
 ## Acceptance criteria
 
 | Criterion | Status |
@@ -85,3 +87,46 @@ ca70087 Restore widget presence so badges and an explicit VR headset survive.
 PR: https://github.com/LatePhoenix/idl/pull/5
 
 Range: `git log --oneline origin/main..HEAD`.
+
+## PR #5 follow-up — F-02 remaining, F-21, F-22
+
+`origin/main` (`f330a08`, feature ideas and D-35…D-38) is merged. D-31 stays ahead of D-32. Both sides of `master-plan.md` are kept.
+
+| Criterion | Status |
+| --- | --- |
+| Explicit status accessories use `LayerPriority.STATUS` and beat a signature for every viewer | Met. Non-close friend: headset at STATUS, glasses `CONFLICT`, `activityType` null. Close friend: ACTIVITY |
+| Mood override wins only while that mood is visible | Met. Hidden mood leaves the signature glasses |
+| Default 2×2 (110×110, avatar drawn at 76 dp) uses `STANDARD_WIDGET` | Met. Sleepy keeps `body_blanket` and `prop_tea`. Square 180×180 is LARGE |
+| Registry and `from()` failures stay inside the fallback | Met. `renderCatching`; a throwing registry returns `model` to null and reports the failure |
+| Mo in VR on a pinned widget shows the headset | Met. `widget-vr-over-glasses-nonclose.png` |
+| Ari sleepy at the default widget size shows blanket and tea | Met. `widget-2x2-default-sleepy.png` |
+| `scripts/check.sh` and `--device` | Met. See commands |
+
+### Commands
+
+```text
+"C:\Program Files\Git\bin\bash.exe" scripts/check.sh
+ANDROID_SERIAL=emulator-5554 "C:\Program Files\Git\bin\bash.exe" scripts/check.sh --device
+```
+
+- JVM: **154 tests, 0 failed, 1 skipped** (`SupabaseRestIT`; Docker was not part of this run)
+- Lint: **0 errors, 39 warnings**
+- Instrumented (`emulator-5554`, Pixel 9 AVD, API 37): **12 tests, 0 failed**, including `WidgetRenderPathTest.nonCloseVrHeadsetAndSleepyBlanketAtTheDefaultWidgetSize`
+
+### Device check
+
+Demo account on the fake backend, Pixel 9 emulator. Pinned a friend widget for Mo (not on Mo's close list), then Settings → Alpha/debug → Demo friend Mo → In VR. The home-screen widget shows the visor, not the signature glasses, plus the text-only speech bubble. Ari's widget, after Simulate Sleepy, shows the blanket, the tea, and the sleepy marks.
+
+The VR activity badge is not on Mo's widget. Activity category defaults to close friends, so a non-close viewer gets the headset (avatar) and the availability glyph, and does not get `activityType`. That is invariant 2, not a missed badge.
+
+`widget-1x1-busy.png` is removed. `widget-2x2-default-busy.png` is the same busy availability re-rendered at `STANDARD_WIDGET`.
+
+### Deviations
+
+- `renderCatching` is the testable wrapper. `Widgets.render` calls it and logs `widget.render_failed` from the failure callback. An empty widget (no avatar) returns a null bitmap without logging.
+- The square cell draws the avatar at 120 dp so its target is LARGE. Wide stays 92 dp.
+
+### Limitations
+
+- Wallpaper contrast is still hard-coded (F-07). Snapshot tests in CI are still F-14.
+- The busy re-take is the widget painter's bitmap. The VR and sleepy shots are crops of the pinned launcher widgets.

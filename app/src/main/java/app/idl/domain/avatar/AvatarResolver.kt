@@ -9,6 +9,10 @@ import java.util.Locale
 /**
  * Conflict order from master plan §11.3, highest first. Earlier constants are accepted before
  * later ones, so a silhouette beats a decoration when both cannot be shown.
+ *
+ * [STATUS] is for head and body accessories chosen by the current status. It sits above a
+ * signature so the choice wins for every viewer, and below [ACTIVITY] so an activity mapping
+ * that names the same asset can still raise the slot (decision D-31).
  */
 enum class LayerPriority {
     BASE,
@@ -16,6 +20,7 @@ enum class LayerPriority {
     AVAILABILITY,
     EXPRESSION,
     ACTIVITY,
+    STATUS,
     SIGNATURE,
     CONTEXT,
     SCENE,
@@ -117,7 +122,12 @@ class AvatarResolver(private val registry: AssetRegistry) {
 
         val keys = presence.semanticKeys()
         fun override(key: SemanticKey) = config.styleDna.semanticVisualOverrides[key.wire]
-        fun priorityFor(key: SemanticKey) =
+        /** Activity mappings outrank a signature; other visible keys are still a status choice. */
+        fun accessoryPriority(key: SemanticKey) =
+            if (key.kind == SemanticKey.Kind.ACTIVITY) LayerPriority.ACTIVITY else LayerPriority.STATUS
+
+        /** Props stay contextual. They don't conflict with signatures in the shipped pack. */
+        fun propPriority(key: SemanticKey) =
             if (key.kind == SemanticKey.Kind.ACTIVITY) LayerPriority.ACTIVITY else LayerPriority.CONTEXT
 
         val sceneId = resolveFamily(
@@ -138,9 +148,9 @@ class AvatarResolver(private val registry: AssetRegistry) {
 
         val head = pick(
             buildList {
-                add(sourced(presence.headAccessoryAssetId, LayerPriority.CONTEXT, signature = false))
-                keys.forEach { add(sourced(override(it)?.headAccessoryAssetId, priorityFor(it), false)) }
-                keys.forEach { add(sourced(registry.semantic(it)?.headAccessoryAssetId, priorityFor(it), false)) }
+                add(sourced(presence.headAccessoryAssetId, LayerPriority.STATUS, signature = false))
+                keys.forEach { add(sourced(override(it)?.headAccessoryAssetId, accessoryPriority(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.headAccessoryAssetId, accessoryPriority(it), false)) }
                 add(sourced(config.signatureHeadAccessoryAssetId, LayerPriority.SIGNATURE, true))
             },
             AssetCategory.HEAD_ACCESSORY,
@@ -148,9 +158,9 @@ class AvatarResolver(private val registry: AssetRegistry) {
         )
         val body = pick(
             buildList {
-                add(sourced(presence.bodyAccessoryAssetId, LayerPriority.CONTEXT, false))
-                keys.forEach { add(sourced(override(it)?.bodyAccessoryAssetId, priorityFor(it), false)) }
-                keys.forEach { add(sourced(registry.semantic(it)?.bodyAccessoryAssetId, priorityFor(it), false)) }
+                add(sourced(presence.bodyAccessoryAssetId, LayerPriority.STATUS, signature = false))
+                keys.forEach { add(sourced(override(it)?.bodyAccessoryAssetId, accessoryPriority(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.bodyAccessoryAssetId, accessoryPriority(it), false)) }
                 add(sourced(config.signatureBodyAccessoryAssetId, LayerPriority.SIGNATURE, true))
             },
             AssetCategory.BODY_ACCESSORY,
@@ -164,8 +174,8 @@ class AvatarResolver(private val registry: AssetRegistry) {
         val prop = pick(
             buildList {
                 add(sourced(presence.propAssetId, LayerPriority.CONTEXT, false))
-                keys.forEach { add(sourced(override(it)?.propAssetId, priorityFor(it), false)) }
-                keys.forEach { add(sourced(registry.semantic(it)?.propAssetId, priorityFor(it), false)) }
+                keys.forEach { add(sourced(override(it)?.propAssetId, propPriority(it), false)) }
+                keys.forEach { add(sourced(registry.semantic(it)?.propAssetId, propPriority(it), false)) }
                 add(sourced(config.defaultPropAssetId, LayerPriority.SIGNATURE, true))
             },
             AssetCategory.FOREGROUND_PROP,
@@ -287,8 +297,8 @@ class AvatarResolver(private val registry: AssetRegistry) {
 
     /**
      * The first source that resolves chooses the asset. Later sources that name that same
-     * asset can only raise its [LayerPriority] (decision D-31). An explicit VR headset is also
-     * the `activity:vr` mapping, so the slot becomes [LayerPriority.ACTIVITY] and outranks a
+     * asset can only raise its [LayerPriority] (decision D-31). An explicit headset is [LayerPriority.STATUS]
+     * on its own, and [LayerPriority.ACTIVITY] when `activity:vr` names it too. Either outranks a
      * signature in another slot for the life of the status.
      */
     private fun pick(options: List<Sourced?>, category: AssetCategory, dropped: MutableList<DroppedAsset>): Sourced? {

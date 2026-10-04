@@ -26,10 +26,30 @@ class WidgetRenderInputsTest {
     private val now = Instant.parse("2026-10-04T15:00:00Z")
 
     @Test fun `cell size selects compact standard and large targets`() {
-        assertEquals(RenderTarget.COMPACT_WIDGET, WidgetRenderInputs.targetFor(110f, 110f))
+        assertEquals(76f, WidgetRenderInputs.avatarDrawnDp(110f, 110f))
+        assertEquals(RenderTarget.STANDARD_WIDGET, WidgetRenderInputs.targetFor(110f, 110f))
+        assertEquals(92f, WidgetRenderInputs.avatarDrawnDp(250f, 110f))
         assertEquals(RenderTarget.STANDARD_WIDGET, WidgetRenderInputs.targetFor(250f, 110f))
+        assertEquals(120f, WidgetRenderInputs.avatarDrawnDp(180f, 180f))
         assertEquals(RenderTarget.LARGE_WIDGET, WidgetRenderInputs.targetFor(180f, 180f))
         assertEquals(RenderTarget.LARGE_WIDGET, WidgetRenderInputs.targetFor(250f, 250f))
+        assertEquals(48f, WidgetRenderInputs.avatarDrawnDp(70f, 70f))
+        assertEquals(RenderTarget.COMPACT_WIDGET, WidgetRenderInputs.targetFor(70f, 70f))
+    }
+
+    @Test fun `a throwing registry falls back to no bitmap`() {
+        val model = WidgetModel(title = "Ari", restingAvatar = AvatarConfig(), deepLink = "idl://status")
+        var logged: Throwable? = null
+        val (out, bitmap) = WidgetRenderInputs.renderCatching<String>(
+            model,
+            110f,
+            110f,
+            registry = { error("pack default is missing") },
+            onFailure = { logged = it },
+        ) { _, _ -> error("draw should not run") }
+        assertEquals(model, out)
+        assertNull(bitmap)
+        assertEquals("pack default is missing", logged?.message)
     }
 
     @Test fun `a friend widget resolves the resting avatar and passes status as presence`() {

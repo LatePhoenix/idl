@@ -30,17 +30,46 @@ data class WidgetRenderInputs(
 
     companion object {
         /**
-         * Glance cell size in dp. A 1×1 cell simplifies as compact, a wide cell as standard,
-         * and a square 2×2 as large.
+         * Avatar image drawn inside a Glance cell, in dp. The default 2×2 draws 76, the wide
+         * cell draws 92, and a square cell draws 120. Anything smaller stays at 48 for a future 1×1.
          */
-        fun targetFor(widthDp: Float, heightDp: Float): RenderTarget {
-            val short = min(widthDp, heightDp)
-            val long = max(widthDp, heightDp)
-            return when {
-                short >= 160f -> RenderTarget.LARGE_WIDGET
-                long >= 200f -> RenderTarget.STANDARD_WIDGET
-                else -> RenderTarget.COMPACT_WIDGET
-            }
+        fun avatarDrawnDp(widthDp: Float, heightDp: Float): Float = when {
+            min(widthDp, heightDp) >= 180f -> 120f
+            max(widthDp, heightDp) >= 250f -> 92f
+            min(widthDp, heightDp) >= 110f -> 76f
+            else -> 48f
+        }
+
+        /**
+         * Render target from the avatar's drawn size. 76 dp and 92 dp are [RenderTarget.STANDARD_WIDGET],
+         * so the default 2×2 keeps body accessories. 120 dp is [RenderTarget.LARGE_WIDGET].
+         * [RenderTarget.COMPACT_WIDGET] is reserved for a future 1×1.
+         */
+        fun targetFor(widthDp: Float, heightDp: Float): RenderTarget = when (avatarDrawnDp(widthDp, heightDp)) {
+            in 96f..Float.MAX_VALUE -> RenderTarget.LARGE_WIDGET
+            in 64f..96f -> RenderTarget.STANDARD_WIDGET
+            else -> RenderTarget.COMPACT_WIDGET
+        }
+
+        /**
+         * Builds inputs and draws. A widget with no avatar returns [model] and a null bitmap.
+         * A registry, migration, or draw failure is reported via [onFailure] and also returns a
+         * null bitmap, so the widget can show its fallback.
+         */
+        fun <T> renderCatching(
+            model: WidgetModel,
+            widthDp: Float,
+            heightDp: Float,
+            registry: () -> AssetRegistry,
+            onFailure: (Throwable) -> Unit,
+            draw: (AssetRegistry, WidgetRenderInputs) -> Pair<WidgetModel, T>,
+        ): Pair<WidgetModel, T?> = try {
+            val reg = registry()
+            val inputs = from(model, reg, targetFor(widthDp, heightDp)) ?: return model to null
+            draw(reg, inputs)
+        } catch (failure: Throwable) {
+            onFailure(failure)
+            model to null
         }
 
         fun from(model: WidgetModel, registry: AssetRegistry, target: RenderTarget): WidgetRenderInputs? {
