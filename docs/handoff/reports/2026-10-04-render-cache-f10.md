@@ -70,5 +70,5 @@ Disk trim is still a file-count cap (keep the newest 64 pngs once there are more
 ## Commits
 
 - `08be0d3` Clear friend renders on sign-out and purge, and cache them by bytes.
-- Follow-up: lock the memory cache, drop a file when its owner was purged mid-render, and clear files on `Dispatchers.IO`.
+- `6826e6e` Lock the memory cache, drop a file when its owner was purged mid-render, and clear files on `Dispatchers.IO`.
 - PR: https://github.com/LatePhoenix/idl/pull/14
