@@ -79,4 +79,8 @@ From Git Bash. Unit tests, lint, and the debug build. Device tests were not part
 
 ## Commits
 
-Filled in after the commits land.
+```
+820cb81 Match widget outline contrast to the wallpaper.
+```
+
+PR #16.
