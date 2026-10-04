@@ -130,11 +130,14 @@ few). The server uses pin state only inside the ledger and never returns it.
 - Charge buys cosmetics only
 - the balance stays on the Status Deck
 
-**D-31 · A temporary explicit accessory outranks a conflicting signature (2026-10-04).**
-When several sources name the same asset, the resolver gives that slot the highest priority
-among them. The "In VR" headset is both an explicit visual and the `activity:vr` mapping, so
-the slot is ACTIVITY and hides conflicting signature glasses for the life of the status. The
-glasses return when the status ends. Saved identity is not rewritten (master plan §11.1).
+**D-31 · A temporary status accessory outranks a conflicting signature (2026-10-04, clarified
+the same day after the PR #5 review).** An accessory chosen by the current status (an explicit
+`VisiblePresence` head/body visual, or an override or semantic mapping for a visible key) is
+`LayerPriority.STATUS`, which ranks above `SIGNATURE`. It hides conflicting signature glasses for
+the life of the status, **for every viewer**: composition priority must never depend on which
+presence fields a viewer is allowed to see. When several sources name the same asset, the slot
+takes the highest of their priorities (so `activity:vr` still makes the headset ACTIVITY). The
+glasses return when the status ends, and saved identity is never rewritten (master plan §11.1).
 
 **D-32 · Charge is purchasable (user, 2026-10-04).** Google Play Billing consumables, with every
 purchase verified server-side (Play Developer API) before an idempotent ledger credit, and

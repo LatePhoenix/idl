@@ -74,7 +74,7 @@ CI has no device or snapshot tests yet (F-14).
 | Friends, invites (QR display + code), requests, block/remove | ✅ | QR **scanning** not built |
 | Reactions (send, inbox, dismiss, expire, rate limit) | ✅ | |
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
-| Widgets: solo friend + self, pinning, config activity | ✅ | Presence is resolved from the resting avatar (F-01–F-03). Wallpaper contrast is still hard-coded (F-07) |
+| Widgets: solo friend + self, pinning, config activity | 🟡 | Presence is resolved from the resting avatar (F-01, F-03 ✅). **Still open after the PR #5 review:** headset lost for non-close friends (F-02), default-size widget over-simplified (F-21), render errors escape the fallback (F-22). Wallpaper contrast is hard-coded (F-07) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
 | Render cache | 🟡 | Exists; hygiene issues (F-10) |
@@ -126,7 +126,7 @@ in one PR.
   glyphs. `WidgetRenderPathTest` on a Pixel 9 emulator asserts every availability bitmap differs,
   and the device renders are in `docs/handoff/reports/screenshots/`.
 
-#### F-02 · VR headset disappears for anyone whose signature is glasses · ✅ P0
+#### F-02 · VR headset disappears for anyone whose signature is glasses · 🟡 P0 (partly fixed in PR #5)
 - **Evidence (two independent paths):**
   1. *Widget path:* `widget/Widgets.kt render()` runs `LegacyAvatarMigration.migrate()` on the
      friend's **composed** v1 avatar, which already contains status visuals. `sanitize()` treats
@@ -154,6 +154,18 @@ in one PR.
   priority among sources that name the same asset (D-31), so the explicit headset is ACTIVITY
   and signature glasses are `CONFLICT`. JVM tests cover QuickState and the widget inputs;
   `widget-vr-over-glasses.png` is the device render.
+- **Still broken (Claude review of PR #5, 2026-10-04):** the fix only works when the viewer can
+  see the activity. With default rules a friend **not on the close list** gets the headset as an
+  explicit visual but **no `activityType`** (`activity_category` defaults to close friends). No
+  later source raises its priority, so it stays CONTEXT and loses to the SIGNATURE glasses again.
+  Probe through `PrivacyFilter.viewFor(isCloseFriend = false)` → `LegacyAvatarMigration.presence`
+  → resolver: `head_vr_headset` dropped `CONFLICT(face_glasses_round)`. That's the most common
+  viewer. The PR's tests always set `activityType = VR`, so they miss it.
+- **Remaining fix (D-31, clarified):** priority must not depend on what the viewer is allowed
+  to see. Add `LayerPriority.STATUS` between `ACTIVITY` and `SIGNATURE`. Use it for accessories a
+  status chooses explicitly (`VisiblePresence` head and body fields), and for accessory overrides
+  and semantics from non-activity keys. Keep the D-31 "highest matching source" rule. Spec:
+  `docs/handoff/PR5_FOLLOWUP_TASK.md`.
 
 #### F-03 · Widget rendering ignores presence; status is baked into identity · ✅ P0
 - **Evidence:** `Widgets.kt render()` calls the resolver with the default
@@ -268,6 +280,20 @@ in one PR.
 - DB v1→v2 (`MIGRATION_1_2`) has no `MigrationTestHelper` test, although schemas 1 and 2 are
   exported. Required by invariant 5 before the next schema change.
 
+#### F-21 · Default-size widget is simplified as a 48 px compact render · ⬜ P1 (from PR #5)
+- `WidgetRenderInputs.targetFor()` maps the `SMALL` (110×110 dp) Glance bucket to
+  `COMPACT_WIDGET`. But 110 dp is the widget's **minimum and default 2×2 size**
+  (`minWidth/minHeight = 110dp`, `targetCell 2×2`); there's no 1×1 widget. So a freshly placed
+  widget drops every body accessory and, whenever an activity badge shows, the prop: "Sleepy"
+  loses its blanket and "Gaming" loses its controller, while the avatar is drawn at 76 dp.
+  Before PR #5 the same widget used `STANDARD_WIDGET`.
+- **Fix:** choose the target from the **avatar image's** drawn size, not the cell size. The
+  SMALL bucket (76 dp avatar) maps to STANDARD, WIDE (92 dp) to STANDARD, and SQUARE to LARGE.
+  Reserve COMPACT for a future 1×1 and dense circle widgets. Rename the screenshots so "1×1" isn't
+  used for the 2×2 default.
+- **Verify:** a unit test of `targetFor` for every declared Glance size, and a device render of
+  the default widget showing the blanket and prop.
+
 ### P2/P3 — process and maintenance
 
 #### F-14 · CI can't catch visual or widget regressions · ⬜ P1
@@ -308,6 +334,15 @@ in one PR.
   in `scripts/check.sh --device` (`adb wait-for-device`, `input keyevent 82`), or add a test
   rule that retries activity launch once.
 
+#### F-22 · Widget render errors bypass the fallback · ⬜ P2 (from PR #5)
+- `Widgets.kt render()` now reads `container.assetRegistry` and calls
+  `WidgetRenderInputs.from()` (which runs `migrate`/`sanitize`) **outside** `runCatching`. A pack
+  load or parse failure, or `error("pack default … is missing")`, propagates out of
+  `provideGlance`, so Glance shows its generic error box instead of the designed fallback and
+  `widget.render_failed` isn't logged. Before PR #5 both were inside `runCatching`.
+- **Fix:** move both inside `runCatching`, or wrap `render()`'s whole body. Add a test with a
+  registry that throws.
+
 ---
 
 ## 4. Roadmap
@@ -330,12 +365,13 @@ PostgREST tests) can be done at any time.
 | # | Item | Findings | Status |
 | --- | --- | --- | --- |
 | 0.1 | Widget render path rebuilt on `restingAvatar` + `VisiblePresence`; badges from resolved layers | F-01, F-02(1), F-03 | ✅ |
-| 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ✅ |
+| 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | 🟡 (non-close-friend path still fails) |
 | 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ⬜ |
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ⬜ |
 | 0.7 | Room migration test (1→2) | F-13 | ⬜ |
+| 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ⬜ |
 | 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | ⬜ |
 
 ### Milestone 0 · MVP foundation — ✅ done (2026-10-03)
@@ -417,9 +453,11 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-34). The most relevant t
   accessories and customizations (2026-10-04, user)
   - **D-30a:** no per-friend tether visibility
   - **D-30b:** guardrails approved; the balance stays on the Status Deck
-- **D-31** A temporary explicit accessory that is also named by a higher-priority source outranks
-  a conflicting signature for the life of the status. The "In VR" headset is ACTIVITY and hides
-  signature glasses; the glasses return when the status ends. Saved identity is not rewritten.
+- **D-31** A temporary accessory chosen by the current status outranks a conflicting signature
+  for the life of the status, **for every viewer**. Priority never depends on which fields the
+  viewer may see. Explicit status accessories are `LayerPriority.STATUS` (above SIGNATURE); a slot
+  also takes the highest priority among sources naming the same asset. Glasses return when the
+  status ends; saved identity is never rewritten. (Clarified 2026-10-04 after the PR #5 review.)
 - **D-32** Charge can be bought with real money via Google Play Billing; this requires a
   server-authoritative ledger with verified purchases (2026-10-04, user)
 - **D-33** Crash reporting = Firebase Crashlytics, with no PII and an opt-out; no Google
@@ -470,3 +508,4 @@ Add new questions here as they come up.
 | 2026-10-04 | User/Claude | Decisions D-30a/b, D-32, D-33, D-34 recorded; roadmap reordered (avatars before real backend projects) | this PR |
 | 2026-10-04 | Claude | Full audit: 141 JVM ✅, 9/9 device ✅ (one flake), CI ✅; device and JVM probes confirmed F-01/F-02; this master plan; findings F-01…F-20 | this commit |
 | 2026-10-04 | Cursor | Track 0.1–0.2: widget presence, badges from resolved layers, D-31 slot priority. 149 JVM, 11/11 device | `ca70087`, PR #5 |
+| 2026-10-04 | Claude | Review of PR #5: F-01/F-03 fixed; F-02 still fails for non-close friends; new F-21, F-22; D-31 clarified; follow-up spec `docs/handoff/PR5_FOLLOWUP_TASK.md` | PR #5 |
