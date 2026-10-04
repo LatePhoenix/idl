@@ -49,4 +49,5 @@ Schema 3 is not in this change. The next Room version still needs its own migrat
 
 ## Commits
 
-Recorded on `test/room-migration-f13`.
+- `492019e` Test the Room 1 to 2 migration against the exported schemas.
+- PR: https://github.com/LatePhoenix/idl/pull/13
