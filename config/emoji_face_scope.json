@@ -1,0 +1,36 @@
+{
+  "unicodeVersion": "18.0",
+  "emojiTestUrl": "https://www.unicode.org/Public/emoji/18.0/emoji-test.txt",
+  "emojiTestDate": "2026-04-30",
+  "notes": "Illustrative Unicode subgroups. Finished glyphs in face-hat and face-glasses are decomposed into items, not used as avatar templates. Hearts, emotion symbols, food, flags, and objects are out of scope.",
+  "includeSubgroups": [
+    "face-smiling",
+    "face-affection",
+    "face-tongue",
+    "face-neutral-skeptical",
+    "face-sleepy",
+    "face-unwell",
+    "face-concerned",
+    "face-negative",
+    "cat-face",
+    "monkey-face"
+  ],
+  "decomposeSubgroups": [
+    "face-hat",
+    "face-glasses"
+  ],
+  "deferredSubgroups": [
+    "face-hand",
+    "face-costume"
+  ],
+  "explicitHeadCodepoints": [
+    "1F916",
+    "1F47D",
+    "1F47E",
+    "1F47B",
+    "1F480",
+    "1F921",
+    "1F479",
+    "1F47A"
+  ]
+}

@@ -90,10 +90,11 @@ CI has no device or snapshot tests yet (F-14).
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-38). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-39). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
+| `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` | D-39 emoji-style compositor. Design only; does not replace the rows above |
 | `docs/handoff/PHASE_1_TASK.md` | Avatar Phase 1 spec (done) |
 | `supabase/README.md` | Server: security model, local tests, real-project setup |
 | `docs/IDL_IMPLEMENTATION_ROADMAP.md` | **Superseded by this file**; kept for history |
@@ -460,7 +461,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-38). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-39). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -486,6 +487,10 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-38). The most relevant t
   on-device location; only the weather condition is shared)
 - **D-38** Platform account connections (Steam, Discord, Xbox, PlayStation, Meta Quest,
   VRChat) are on hold
+- **D-39** Emoji-style layered vectors are the bootstrap avatar art (2026-10-04, user).
+  Canvas and the single module stay. Noto SVG is a pinned, replaceable source, not imported
+  yet. Specs under `docs/ARCHITECTURE.md` and `docs/ROADMAP.md`. The widget already draws
+  availability and activity badges; a vector painter has to keep drawing them.
 
 ---
 
@@ -720,3 +725,4 @@ win once Track 0 is done.
 | 2026-10-04 | Claude | Review of PR #5: F-01/F-03 fixed; F-02 still fails for non-close friends; new F-21, F-22; D-31 clarified; follow-up spec `docs/handoff/PR5_FOLLOWUP_TASK.md` | PR #5 |
 | 2026-10-04 | Cursor | PR #5 follow-up: STATUS accessories, default 2×2 widget uses STANDARD, render failures stay in the fallback. 154 JVM, 12/12 device | PR #5 |
 | 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
+| 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |

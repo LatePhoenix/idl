@@ -179,6 +179,26 @@ friend's *home-screen widget* communicates is still undecided (master-plan Q11).
 PlayStation, Meta Quest or VRChat sign-ins or badges for now. Feasibility notes are in
 master-plan §7.1-A.
 
+**D-39 · Emoji-style layered vectors are the bootstrap avatar art (user, 2026-10-04).**
+Users start from a standard face-emoji language and customize skin, expression, hair, facial
+hair, glasses, hats, jewelry, mouth props, and per-part colors. Specs:
+`docs/ARCHITECTURE.md`, `docs/ASSET_SPEC.md`, `docs/AVATAR_RECIPE_SCHEMA.md`,
+`docs/LICENSING.md`, `docs/ROADMAP.md`, `docs/adr/0001-vector-asset-renderer.md`.
+
+- Drawing stays on Android Canvas from a versioned recipe (D-05, D-06). The device emoji font
+  is not used. Renderer choice is path data, not AndroidSVG (ADR 0001).
+- The `:app` module stays one module (D-01). New code lands in `domain/avatar` and `avatar/`.
+- Noto Emoji `svg/` may be imported later only from pinned commit
+  `e20cbc2bbec1926686be9f9bee7d1d2cfa1fea0e`, Apache-2.0, with notices. It is replaceable
+  bootstrap art. Saved recipes keep stable ids so a house style can take over (extends D-25
+  with `render.type = vector`).
+- Master plan §3.2 still forbids vendor emoji fonts. The preference for a fully original style
+  is deferred until that house-style pack exists.
+- Freeform part colors are allowed. Master plan §2.2's "no full freeform color pickers" is
+  relaxed for avatar parts only. Core expressions stay free (invariant 6).
+- Nothing in this decision is implemented yet. The widget already draws availability and
+  activity badges (F-01, F-02). A later vector painter has to keep drawing them.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated
@@ -188,6 +208,7 @@ master-plan §7.1-A.
    must batch; payloads carry ids only.
 3. **Widget update reliability** on OEM-skinned Android (battery optimisers kill background
    work). Mitigate with push-driven updates + honest stale display; measure refresh failure rate.
-4. **Avatar art direction** — Canvas vector style may not hit the "expressive, high quality" bar.
-   Layer painters are isolated so an illustrator can replace them.
+4. **Avatar art direction** — D-39 adopts emoji-style vectors as bootstrap art. Canvas stays.
+   Noto-derived pictures must stay swappable for a house style, or the product has no durable
+   identity (master plan §3.2).
 5. **Invisible mode signal leakage** — toggling must not trigger visible pushes or timestamp changes.
