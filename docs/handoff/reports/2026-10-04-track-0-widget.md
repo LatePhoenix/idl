@@ -77,4 +77,8 @@ After adding the screenshot log line, the same class was re-run with `am instrum
 
 ## Commits
 
-Filled in after commit. Range: `git log --oneline origin/main..HEAD`.
+```text
+ca70087 Restore widget presence so badges and an explicit VR headset survive.
+```
+
+Range: `git log --oneline origin/main..HEAD`.
