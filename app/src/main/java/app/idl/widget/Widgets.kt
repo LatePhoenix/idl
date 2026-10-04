@@ -49,6 +49,12 @@ import app.idl.MainActivity
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderCache
+import app.idl.avatar.RenderContrast
+import app.idl.domain.avatar.AvatarRenderRequest
+import app.idl.domain.avatar.AvatarResolver
+import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.RenderTarget
+import app.idl.domain.avatar.WallpaperContrastMode
 import app.idl.container
 import app.idl.data.local.IdlDao
 import app.idl.data.local.WidgetSubscriptionEntity
@@ -71,9 +77,21 @@ private suspend fun render(context: Context, model: WidgetModel): Bitmap? = with
     runCatching {
         model.avatar?.let { config ->
             val badges = AvatarBadges(model.availability, model.activity, resonating = model.resonating)
-            val key = RenderCache.key(config, AVATAR_PX, badges, WIDGET_SIMPLIFY_PX)
+            val contrast = RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER)
+            val registry = context.container.assetRegistry
+            val resolved = AvatarResolver(registry).resolve(
+                AvatarRenderRequest(
+                    configuration = LegacyAvatarMigration.migrate(config, registry),
+                    target = RenderTarget.STANDARD_WIDGET,
+                    sizePx = WIDGET_SIMPLIFY_PX,
+                    wallpaperContrastMode = contrast.wallpaper,
+                ),
+            )
+            val key = RenderCache.keyOf(
+                "${resolved.renderKey}|$AVATAR_PX|${badges.availability}|${badges.activity}|${badges.resonating}|${contrast.wallpaper}",
+            )
             context.container.renders.bitmap(key) {
-                AvatarRenderer.bitmap(config, AVATAR_PX, badges, WIDGET_SIMPLIFY_PX)
+                AvatarRenderer.bitmap(resolved, registry, AVATAR_PX, badges, contrast)
             }
         }
     }.onFailure { IdlLog.e("widget.render_failed", it) }.getOrNull()

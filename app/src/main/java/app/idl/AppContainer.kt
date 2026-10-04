@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import app.idl.avatar.RenderCache
 import app.idl.data.local.AppSettings
+import app.idl.domain.avatar.AssetPacks
+import app.idl.domain.avatar.AssetRegistry
 import app.idl.data.local.IdlDatabase
 import app.idl.data.push.MockPushSource
 import app.idl.data.push.PushHandler
@@ -46,6 +48,9 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val settings = AppSettings(app)
     val notifier = Notifier(app)
     val renders = RenderCache(File(app.cacheDir, "renders"))
+    val assetRegistry: AssetRegistry by lazy {
+        AssetPacks.registry { path -> app.assets.open(path).bufferedReader().use { it.readText() } }
+    }
 
     val mockPush = MockPushSource()
 
