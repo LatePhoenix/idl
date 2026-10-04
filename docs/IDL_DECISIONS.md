@@ -29,7 +29,7 @@ painters without changing the config model (`renderVersion` gates it).
 avoids view-count limits and keeps parity with in-app avatar. Fallback to raw RemoteViews only if
 Glance blocks a needed behaviour.
 
-**D-07 · Crash reporting vendor deferred. (confirm)** Interface only. Crashlytics if we already
+**D-07 · Crash reporting vendor deferred.** Resolved by D-33. Interface only. Crashlytics if we already
 ship Firebase for FCM; Sentry if we want EU hosting.
 
 **D-08 · Expiry evaluated at read time + one-shot WorkManager job.** Correct without relying
@@ -108,6 +108,46 @@ is never the only cue.
 
 **D-29 · Legacy bases fold into the five MVP bases** (see IDL_AVATAR_CREATOR_PLAN §6.2). Art
 stays placeholder until the product idea is validated.
+
+**D-30 · Charge (user, 2026-10-04).** A passive resource earned while friends have mutually
+pinned each other's widgets. It will be spent on customization and avatar accessories. Accrual
+is computed on evaluation (no timers) with diminishing per-tether rates (10, 10, 8, 6, then 2
+per hour) and a 24 h uncollected cap. The current implementation is a local prototype. Open
+before shipping: the tether visibility model, guardrails against engagement pressure, and a
+server-authoritative ledger before anything is spendable (master-plan F-04…F-06). Charge must
+never gate the core vocabulary, privacy or widget features (master plan §17.3).
+
+**D-30a · No per-friend tether visibility (user, 2026-10-04).** A user never learns that a
+specific friend has pinned their widget. The UI shows only the balance and a qualitative
+"earning" state (no tether count or exact rate, which would identify a friend when there are
+few). The server uses pin state only inside the ledger and never returns it.
+
+**D-30b · Charge guardrails (user, 2026-10-04).**
+- no Charge notifications
+- never show who has or hasn't pinned you
+- no streaks or decay
+- the 24 h cap is a ceiling, not a penalty
+- Charge buys cosmetics only
+- the balance stays on the Status Deck
+
+**D-32 · Charge is purchasable (user, 2026-10-04).** Google Play Billing consumables, with every
+purchase verified server-side (Play Developer API) before an idempotent ledger credit, and
+refunds/voids handled via Real-time Developer Notifications. This makes the server-authoritative
+ledger mandatory, and the core vocabulary, privacy, widget and accessibility features stay
+free (master plan §17.3).
+
+**D-33 · Crash reporting = Firebase Crashlytics (2026-10-04, delegated).** Firebase is required
+for FCM anyway, so this adds no new vendor. It sits behind the existing `CrashReporter` seam.
+- no PII and no custom keys with notes, names, usernames or avatar content
+- users can turn it off in Settings
+- no Google Analytics/Firebase Analytics SDK; product metrics are in-house, privacy-safe counters
+
+Sentry stays the fallback if EU data residency becomes a requirement.
+
+**D-34 · Real backend projects after the avatar work (user, 2026-10-04).** The Supabase and
+Firebase projects are created once the user is happy with the avatars, avatar creation and
+customization. Until then all server work is developed and tested against the local Docker stack.
+Supersedes the "(confirm)" on D-07.
 
 ## High-risk decisions to watch
 

@@ -13,8 +13,8 @@ Requirements: JDK 17+ (21 works) and an Android SDK with platform 35. Set `sdk.d
 `local.properties`, or set `ANDROID_HOME`.
 
 ```bash
-./gradlew test assembleDebug          # 78 JVM unit tests (PostgREST IT skips without -Pidl.postgrestUrl) + APK
-./gradlew connectedDebugAndroidTest   # 8 instrumented tests (needs emulator/device)
+scripts/check.sh                      # unit tests + lint + debug build (see AGENTS.md)
+./gradlew connectedDebugAndroidTest   # instrumented tests (needs emulator/device)
 ./gradlew installDebug                # app id: app.idl.debug
 supabase/tests/run.sh                 # backend: privacy vectors + RLS/behaviour tests (needs Docker)
 ```
@@ -43,6 +43,10 @@ app/src/main/java/app/idl/
   ui/       Compose screens
 docs/       product spec, architecture, data model, privacy, widgets, API, roadmap, decisions
 ```
+
+## Status and roadmap
+
+See [`master-plan.md`](master-plan.md) for the current state, open issues and roadmap.
 
 ## Known limitations
 
