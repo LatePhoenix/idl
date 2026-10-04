@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit
 /** Full reconcile: flush pending writes, refetch friends/presence/inbox, refresh widgets. */
 class ReconcileWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
+        // reconcile() refreshes widgets, which re-read wallpaper contrast. No poll.
         val result = applicationContext.container.sync.reconcile()
         return when {
             result.isSuccess -> Result.success()
@@ -40,6 +41,7 @@ class ExpiryWorker(context: Context, params: WorkerParameters) : CoroutineWorker
         val c = applicationContext.container
         val now = c.clock.now()
         c.dao.purgeExpiredReactions(now.toEpochMilli())
+        // Re-read wallpaper contrast as part of the existing widget update. No poll.
         c.widgets.all()
         val next = Expiry.nextExpiry(
             c.dao.ownPresenceNow().map { decodeState(it.json).expiresAt } +

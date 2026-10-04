@@ -49,6 +49,11 @@ sequenceDiagram
 * `ExpiryWorker` fires at the next `expiresAt` → `WidgetUpdater.all()`.
 * `ReconcileWorker` (6 h, network-constrained) → `all()`.
 * The platform's own `updatePeriodMillis` is 0 (disabled); we never poll.
+* Widget outline contrast is re-read on every widget update (expiry, reconcile, presence).
+  While the process is alive, `WallpaperManager.OnColorsChangedListener` refreshes widgets
+  when the system wallpaper colors change. API 26–30 have no color hints, and a null color
+  result is the same case, so Auto uses a dark wallpaper.
+  A Settings choice of Light or Dark overrides Auto. There is no wallpaper poll.
 
 ## 4. Stale / failure states
 

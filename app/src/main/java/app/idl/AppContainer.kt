@@ -29,6 +29,7 @@ import app.idl.data.repo.SessionRepository
 import app.idl.data.repo.SyncManager
 import app.idl.notify.Notifier
 import app.idl.widget.GlanceWidgetRefresher
+import app.idl.widget.SystemWallpaperContrast
 import app.idl.work.WorkSyncScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -96,6 +97,9 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
             scope.launch { settings.simulateOffline.distinctUntilChanged().collect { fake.simulateOffline = it } }
         }
         IdlLog.i("app.start", "backend" to if (isRemote) "supabase" else "fake")
+        SystemWallpaperContrast(app).listen {
+            scope.launch { widgets.all() }
+        }
         scheduler.schedulePeriodicReconcile()
         scope.launch { sync.reconcile() }
     }

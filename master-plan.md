@@ -74,7 +74,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Friends, invites (QR display + code), requests, block/remove | ✅ | QR **scanning** not built |
 | Reactions (send, inbox, dismiss, expire, rate limit) | ✅ | |
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
-| Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast is hard-coded (F-07) |
+| Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
 | Render cache | 🟡 | Exists; hygiene issues (F-10) |
@@ -250,11 +250,12 @@ in one PR.
   states are the first tagged action. Still open: explain the 24 h cap in-app (C.5). Cosmetics-only
   spending is C.4.
 
-#### F-07 · Widgets hard-code dark-wallpaper contrast · 🟡 P1
-- `Widgets.kt` always uses `WallpaperContrastMode.DARK_WALLPAPER`, so light-wallpaper users get
-  a light outline. **Fix:** derive the mode from `WallpaperManager.getWallpaperColors()`
-  (`HINT_SUPPORTS_DARK_TEXT`, API 27+), with a user setting and an API 26 fallback (Avatar
-  Phase 7 item, but it's shipping now).
+#### F-07 · Widgets hard-code dark-wallpaper contrast · ✅ P1
+- **Fixed (2026-10-04).** Auto reads `WallpaperColors.getColorHints()` and maps
+  `HINT_SUPPORTS_DARK_TEXT` to a light wallpaper. Settings offers Auto (default), Light, and Dark.
+  API 26–30 and a null color result use a dark wallpaper, because `getColorHints()` is API 31.
+  The mode is part of the render key. Widgets refresh from `OnColorsChangedListener` while the
+  process is alive, and every existing widget update re-reads the wallpaper. No poll.
 
 #### F-08 · Glyph names duplicated in code and manifest · ✅ P1
 - `domain/StatusGlyphs.kt` hard-codes what `core_proto` already declares in each asset's
@@ -404,7 +405,7 @@ PostgREST tests) can be done at any time.
 | 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ✅ |
 | 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ✅ |
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
-| 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
+| 0.5 | Wallpaper-aware contrast for widgets | F-07 | ✅ |
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ✅ |
 | 0.7 | Room migration test (1→2) | F-13 | ✅ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
@@ -436,7 +437,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-07–F-10 |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-07 fixed in Track 0.5. F-08, F-11 and F-12 fixed in Track 0.6. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-09 and F-10 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -761,3 +762,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
 | 2026-10-04 | Cursor | Room 1→2 migration test with the exported schemas. 161 JVM, 16/16 device | `492019e`, PR #13, F-13 ✅, Track 0.7 |
 | 2026-10-04 | Cursor | Glyphs from the manifest, de-duplicated accessibility sentences, unknown scenes fall through. 163 JVM, 15/15 device | `cf8134b`, PR #15, F-08 ✅, F-11 ✅, F-12 ✅, Track 0.6 |
+| 2026-10-04 | Cursor | Widget outline contrast follows the wallpaper. Auto / Light / Dark setting. 167 JVM | `820cb81`, PR #16, F-07 ✅, Track 0.5 ✅ |
