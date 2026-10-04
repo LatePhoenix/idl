@@ -32,6 +32,7 @@ import app.idl.BuildConfig
 import app.idl.FeatureFlags
 import app.idl.data.local.AppSettings
 import app.idl.domain.QuickState
+import app.idl.domain.avatar.WallpaperContrastPreference
 import app.idl.domain.ReactionTemplate
 import app.idl.ui.components.ChoiceChips
 import app.idl.ui.components.IdlTopBar
@@ -43,6 +44,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Unit, onSignedOut: () -> Unit) {
     val scope = rememberCoroutineScope()
     val notif by c.settings.notifications.collectAsState(initial = AppSettings.Notifications(true, false, true))
+    val wallpaper by c.settings.wallpaperContrast.collectAsState(initial = WallpaperContrastPreference.AUTO)
     val offline by c.settings.simulateOffline.collectAsState(initial = false)
     val sync by c.sync.lastSync.collectAsState(initial = null)
     var target by remember { mutableStateOf<String?>(null) }
@@ -61,6 +63,25 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
     Scaffold(topBar = { IdlTopBar("Settings", onBack = onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
             OutlinedButton(onClick = onAvatarStudio, modifier = Modifier.fillMaxWidth()) { Text("Edit avatar") }
+
+            SectionTitle("Widgets")
+            Text(
+                "Outline contrast on the home screen. Auto follows a light or dark wallpaper.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            ChoiceChips(
+                WallpaperContrastPreference.entries,
+                wallpaper,
+                { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                { choice ->
+                    if (choice != null) scope.launch {
+                        c.settings.setWallpaperContrast(choice)
+                        c.widgets.all()
+                    }
+                },
+                allowNone = false,
+                testTagPrefix = "wallpaperContrast",
+            )
 
             SectionTitle("Notifications")
             Toggle("Reactions", "When a friend sends you something", notif.reactions) { scope.launch { c.settings.setNotifyReactions(it) } }

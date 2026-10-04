@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import app.idl.domain.avatar.WallpaperContrastPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -22,6 +24,7 @@ class AppSettings(private val context: Context) {
         val notifyRequests = booleanPreferencesKey("notify_requests")
         val simulateOffline = booleanPreferencesKey("debug_simulate_offline")
         val askedNotificationPermission = booleanPreferencesKey("asked_notification_permission")
+        val wallpaperContrast = stringPreferencesKey("wallpaper_contrast")
     }
 
     val notifications: Flow<Notifications> = context.dataStore.data.map {
@@ -36,6 +39,10 @@ class AppSettings(private val context: Context) {
     val simulateOffline: Flow<Boolean> = context.dataStore.data.map { it[Keys.simulateOffline] ?: false }
     val askedNotificationPermission: Flow<Boolean> = context.dataStore.data.map { it[Keys.askedNotificationPermission] ?: false }
 
+    val wallpaperContrast: Flow<WallpaperContrastPreference> = context.dataStore.data.map {
+        WallpaperContrastPreference.fromStored(it[Keys.wallpaperContrast])
+    }
+
     suspend fun notificationsNow() = notifications.first()
 
     suspend fun setNotifyReactions(v: Boolean) = set(Keys.notifyReactions, v)
@@ -43,8 +50,14 @@ class AppSettings(private val context: Context) {
     suspend fun setNotifyRequests(v: Boolean) = set(Keys.notifyRequests, v)
     suspend fun setSimulateOffline(v: Boolean) = set(Keys.simulateOffline, v)
     suspend fun setAskedNotificationPermission() = set(Keys.askedNotificationPermission, true)
+    suspend fun wallpaperContrastNow() = wallpaperContrast.first()
+    suspend fun setWallpaperContrast(value: WallpaperContrastPreference) = set(Keys.wallpaperContrast, value.name.lowercase())
 
     private suspend fun set(key: Preferences.Key<Boolean>, v: Boolean) {
+        context.dataStore.edit { it[key] = v }
+    }
+
+    private suspend fun set(key: Preferences.Key<String>, v: String) {
         context.dataStore.edit { it[key] = v }
     }
 }

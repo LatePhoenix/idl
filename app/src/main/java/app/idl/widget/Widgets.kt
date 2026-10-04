@@ -52,7 +52,6 @@ import app.idl.avatar.RenderCache
 import app.idl.avatar.RenderContrast
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.RenderTarget
-import app.idl.domain.avatar.WallpaperContrastMode
 import app.idl.domain.wire
 import app.idl.container
 import app.idl.data.local.IdlDao
@@ -73,6 +72,7 @@ private const val AVATAR_PX = 256
 /** Renders a widget model; shared by both widget types. Static: no animation. */
 private suspend fun render(context: Context, model: WidgetModel, size: DpSize): Pair<WidgetModel, Bitmap?> =
     withContext(Dispatchers.Default) {
+        val contrast = RenderContrast(wallpaper = SystemWallpaperContrast(context).mode())
         WidgetRenderInputs.renderCatching(
             model,
             size.width.value,
@@ -80,7 +80,6 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
             registry = { context.container.assetRegistry },
             onFailure = { IdlLog.e("widget.render_failed", it) },
         ) { registry, inputs ->
-            val contrast = RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER)
             val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
             val described = model.copy(avatarDescription = resolved.accessibilityDescription)
             val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX")
