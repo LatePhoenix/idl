@@ -48,6 +48,15 @@ class AvatarRendererTest {
         }
     }
 
+    @Test fun availabilityGlyphsDifferAtCompactSize() {
+        val renders = Availability.entries.map { availability ->
+            AvatarRenderer.bitmap(AvatarConfig(), 48, AvatarBadges(availability, null))
+        }
+        for (i in renders.indices) for (j in i + 1 until renders.size) {
+            assertFalse("${Availability.entries[i]} vs ${Availability.entries[j]}", renders[i].sameAs(renders[j]))
+        }
+    }
+
     @Test fun expressionsAreVisuallyDistinct() {
         val renders = Expression.entries.map { AvatarRenderer.bitmap(AvatarConfig(expression = it), 128) }
         for (i in renders.indices) for (j in i + 1 until renders.size) {

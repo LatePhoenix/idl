@@ -17,6 +17,7 @@ enum class Layer {
     HEAD_BASE,
     FACE_STYLE,
     EYES,
+    BROWS,
     MOUTH,
     FACE_ACCESSORY,
     HEAD_ACCESSORY,
@@ -69,6 +70,7 @@ object AvatarSpec {
             add(Layer.HEAD_BASE)
             if (decorate && config.faceStyle != FaceStyle.CLASSIC) add(Layer.FACE_STYLE)
             add(Layer.EYES)
+            add(Layer.BROWS)
             add(Layer.MOUTH)
             if (config.faceAccessory != FaceAccessory.NONE) add(Layer.FACE_ACCESSORY)
             if (config.headAccessory != HeadAccessory.NONE) add(Layer.HEAD_ACCESSORY)

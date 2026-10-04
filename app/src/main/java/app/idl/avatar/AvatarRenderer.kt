@@ -23,6 +23,7 @@ import app.idl.domain.HeadAccessory
 import app.idl.domain.Layer
 import app.idl.domain.MouthShape
 import app.idl.domain.Scene
+import app.idl.domain.StatusGlyphs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -54,15 +55,15 @@ object AvailabilityColors {
  */
 object AvatarRenderer {
 
-    fun bitmap(config: AvatarConfig, sizePx: Int, badges: AvatarBadges? = null): Bitmap {
+    fun bitmap(config: AvatarConfig, sizePx: Int, badges: AvatarBadges? = null, simplifyAtPx: Int = sizePx): Bitmap {
         val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        draw(Canvas(bmp), config, sizePx.toFloat(), badges)
+        draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx)
         return bmp
     }
 
-    fun draw(canvas: Canvas, config: AvatarConfig, size: Float, badges: AvatarBadges? = null) {
+    fun draw(canvas: Canvas, config: AvatarConfig, size: Float, badges: AvatarBadges? = null, simplifyAtPx: Int = size.toInt()) {
         val plan = AvatarSpec.plan(
-            config, size.toInt(),
+            config, simplifyAtPx,
             showAvailability = badges?.availability != null,
             showActivity = badges?.activity != null && badges.activity != ActivityType.NONE,
         )
@@ -88,6 +89,7 @@ object AvatarRenderer {
                 Layer.HEAD_BASE -> p.head()
                 Layer.FACE_STYLE -> p.faceStyle()
                 Layer.EYES -> p.eyes()
+                Layer.BROWS -> p.brows()
                 Layer.MOUTH -> p.mouth()
                 Layer.FACE_ACCESSORY -> p.faceAccessory()
                 Layer.HEAD_ACCESSORY -> p.headAccessory()
@@ -336,17 +338,13 @@ object AvatarRenderer {
                     EyeShape.TEARFUL -> {
                         c.drawCircle(ex, eyeY, er * 1.1f, fill)
                         fill.color = 0xFFFFFFFF.toInt(); c.drawCircle(ex - er * 0.35f, eyeY - er * 0.35f, er * 0.4f, fill); fill.color = ink
-                        c.drawLine(ex - sign * er * 1.4f, eyeY - er * 2.2f, ex + sign * er * 0.6f, eyeY - er * 1.7f, stroke) // worried brow
                     }
                     EyeShape.WIDE -> {
                         fill.color = 0xFFFFFFFF.toInt(); c.drawCircle(ex, eyeY, er * 1.5f, fill)
                         stroke.strokeWidth = lw * 0.8f; c.drawCircle(ex, eyeY, er * 1.5f, stroke); stroke.strokeWidth = lw * 1.2f
                         fill.color = ink; c.drawCircle(ex, eyeY, er * 0.55f, fill)
                     }
-                    EyeShape.ANGRY_SLANT -> {
-                        c.drawCircle(ex, eyeY + er * 0.3f, er * 0.9f, fill)
-                        c.drawLine(ex - sign * er * 1.6f, eyeY - er * 1.8f, ex + sign * er * 1.0f, eyeY - er * 0.7f, stroke)
-                    }
+                    EyeShape.ANGRY_SLANT -> c.drawCircle(ex, eyeY + er * 0.3f, er * 0.9f, fill)
                     EyeShape.SPIRAL -> {
                         stroke.strokeWidth = lw * 0.8f
                         val sp = Path()
@@ -357,17 +355,36 @@ object AvatarRenderer {
                         }
                         c.drawPath(sp, stroke); stroke.strokeWidth = lw * 1.2f
                     }
-                    EyeShape.NARROW -> {
-                        c.drawRoundRect(RectF(ex - er * 1.2f, eyeY - er * 0.35f, ex + er * 1.2f, eyeY + er * 0.35f), er * 0.3f, er * 0.3f, fill)
-                        c.drawLine(ex - er * 1.3f, eyeY - er * 1.3f, ex + er * 1.3f, eyeY - er * 1.1f, stroke) // flat brow
-                    }
+                    EyeShape.NARROW -> c.drawRoundRect(RectF(ex - er * 1.2f, eyeY - er * 0.35f, ex + er * 1.2f, eyeY + er * 0.35f), er * 0.3f, er * 0.3f, fill)
                     EyeShape.WINK -> if (sign < 0) c.drawCircle(ex, eyeY, er, fill)
                         else c.drawArc(RectF(ex - er * 1.2f, eyeY - er, ex + er * 1.2f, eyeY + er * 1.4f), 200f, 140f, false, stroke)
                     EyeShape.SIDE_GLANCE -> {
                         fill.color = 0xFFFFFFFF.toInt(); c.drawOval(RectF(ex - er * 1.4f, eyeY - er, ex + er * 1.4f, eyeY + er), fill)
                         fill.color = ink; c.drawCircle(ex + er * 0.7f, eyeY, er * 0.6f, fill)
-                        c.drawLine(ex - er * 1.4f, eyeY - er * 1.1f, ex + er * 1.4f, eyeY - er * 0.8f, stroke)
                     }
+                }
+            }
+        }
+
+        fun brows() {
+            stroke.color = ink
+            stroke.strokeWidth = lw * 1.1f
+            val by = eyeY - r * 0.32f
+            for (sign in listOf(-1f, 1f)) {
+                val x = cx + sign * eyeDx
+                val half = r * 0.16f
+                when (face.eyes) {
+                    EyeShape.ANGRY_SLANT -> c.drawLine(x - sign * half, by - r * 0.06f, x + sign * half, by + r * 0.06f, stroke)
+                    EyeShape.TEARFUL, EyeShape.WIDE -> c.drawLine(x - sign * half, by + r * 0.05f, x + sign * half, by - r * 0.06f, stroke)
+                    EyeShape.HALF_LID, EyeShape.CLOSED_LINE, EyeShape.DOT -> c.drawLine(x - half, by + r * 0.04f, x + half, by + r * 0.04f, stroke)
+                    EyeShape.NARROW -> c.drawLine(x - half, by, x + half, by + r * 0.02f, stroke)
+                    EyeShape.HAPPY_ARC, EyeShape.SPARKLE, EyeShape.WINK ->
+                        c.drawArc(RectF(x - half, by - r * 0.04f, x + half, by + r * 0.08f), 200f, 140f, false, stroke)
+                    EyeShape.SIDE_GLANCE -> {
+                        val lift = if (sign > 0) -r * 0.06f else 0f
+                        c.drawLine(x - half, by + lift, x + half, by + lift * 0.3f, stroke)
+                    }
+                    else -> c.drawArc(RectF(x - half, by, x + half, by + r * 0.1f), 200f, 140f, false, stroke)
                 }
             }
         }
@@ -533,9 +550,121 @@ object AvatarRenderer {
 
         fun availabilityBadge(a: Availability) {
             val br = s * 0.11f
-            val bx = s - br * 1.25f; val by = s - br * 1.25f
-            fill.color = 0xFFFFFFFF.toInt(); c.drawCircle(bx, by, br * 1.18f, fill)
-            fill.color = AvailabilityColors.of(a); c.drawCircle(bx, by, br, fill)
+            val bx = s - br * 1.35f
+            val by = s - br * 1.35f
+            fill.shader = null
+            fill.color = 0xFFFFFFFF.toInt()
+            c.drawCircle(bx, by, br * 1.22f, fill)
+            fill.color = AvailabilityColors.of(a)
+            stroke.color = AvailabilityColors.of(a)
+            stroke.strokeWidth = (br * 0.22f).coerceAtLeast(1.5f)
+            drawAvailabilityGlyph(StatusGlyphs.availability(a), bx, by, br * 0.72f)
+        }
+
+        fun activityBadge(a: ActivityType) {
+            val br = s * 0.12f
+            val bx = s - br * 1.2f
+            val by = br * 1.2f
+            fill.shader = null
+            fill.color = 0xF2FFFFFF.toInt()
+            c.drawCircle(bx, by, br, fill)
+            fill.color = ink
+            stroke.color = ink
+            stroke.strokeWidth = (br * 0.16f).coerceAtLeast(1.5f)
+            drawActivityGlyph(StatusGlyphs.activity(a), bx, by, br * 0.55f)
+        }
+
+        private fun drawAvailabilityGlyph(glyph: String, x: Float, y: Float, r: Float) {
+            when (glyph) {
+                "circle" -> c.drawCircle(x, y, r, fill)
+                "hollow_ring" -> c.drawCircle(x, y, r, stroke)
+                "speech_bubble" -> {
+                    c.drawRoundRect(RectF(x - r, y - r * 0.75f, x + r, y + r * 0.45f), r * 0.35f, r * 0.35f, fill)
+                    val tail = Path().apply {
+                        moveTo(x - r * 0.15f, y + r * 0.35f)
+                        lineTo(x - r * 0.55f, y + r)
+                        lineTo(x + r * 0.3f, y + r * 0.35f)
+                        close()
+                    }
+                    c.drawPath(tail, fill)
+                }
+                "handset" -> {
+                    c.drawRoundRect(RectF(x - r * 0.42f, y - r, x + r * 0.42f, y + r), r * 0.2f, r * 0.2f, fill)
+                    fill.color = 0xFFFFFFFF.toInt()
+                    c.drawCircle(x, y - r * 0.55f, r * 0.16f, fill)
+                    c.drawCircle(x, y + r * 0.55f, r * 0.16f, fill)
+                    fill.color = stroke.color
+                }
+                "controller" -> {
+                    c.drawRoundRect(RectF(x - r, y - r * 0.45f, x + r, y + r * 0.45f), r * 0.4f, r * 0.4f, fill)
+                    fill.color = 0xFFFFFFFF.toInt()
+                    c.drawCircle(x - r * 0.45f, y, r * 0.16f, fill)
+                    c.drawCircle(x + r * 0.45f, y, r * 0.16f, fill)
+                    fill.color = stroke.color
+                }
+                "hourglass" -> {
+                    val glass = Path().apply {
+                        moveTo(x - r, y - r)
+                        lineTo(x + r, y - r)
+                        lineTo(x, y)
+                        lineTo(x + r, y + r)
+                        lineTo(x - r, y + r)
+                        close()
+                    }
+                    c.drawPath(glass, fill)
+                }
+                "crescent" -> c.drawArc(RectF(x - r, y - r, x + r, y + r), 50f, 260f, true, fill)
+                "clock" -> {
+                    c.drawCircle(x, y, r, stroke)
+                    c.drawLine(x, y, x, y - r * 0.65f, stroke)
+                    c.drawLine(x, y, x + r * 0.45f, y + r * 0.15f, stroke)
+                }
+                else -> c.drawCircle(x, y, r, stroke)
+            }
+        }
+
+        private fun drawActivityGlyph(glyph: String, x: Float, y: Float, r: Float) {
+            when (glyph) {
+                "working" -> c.drawRoundRect(RectF(x - r, y - r * 0.7f, x + r, y + r * 0.7f), r * 0.15f, r * 0.15f, stroke)
+                "coding" -> {
+                    c.drawLine(x - r * 0.15f, y - r, x - r, y, stroke)
+                    c.drawLine(x - r, y, x - r * 0.15f, y + r, stroke)
+                    c.drawLine(x + r * 0.15f, y - r, x + r, y, stroke)
+                    c.drawLine(x + r, y, x + r * 0.15f, y + r, stroke)
+                }
+                "gaming" -> c.drawRoundRect(RectF(x - r, y - r * 0.4f, x + r, y + r * 0.4f), r * 0.35f, r * 0.35f, stroke)
+                "vr" -> {
+                    c.drawRect(x - r, y - r * 0.4f, x - r * 0.1f, y + r * 0.4f, stroke)
+                    c.drawRect(x + r * 0.1f, y - r * 0.4f, x + r, y + r * 0.4f, stroke)
+                }
+                "watching" -> c.drawRect(x - r, y - r * 0.7f, x + r, y + r * 0.7f, stroke)
+                "listening" -> c.drawArc(RectF(x - r, y - r, x + r, y + r * 0.4f), 200f, 140f, false, stroke)
+                "reading" -> {
+                    c.drawLine(x, y - r, x, y + r, stroke)
+                    c.drawLine(x - r, y - r * 0.7f, x, y - r, stroke)
+                    c.drawLine(x, y - r, x + r, y - r * 0.7f, stroke)
+                    c.drawLine(x - r, y + r * 0.7f, x, y + r, stroke)
+                    c.drawLine(x, y + r, x + r, y + r * 0.7f, stroke)
+                }
+                "traveling" -> {
+                    val arrow = Path().apply {
+                        moveTo(x, y - r)
+                        lineTo(x + r, y + r * 0.7f)
+                        lineTo(x, y + r * 0.25f)
+                        lineTo(x - r, y + r * 0.7f)
+                        close()
+                    }
+                    c.drawPath(arrow, fill)
+                }
+                "exercising" -> {
+                    c.drawLine(x - r, y + r * 0.6f, x - r * 0.2f, y - r * 0.2f, stroke)
+                    c.drawLine(x - r * 0.2f, y - r * 0.2f, x + r * 0.3f, y + r * 0.2f, stroke)
+                    c.drawLine(x + r * 0.3f, y + r * 0.2f, x + r, y - r, stroke)
+                }
+                "sleeping" -> c.drawArc(RectF(x - r, y - r, x + r, y + r), 50f, 260f, false, stroke)
+                "custom" -> star(x, y, r, ink)
+                else -> c.drawCircle(x, y, r * 0.35f, fill)
+            }
         }
 
         fun resonance() {
@@ -547,13 +676,6 @@ object AvatarRenderer {
             c.drawCircle(bx, by, br * 2.1f, fill)
             fill.color = 0xFF2E8792.toInt()
             c.drawCircle(bx, by, br, fill)
-        }
-
-        fun activityBadge(a: ActivityType) {
-            val br = s * 0.12f
-            val bx = s - br * 1.2f; val by = br * 1.2f
-            fill.color = 0xF2FFFFFF.toInt(); c.drawCircle(bx, by, br, fill)
-            text(a.emoji, bx, by + br * 0.38f, br * 1.1f, ink)
         }
 
         private fun text(t: String, x: Float, y: Float, size: Float, color: Int) {
