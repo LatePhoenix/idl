@@ -158,6 +158,27 @@ Firebase projects are created once the user is happy with the avatars, avatar cr
 customization. Until then all server work is developed and tested against the local Docker stack.
 Supersedes the "(confirm)" on D-07.
 
+**D-35 · Per-friend looks may change anything (user, 2026-10-04).** A user can give each friend
+a different avatar look, including base, palette and signature. The server picks the look for the
+viewer inside `presence_view`, so a friend never receives another friend's look. Trade-off
+accepted: recognizability comes from the friend's name shown alongside every render rather than
+from fixed identity anchors (master plan §3.3).
+
+**D-36 · Friends-first home (user, 2026-10-04).** The app opens on a scrollable list of friends.
+Tapping a friend's avatar opens "how I look to them", where I can edit that look. What tapping a
+friend's *home-screen widget* communicates is still undecided (master-plan Q11).
+
+**D-37 · Live weather shapes my avatar for friends (user, 2026-10-04).**
+- Opt-in, with a `weather` privacy category.
+- Location (coarse, or a manually chosen city) is used only on the device; only a weather
+  condition is published.
+- It's an automated `android_local` presence source with about 3 h expiry, so manual status
+  wins, Invisible hides it, and expiry clears it.
+
+**D-38 · Platform account connections are on hold (user, 2026-10-04).** No Steam, Discord, Xbox,
+PlayStation, Meta Quest or VRChat sign-ins or badges for now. Feasibility notes are in
+master-plan §7.1-A.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated
