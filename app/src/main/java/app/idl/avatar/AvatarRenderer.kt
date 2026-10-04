@@ -24,6 +24,12 @@ import app.idl.domain.Layer
 import app.idl.domain.MouthShape
 import app.idl.domain.Scene
 import app.idl.domain.StatusGlyphs
+import app.idl.domain.avatar.AccessibilityRenderMode
+import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.PlaceholderFrame
+import app.idl.domain.avatar.PlaceholderFrames
+import app.idl.domain.avatar.ResolvedAvatar
+import app.idl.domain.avatar.WallpaperContrastMode
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -34,6 +40,22 @@ data class AvatarBadges(
     /** Mutual widget pin. Draws a small corner mark; it is not derived from mood. */
     val resonating: Boolean = false,
 )
+
+/** Sticker outline and stroke weight for a render target's surroundings. */
+data class RenderContrast(
+    val wallpaper: WallpaperContrastMode = WallpaperContrastMode.NONE,
+    val accessibility: AccessibilityRenderMode = AccessibilityRenderMode.STANDARD,
+) {
+    val outlineColor: Int?
+        get() = when (wallpaper) {
+            WallpaperContrastMode.LIGHT_WALLPAPER -> 0xFF16202B.toInt()
+            WallpaperContrastMode.DARK_WALLPAPER -> 0xFFF4F7FA.toInt()
+            WallpaperContrastMode.NONE -> null
+        }
+
+    val strokeScale: Float
+        get() = if (accessibility == AccessibilityRenderMode.HIGH_CONTRAST) 1.8f else 1f
+}
 
 object AvailabilityColors {
     fun of(a: Availability?): Int = when (a) {
@@ -55,29 +77,61 @@ object AvailabilityColors {
  */
 object AvatarRenderer {
 
-    fun bitmap(config: AvatarConfig, sizePx: Int, badges: AvatarBadges? = null, simplifyAtPx: Int = sizePx): Bitmap {
-        val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-        draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx)
-        return bmp
+    fun bitmap(
+        config: AvatarConfig,
+        sizePx: Int,
+        badges: AvatarBadges? = null,
+        simplifyAtPx: Int = sizePx,
+        contrast: RenderContrast = RenderContrast(),
+    ): Bitmap = blank(sizePx).also { bmp ->
+        draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx, contrast)
     }
 
-    fun draw(canvas: Canvas, config: AvatarConfig, size: Float, badges: AvatarBadges? = null, simplifyAtPx: Int = size.toInt()) {
+    /** Paints a resolved v2 avatar with the procedural placeholder shapes. */
+    fun bitmap(
+        resolved: ResolvedAvatar,
+        registry: AssetRegistry,
+        sizePx: Int,
+        badges: AvatarBadges? = null,
+        contrast: RenderContrast = RenderContrast(),
+    ): Bitmap = blank(sizePx).also { bmp ->
+        draw(Canvas(bmp), PlaceholderFrames.from(resolved, registry), sizePx.toFloat(), badges, contrast)
+    }
+
+    private fun blank(sizePx: Int): Bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+
+    fun draw(
+        canvas: Canvas,
+        config: AvatarConfig,
+        size: Float,
+        badges: AvatarBadges? = null,
+        simplifyAtPx: Int = size.toInt(),
+        contrast: RenderContrast = RenderContrast(),
+    ) {
         val plan = AvatarSpec.plan(
             config, simplifyAtPx,
             showAvailability = badges?.availability != null,
             showActivity = badges?.activity != null && badges.activity != ActivityType.NONE,
         )
-        val p = Painter(canvas, config, size)
-        // The frame clip (set by the scene layer) applies to the avatar only; badges sit on top
-        // of the frame edge and must not be clipped.
-        val (framed, overlay) = plan.layers.partition { it != Layer.AVAILABILITY_BADGE && it != Layer.ACTIVITY_BADGE }
+        draw(canvas, PlaceholderFrame(config, plan.layers, plan.sceneDetail), size, badges, contrast)
+    }
+
+    fun draw(
+        canvas: Canvas,
+        frame: PlaceholderFrame,
+        size: Float,
+        badges: AvatarBadges? = null,
+        contrast: RenderContrast = RenderContrast(),
+    ) {
+        val p = Painter(canvas, frame.config, size, contrast)
+        val (framed, overlay) = frame.layers.partition { it != Layer.AVAILABILITY_BADGE && it != Layer.ACTIVITY_BADGE }
         val checkpoint = canvas.save()
         try {
-            drawLayers(p, framed, plan.sceneDetail, badges)
+            drawLayers(p, framed, frame.sceneDetail, badges)
         } finally {
             canvas.restoreToCount(checkpoint)
         }
-        drawLayers(p, overlay, plan.sceneDetail, badges)
+        drawLayers(p, overlay, frame.sceneDetail, badges)
         if (badges?.resonating == true) p.resonance()
     }
 
@@ -101,7 +155,7 @@ object AvatarRenderer {
         }
     }
 
-    private class Painter(val c: Canvas, val cfg: AvatarConfig, val s: Float) {
+    private class Painter(val c: Canvas, val cfg: AvatarConfig, val s: Float, val contrast: RenderContrast = RenderContrast()) {
         val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
         val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
@@ -118,7 +172,7 @@ object AvatarRenderer {
         val eyeY = cy - r * 0.08f
         val eyeDx = r * 0.38f
         val mouthY = cy + r * 0.38f
-        val lw = (s * 0.028f).coerceAtLeast(1.5f)
+        val lw = ((s * 0.028f).coerceAtLeast(1.5f)) * contrast.strokeScale
 
         fun scene(detail: Boolean) {
             val bounds = RectF(0f, 0f, s, s)
@@ -288,6 +342,15 @@ object AvatarRenderer {
                     path.lineTo(cx - 4 * u, cy - 3 * u); path.lineTo(cx - 3 * u, cy - 3 * u)
                     path.close()
                 }
+            }
+            contrast.outlineColor?.let { color ->
+                val width = stroke.strokeWidth
+                val inkColor = stroke.color
+                stroke.color = color
+                stroke.strokeWidth = lw * 4.5f
+                c.drawPath(path, stroke)
+                stroke.strokeWidth = width
+                stroke.color = inkColor
             }
             c.drawPath(path, fill)
             c.drawPath(path, stroke)

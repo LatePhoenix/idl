@@ -54,6 +54,10 @@ class RenderCache(private val root: File, memoryEntries: Int = 32) {
                 append('|')
                 append(IdlJson.encodeToString(AvatarConfig.serializer(), config))
             }
+            return keyOf(raw)
+        }
+
+        fun keyOf(raw: String): String {
             val digest = MessageDigest.getInstance("SHA-256").digest(raw.toByteArray(Charsets.UTF_8))
             val hex = CharArray(digest.size * 2)
             val digits = "0123456789abcdef"
