@@ -9,11 +9,11 @@ object CompositeOrder {
     fun ops(
         resolved: ResolvedAvatar,
         registry: AssetRegistry,
-        pictures: Map<String, VectorPicture> = emptyMap(),
+        pictureOf: (String) -> VectorPicture? = { null },
     ): List<DrawOp> {
         val vectorCategories = resolved.layers.mapNotNull { layer ->
             val asset = registry.asset(layer.assetId) ?: return@mapNotNull null
-            if (asset.render.type == "vector") asset.category else null
+            if (asset.render.type == "vector" && pictureOf(asset.id) != null) asset.category else null
         }.toSet()
 
         val keyed = mutableListOf<Keyed>()
@@ -21,7 +21,7 @@ object CompositeOrder {
         for (layer in resolved.layers.sortedBy { it.assetId }) {
             val asset = registry.asset(layer.assetId) ?: continue
             if (asset.render.type == "vector") {
-                val picture = pictures[asset.id] ?: continue
+                val picture = pictureOf(asset.id) ?: continue
                 picture.parts.forEachIndexed { index, part ->
                     keyed += Keyed(
                         band = part.zBand,
@@ -51,17 +51,13 @@ object CompositeOrder {
         AssetCategory.BODY_ACCESSORY -> 10
         AssetCategory.BASE, AssetCategory.SIGNATURE_FEATURE -> 40
         AssetCategory.FACE_EYE, AssetCategory.FACE_BROW, AssetCategory.FACE_MOUTH -> 50
-        AssetCategory.FACIAL_HAIR -> 60
-        AssetCategory.HAIR -> 70
         AssetCategory.FACE_ACCESSORY -> 80
         AssetCategory.HEAD_ACCESSORY -> 90
         AssetCategory.EXPRESSION_OVERLAY -> 95
         AssetCategory.FOREGROUND_PROP -> 105
-        AssetCategory.FRAME -> 200
         AssetCategory.AVAILABILITY_INDICATOR -> 210
         AssetCategory.ACTIVITY_BADGE -> 220
-        AssetCategory.REACTION_OVERLAY -> 230
-        AssetCategory.PALETTE, AssetCategory.EYE_FAMILY, AssetCategory.MOUTH_FAMILY -> null
+        else -> null
     }
 
     private const val CHROME = 200

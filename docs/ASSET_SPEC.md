@@ -10,23 +10,32 @@ Every vector asset is normalized to a **1024×1024** logical canvas with a requi
 ```json
 {
   "schemaVersion": 1,
-  "id": "hair_round_bob",
-  "contentVersion": 3,
+  "id": "beard_round_full",
+  "contentVersion": 1,
   "viewBox": 1024,
+  "clipPaths": [
+    { "id": "mouth_hole", "commands": "M 430 690 C ... Z" }
+  ],
   "parts": [
     {
-      "id": "back",
-      "zBand": 20,
-      "fill": { "slot": "hair.primary" },
-      "commands": "M 0 0 L 10 0",
+      "id": "beard",
+      "zBand": 60,
+      "fill": { "slot": "beard.primary" },
       "fillRule": "nonzero",
-      "opacity": 1,
-      "clip": { "id": "head", "mode": "intersect" },
-      "allowOverflow": false
+      "opacity": 1.0,
+      "clip": { "id": "mouth_hole", "mode": "difference" },
+      "commands": "M 300 640 C ... Z"
+    },
+    {
+      "id": "face",
+      "zBand": 40,
+      "fill": {
+        "radial": { "cx": 430, "cy": 400, "r": 620,
+          "stops": [ { "offset": 0.0, "slot": "face.highlight" },
+                     { "offset": 1.0, "slot": "face.primary" } ] }
+      },
+      "commands": "M 512 96 C ... Z"
     }
-  ],
-  "clipPaths": [
-    { "id": "head", "commands": "M 0 0 Z" }
   ]
 }
 ```

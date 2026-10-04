@@ -56,7 +56,7 @@ class CompositeOrderTest {
                 VectorPart("bangs", 70, VectorFill(slot = "hair.primary"), "M 0 0"),
             ),
         )
-        val ops = CompositeOrder.ops(resolved, registry, mapOf("hair_round_bob" to picture))
+        val ops = CompositeOrder.ops(resolved, registry) { id -> if (id == "hair_round_bob") picture else null }
         val marks = ops.map { op ->
             when (op) {
                 is DrawOp.Procedural -> op.category.name
