@@ -330,10 +330,13 @@ in one PR.
   **Rule from now on:** each avatar phase gets a task spec in `docs/handoff/` first, and visual
   PRs need a device screenshot or snapshot test.
 
-#### F-18 · CI action versions deprecated · ⬜ P3
+#### F-18 · CI action versions deprecated · ✅ P3
 - `actions/checkout@v4`, `actions/setup-java@v4` and `gradle/actions/setup-gradle@v4` run on
   deprecated Node 20. `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19. Bump to the current
   major versions and pin the runner image.
+- **Fixed:** checkout v7, setup-java v6, setup-gradle v6 (all Node 24). Both jobs run on
+  `ubuntu-24.04`. PR #10 run `37226686509`: android and backend success; logs have no Node 20
+  deprecation warning.
 
 #### F-19 · Defence in depth for explicit expressions · ⬜ P2 (with Avatar Phase 3)
 - The resolver trusts `VisiblePresence.expressionId` even when `mood` is absent. That's
@@ -387,7 +390,7 @@ PostgREST tests) can be done at any time.
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ⬜ |
 | 0.7 | Room migration test (1→2) | F-13 | ⬜ |
 | 0.9 | **PR #5 review fixes:** `LayerPriority.STATUS` for explicit status accessories; widget target from avatar size; render errors inside the fallback. Spec: `docs/handoff/PR5_FOLLOWUP_TASK.md` | F-02(3), F-21, F-22 | ✅ |
-| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | ⬜ |
+| 0.8 | Housekeeping: CI action bumps, README counts, sync local branches, delete merged branch, cold-emulator test flake | F-15, F-18, F-20 | 🟡 F-18 done; F-15 and F-20 remain |
 
 ### Milestone 0 · MVP foundation — ✅ done (2026-10-03)
 
@@ -737,3 +740,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
 | 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
 | 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | `b28e44e`, PR #12, F-05 ✅, F-06 🟡, C.2 ✅ |
+| 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
