@@ -10,34 +10,44 @@ internal class ByteLruCache<V>(
 ) {
     private class Slot<V>(val value: V, val bytes: Int)
 
+    private val lock = Any()
     private val slots = LinkedHashMap<String, Slot<V>>(16, 0.75f, true)
     private var used = 0
 
-    fun get(key: String): V? = slots[key]?.value
+    fun get(key: String): V? = synchronized(lock) { slots[key]?.value }
 
-    fun put(key: String, value: V) {
-        remove(key)
+    fun put(key: String, value: V) = synchronized(lock) {
+        removeLocked(key)
         val bytes = sizeOf(value).coerceAtLeast(1)
         slots[key] = Slot(value, bytes)
         used += bytes
-        evict()
+        evictLocked()
     }
 
-    fun remove(key: String) {
-        val old = slots.remove(key) ?: return
-        used -= old.bytes
+    fun remove(key: String) = synchronized(lock) { removeLocked(key) }
+
+    fun removePrefixed(prefix: String) = synchronized(lock) {
+        slots.keys.filter { it.startsWith(prefix) }.toList().forEach { removeLocked(it) }
     }
 
-    fun removePrefixed(prefix: String) {
-        slots.keys.filter { it.startsWith(prefix) }.toList().forEach { remove(it) }
-    }
-
-    fun evictAll() {
+    fun evictAll() = synchronized(lock) {
         slots.clear()
         used = 0
     }
 
-    private fun evict() {
+    /** Bytes retained. Equal to the sum of the entry sizes. */
+    fun byteCount(): Int = synchronized(lock) {
+        val summed = slots.values.sumOf { it.bytes }
+        check(summed == used) { "cache bytes $used != $summed" }
+        used
+    }
+
+    private fun removeLocked(key: String) {
+        val old = slots.remove(key) ?: return
+        used -= old.bytes
+    }
+
+    private fun evictLocked() {
         val it = slots.entries.iterator()
         while (used > maxBytes && it.hasNext()) {
             used -= it.next().value.bytes

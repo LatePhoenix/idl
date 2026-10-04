@@ -117,8 +117,10 @@ class SessionRepository(
     /** Signs out and wipes every cached friend, presence and reaction from the device. */
     suspend fun signOut() {
         auth.signOut()
-        withContext(Dispatchers.IO) { db.clearAllTables() }
-        renders.clear()
+        withContext(Dispatchers.IO) {
+            db.clearAllTables()
+            renders.clear()
+        }
         widgets.all()
         IdlLog.i("account.signed_out")
     }

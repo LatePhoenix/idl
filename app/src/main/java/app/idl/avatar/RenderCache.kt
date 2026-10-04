@@ -21,29 +21,68 @@ class RenderCache(
     maxBytes: Int = MEMORY_BUDGET_BYTES,
 ) {
     private val memory = ByteLruCache<Bitmap>(maxBytes) { bitmap -> bitmap.byteCount }
+    private val gate = Any()
+    private var epoch = 0
+    private val ownerEpoch = HashMap<String, Int>()
 
     fun bitmap(key: String, ownerId: String, render: () -> Bitmap): Bitmap {
         val safeKey = fileName(key)
-        val memKey = memoryKey(ownerId, safeKey)
+        val ownerName = fileName(ownerId)
+        val memKey = ownerName + SEPARATOR + safeKey
+        val stamp = stamp(ownerId)
         memory.get(memKey)?.let { return it }
         val dest = File(ownerDir(ownerId), "$safeKey.png")
         if (dest.isFile) {
             BitmapFactory.decodeFile(dest.absolutePath)?.let { cached ->
-                memory.put(memKey, cached)
-                return cached
-            }
-            dest.delete()
+                if (remember(ownerName, stamp, memKey, cached)) return cached
+            } ?: dest.delete()
         }
         val fresh = render()
-        publish(ownerId, safeKey) { out ->
-            if (!fresh.compress(Bitmap.CompressFormat.PNG, 100, out)) {
-                throw IOException("png compress failed")
+        if (commit(ownerId, safeKey, stamp) { out ->
+                if (!fresh.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                    throw IOException("png compress failed")
+                }
             }
+        ) {
+            remember(ownerName, stamp, memKey, fresh)
         }
-        memory.put(memKey, fresh)
         trimDisk()
         return fresh
     }
+
+    /** Generation of [ownerId] at this moment. A later purge will not match. */
+    internal fun stamp(ownerId: String): OwnerStamp {
+        val name = fileName(ownerId)
+        return synchronized(gate) { OwnerStamp(epoch, ownerEpoch[name] ?: 0) }
+    }
+
+    /**
+     * Writes the file only if [stamp] is still current after the bytes are staged.
+     * A purge that landed during the render deletes the staged file instead of publishing it.
+     */
+    internal fun commit(ownerId: String, key: String, stamp: OwnerStamp, write: (OutputStream) -> Unit): Boolean {
+        val ownerName = fileName(ownerId)
+        val safeKey = fileName(key)
+        val dest = File(ownerDir(ownerId), "$safeKey.png")
+        val tmp = try {
+            stage(dest, write)
+        } catch (e: IOException) {
+            return false
+        }
+        val published = synchronized(gate) {
+            if (!isCurrent(ownerName, stamp)) {
+                false
+            } else if (dest.exists() && !dest.delete()) {
+                false
+            } else {
+                tmp.renameTo(dest)
+            }
+        }
+        if (!published) discardStaged(ownerName, tmp)
+        return published
+    }
+
+    internal fun memoryBytes(): Int = memory.byteCount()
 
     /** Writes [ownerId]/[key].png by renaming a temp file in that same directory. */
     internal fun publish(ownerId: String, key: String, write: (OutputStream) -> Unit) {
@@ -52,25 +91,66 @@ class RenderCache(
     }
 
     fun clear() {
-        memory.evictAll()
-        root.deleteRecursively()
+        synchronized(gate) {
+            epoch += 1
+            ownerEpoch.clear()
+            memory.evictAll()
+            root.deleteRecursively()
+        }
     }
 
     /** Drops memory and disk entries for one friend. Other owners stay. */
     fun deleteOwner(ownerId: String) {
-        val dir = ownerDir(ownerId)
-        memory.removePrefixed(dir.name + SEPARATOR)
-        dir.deleteRecursively()
+        val name = fileName(ownerId)
+        synchronized(gate) {
+            ownerEpoch[name] = (ownerEpoch[name] ?: 0) + 1
+            memory.removePrefixed(name + SEPARATOR)
+            File(root, name).deleteRecursively()
+        }
     }
 
-    private fun memoryKey(ownerId: String, key: String) = ownerDir(ownerId).name + SEPARATOR + key
+    private fun isCurrent(ownerName: String, stamp: OwnerStamp): Boolean =
+        epoch == stamp.epoch && (ownerEpoch[ownerName] ?: 0) == stamp.owner
+
+    private fun remember(ownerName: String, stamp: OwnerStamp, memKey: String, bitmap: Bitmap): Boolean =
+        synchronized(gate) {
+            if (!isCurrent(ownerName, stamp)) {
+                memory.remove(memKey)
+                false
+            } else {
+                memory.put(memKey, bitmap)
+                true
+            }
+        }
+
+    private fun stage(dest: File, write: (OutputStream) -> Unit): File {
+        val dir = dest.parentFile ?: throw IOException("no cache directory")
+        dir.mkdirs()
+        val tmp = File(dir, dest.name + "." + Thread.currentThread().id + "." + System.nanoTime() + ".tmp")
+        try {
+            tmp.outputStream().use { out ->
+                write(out)
+                out.flush()
+            }
+        } catch (t: Throwable) {
+            tmp.delete()
+            throw t
+        }
+        return tmp
+    }
+
+    private fun discardStaged(ownerName: String, tmp: File) {
+        tmp.delete()
+        val dir = File(root, ownerName)
+        if (dir.isDirectory && dir.list().isNullOrEmpty()) dir.delete()
+    }
 
     private fun ownerDir(ownerId: String): File = File(root, fileName(ownerId))
 
     private fun writeAtomically(dest: File, write: (OutputStream) -> Unit) {
         val dir = dest.parentFile ?: throw IOException("no cache directory")
         dir.mkdirs()
-        val tmp = File(dir, dest.name + ".tmp")
+        val tmp = File(dir, dest.name + "." + Thread.currentThread().id + "." + System.nanoTime() + ".tmp")
         try {
             tmp.outputStream().use { out ->
                 write(out)
@@ -135,3 +215,6 @@ class RenderCache(
 }
 
 private fun Enum<*>.wireName(): String = name.lowercase(Locale.ROOT)
+
+/** [RenderCache] generation captured before a render. A purge makes it stale. */
+internal class OwnerStamp(val epoch: Int, val owner: Int)
