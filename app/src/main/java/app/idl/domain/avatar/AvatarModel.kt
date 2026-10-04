@@ -14,6 +14,31 @@ import kotlinx.serialization.Serializable
  * this schema. Storage metadata (owner, timestamps) lives on the server row, not in here.
  */
 
+/** Uniform placement on top of an asset's default transform. Units are viewBox pixels. */
+@Serializable
+data class ItemTransform(
+    val translateX: Float = 0f,
+    val translateY: Float = 0f,
+    val scale: Float = 1f,
+    val rotationDeg: Float = 0f,
+    val flipHorizontal: Boolean = false,
+)
+
+/** Background behind the character. [BackgroundMode.SCENE] uses [AvatarConfiguration.defaultSceneAssetId]. */
+@Serializable
+data class AvatarBackground(
+    val mode: BackgroundMode = BackgroundMode.SCENE,
+    val color: String? = null,
+    val assetId: String? = null,
+)
+
+@Serializable(with = BackgroundMode.Serializer::class)
+enum class BackgroundMode {
+    SCENE, TRANSPARENT, SOLID;
+
+    object Serializer : WireEnumSerializer<BackgroundMode>("BackgroundMode", entries, SCENE)
+}
+
 /** Persistent identity: rarely changes, and must stay recognizable through every status. */
 @Serializable
 data class AvatarConfiguration(
@@ -34,10 +59,45 @@ data class AvatarConfiguration(
     val styleDna: StyleDna = StyleDna(),
     val renderVersion: Int = RENDER_VERSION,
     val schemaVersion: Int = SCHEMA_VERSION,
+    /** Pack this recipe was authored against. Art swaps stay inside the pack. */
+    val packId: String = DEFAULT_PACK_ID,
+    val packVersion: Int = 1,
+    /**
+     * Head family (`round_face`, `robot_head`, …). Blank until a manifest maps [baseAssetId].
+     * Never inferred from a display name.
+     */
+    val familyId: String = "",
+    /** Extra items keyed by category wire name. Hair and jewelry live here; expression does not. */
+    val itemIds: Map<String, List<String>> = emptyMap(),
+    /** Semantic slot → `#RRGGBB` or `#AARRGGBB`. Absent slots use the asset default. */
+    val colorOverrides: Map<String, String> = emptyMap(),
+    /** Slots the user detached from derived highlight and shadow. */
+    val unlinkedSlots: List<String> = emptyList(),
+    val itemTransforms: Map<String, ItemTransform> = emptyMap(),
+    val background: AvatarBackground = AvatarBackground(),
+    /** Set only when the user randomized. The same seed and pack version repeat. */
+    val randomSeed: Long? = null,
 ) {
+    /**
+     * Schema 2 payloads decode with the new defaults. This bumps them to schema 3.
+     * A newer [schemaVersion] is returned unchanged so an older app does not rewrite it.
+     * [baseFamilies] is asset id → family id from the pack. Only an explicit entry is applied.
+     */
+    fun migrateRecipe(baseFamilies: Map<String, String> = emptyMap()): AvatarConfiguration {
+        if (schemaVersion > SCHEMA_VERSION) return this
+        val family = familyId.ifBlank { baseFamilies[baseAssetId].orEmpty() }
+        if (schemaVersion == SCHEMA_VERSION && family == familyId && packId.isNotBlank()) return this
+        return copy(
+            schemaVersion = SCHEMA_VERSION,
+            packId = packId.ifBlank { DEFAULT_PACK_ID },
+            familyId = family,
+        )
+    }
+
     companion object {
-        const val SCHEMA_VERSION = 2
+        const val SCHEMA_VERSION = 3
         const val RENDER_VERSION = 2
+        const val DEFAULT_PACK_ID = "core_proto"
     }
 }
 

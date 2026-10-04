@@ -523,5 +523,11 @@ private fun AvatarConfiguration.withSortedOverrides(): AvatarConfiguration {
     for (key in styleDna.semanticVisualOverrides.keys.sorted()) {
         sorted[key] = styleDna.semanticVisualOverrides.getValue(key)
     }
-    return copy(styleDna = styleDna.copy(semanticVisualOverrides = sorted))
+    return copy(
+        styleDna = styleDna.copy(semanticVisualOverrides = sorted),
+        itemIds = itemIds.keys.sorted().associateWith { key -> itemIds.getValue(key).sorted() },
+        colorOverrides = colorOverrides.keys.sorted().associateWith { colorOverrides.getValue(it) },
+        unlinkedSlots = unlinkedSlots.sorted(),
+        itemTransforms = itemTransforms.keys.sorted().associateWith { itemTransforms.getValue(it) },
+    )
 }
