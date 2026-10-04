@@ -1,9 +1,12 @@
 package app.idl
 
+import android.graphics.Bitmap
+import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
+import app.idl.avatar.RenderContrast
 import app.idl.data.local.IdlDatabase
 import app.idl.data.local.WidgetSubscriptionEntity
 import app.idl.data.push.MockPushSource
@@ -15,14 +18,32 @@ import app.idl.data.repo.PresenceRepository
 import app.idl.data.repo.SessionRepository
 import app.idl.data.repo.SyncScheduler
 import app.idl.data.repo.WidgetRefresher
+import app.idl.domain.Activity
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
 import app.idl.domain.BaseForm
 import app.idl.domain.Expression
+import app.idl.domain.FaceAccessory
+import app.idl.domain.HeadAccessory
 import app.idl.domain.Mood
+import app.idl.domain.PresenceResolver
+import app.idl.domain.PrivacyFilter
+import app.idl.domain.PrivacyRules
 import app.idl.domain.QuickState
+import app.idl.domain.Relationship
+import app.idl.domain.ResolvedPresence
+import app.idl.domain.Scene
+import app.idl.domain.VisualOverride
+import app.idl.domain.avatar.AssetPacks
+import app.idl.domain.avatar.AvatarResolver
+import app.idl.domain.avatar.RenderTarget
+import app.idl.domain.avatar.WallpaperContrastMode
 import app.idl.widget.WidgetData
+import app.idl.widget.WidgetModel
+import app.idl.widget.WidgetRenderInputs
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -144,5 +165,126 @@ class CacheAndWidgetDataTest {
         assertEquals("Not connected", gone.title)
         assertNotEquals(-1, noWidgets.friendUpdates.indexOf("u_ari"))
         db.close()
+    }
+}
+
+/** Widget pixels: resolver layers, then the procedural painter. Not the v1 [AvatarSpec] plan. */
+@RunWith(AndroidJUnit4::class)
+class WidgetRenderPathTest {
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+    private val registry = AssetPacks.registry { path ->
+        context.assets.open(path).bufferedReader().use { it.readText() }
+    }
+
+    @Test fun availabilityGlyphsDifferOnTheWidgetPath() {
+        val resting = bitmap(null, null, RenderTarget.STANDARD_WIDGET)
+        val renders = Availability.entries.associateWith { bitmap(it, null, RenderTarget.STANDARD_WIDGET) }
+        renders.forEach { (availability, render) ->
+            assertFalse("$availability matches a widget with no availability", render.sameAs(resting))
+        }
+        val values = Availability.entries
+        for (i in values.indices) for (j in i + 1 until values.size) {
+            assertFalse("${values[i]} vs ${values[j]}", renders.getValue(values[i]).sameAs(renders.getValue(values[j])))
+        }
+        val compactBusy = bitmap(Availability.BUSY, null, RenderTarget.COMPACT_WIDGET)
+        val compactRest = bitmap(null, null, RenderTarget.COMPACT_WIDGET)
+        assertFalse(compactBusy.sameAs(compactRest))
+        val defaultBusy = bitmap(Availability.BUSY, null, WidgetRenderInputs.targetFor(110f, 110f))
+        val largeBusy = bitmap(Availability.BUSY, ActivityType.VR, RenderTarget.LARGE_WIDGET)
+        assertFalse(largeBusy.sameAs(bitmap(Availability.BUSY, null, RenderTarget.LARGE_WIDGET)))
+        assertFalse(defaultBusy.sameAs(resting))
+        save("widget-2x2-default-busy.png", defaultBusy)
+        save("widget-2x2-busy-vr.png", largeBusy)
+        save("widget-standard-resting.png", resting)
+    }
+
+    @Test fun vrHeadsetSurvivesSignatureGlassesOnTheWidgetPath() {
+        val glasses = bitmap(null, null, RenderTarget.STANDARD_WIDGET, glasses = true)
+        val vr = bitmap(Availability.TEXT_ONLY, ActivityType.VR, RenderTarget.STANDARD_WIDGET, glasses = true)
+        assertFalse(glasses.sameAs(vr))
+        save("widget-glasses.png", glasses)
+        save("widget-vr-over-glasses.png", vr)
+    }
+
+    @Test fun nonCloseVrHeadsetAndSleepyBlanketAtTheDefaultWidgetSize() {
+        val now = Instant.parse("2026-10-04T15:00:00Z")
+        val target = WidgetRenderInputs.targetFor(110f, 110f)
+        assertEquals(RenderTarget.STANDARD_WIDGET, target)
+
+        val moSaved = AvatarConfig(baseForm = BaseForm.ROBOT, faceAccessory = FaceAccessory.GLASSES)
+        val vr = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "vr" }.toState(now)), now)
+        val moView = checkNotNull(
+            PrivacyFilter.viewFor(
+                "me", "u_mo", moSaved, vr, PrivacyRules.DEFAULT,
+                Relationship(isFriend = true, isCloseFriend = false), false,
+            ),
+        )
+        val mo = widgetBitmap(WidgetModel(title = "Mo", friendView = moView, deepLink = "idl://friend/u_mo"), target)
+        val glassesOnly = widgetBitmap(WidgetModel(title = "Mo", restingAvatar = moSaved, deepLink = "idl://friend/u_mo"), target)
+        assertFalse(mo.sameAs(glassesOnly))
+        save("widget-vr-over-glasses-nonclose.png", mo)
+
+        val ariSaved = AvatarConfig(baseForm = BaseForm.FOX)
+        val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
+        val ariView = checkNotNull(
+            PrivacyFilter.viewFor(
+                "me", "u_ari", ariSaved, sleepy, PrivacyRules.DEFAULT,
+                Relationship(isFriend = true, isCloseFriend = true), false,
+            ),
+        )
+        val ari = widgetBitmap(WidgetModel(title = "Ari", friendView = ariView, deepLink = "idl://friend/u_ari"), target)
+        val resting = widgetBitmap(WidgetModel(title = "Ari", restingAvatar = ariSaved, deepLink = "idl://friend/u_ari"), target)
+        assertFalse(ari.sameAs(resting))
+        save("widget-2x2-default-sleepy.png", ari)
+    }
+
+    private fun widgetBitmap(model: WidgetModel, target: RenderTarget): Bitmap {
+        val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
+        val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+        return AvatarRenderer.bitmap(
+            resolved,
+            registry,
+            256,
+            AvatarBadges(),
+            RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
+        )
+    }
+
+    private fun bitmap(
+        availability: Availability?,
+        activity: ActivityType?,
+        target: RenderTarget,
+        glasses: Boolean = false,
+    ): Bitmap {
+        val model = WidgetModel(
+            title = "Ari",
+            restingAvatar = AvatarConfig(faceAccessory = if (glasses) FaceAccessory.GLASSES else FaceAccessory.NONE),
+            selfPresence = ResolvedPresence(
+                availability = availability,
+                activity = activity?.let { Activity(type = it) },
+                visual = if (activity == ActivityType.VR) {
+                    VisualOverride(headAccessory = HeadAccessory.VR_HEADSET, scene = Scene.NEON_CITY)
+                } else {
+                    VisualOverride()
+                },
+            ),
+            deepLink = "idl://status",
+        )
+        val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
+        val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+        return AvatarRenderer.bitmap(
+            resolved,
+            registry,
+            256,
+            AvatarBadges(),
+            RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
+        )
+    }
+
+    private fun save(name: String, bitmap: Bitmap) {
+        val dir = context.getExternalFilesDir(null) ?: context.filesDir
+        val file = File(dir, name)
+        FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        Log.i("idl.widget.shot", file.absolutePath)
     }
 }

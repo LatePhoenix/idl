@@ -5,21 +5,27 @@ import app.idl.data.local.IdlDao
 import app.idl.data.repo.decodeAvatar
 import app.idl.data.repo.decodeState
 import app.idl.data.repo.decodeView
-import app.idl.domain.Availability
-import app.idl.domain.AvatarComposer
-import app.idl.domain.AvatarConfig
 import app.idl.domain.ActivityType
+import app.idl.domain.Availability
+import app.idl.domain.AvatarConfig
 import app.idl.domain.Expiry
 import app.idl.domain.FriendStatus
 import app.idl.domain.Mood
 import app.idl.domain.PresenceResolver
+import app.idl.domain.PresenceView
+import app.idl.domain.ResolvedPresence
 import java.time.Duration
 import java.time.Instant
 
 /** Everything a widget needs, resolved at render time (expiry evaluated against now). */
 data class WidgetModel(
     val title: String,
-    val avatar: AvatarConfig?,
+    /** Saved identity. Status visuals are not stored here. */
+    val restingAvatar: AvatarConfig? = null,
+    /** Friend widget: the filtered view. Identity is [PresenceView.restingAvatar]. */
+    val friendView: PresenceView? = null,
+    /** Self widget: owner presence, resolved at read time. */
+    val selfPresence: ResolvedPresence? = null,
     val availability: Availability? = null,
     val activity: ActivityType? = null,
     val mood: Mood? = null,
@@ -32,13 +38,19 @@ data class WidgetModel(
     val invisible: Boolean = false,
     /** Mutual widget pin. The renderer draws a small corner mark when this is true. */
     val resonating: Boolean = false,
+    /** Resolver sentence. Replaces the hand-built mood/availability/activity clause. */
+    val avatarDescription: String? = null,
 ) {
     val contentDescription: String
         get() = buildString {
             append(title)
-            mood?.let { append(", feeling ").append(it.label.lowercase()) }
-            availability?.let { append(", ").append(it.label.lowercase()) }
-            activity?.takeIf { it != ActivityType.NONE }?.let { append(", ").append(it.label.lowercase()) }
+            if (!avatarDescription.isNullOrBlank()) {
+                append(", ").append(avatarDescription)
+            } else {
+                mood?.let { append(", feeling ").append(it.label.lowercase()) }
+                availability?.let { append(", ").append(it.label.lowercase()) }
+                activity?.takeIf { it != ActivityType.NONE }?.let { append(", ").append(it.label.lowercase()) }
+            }
             if (invisible) append(", invisible")
             if (resonating) append(", resonating")
         }
@@ -49,13 +61,14 @@ object WidgetData {
     val STALE_AFTER: Duration = Duration.ofHours(2)
 
     suspend fun self(dao: IdlDao, clock: IdlClock): WidgetModel {
-        val session = dao.sessionNow() ?: return WidgetModel("iDL", null, subtitle = "Tap to set up", deepLink = "idl://home")
+        val session = dao.sessionNow() ?: return WidgetModel("iDL", subtitle = "Tap to set up", deepLink = "idl://home")
         val now = clock.now()
         val base = dao.avatarNow(session.userId)?.json?.let(::decodeAvatar) ?: AvatarConfig()
         val resolved = PresenceResolver.resolve(dao.ownPresenceNow().map { decodeState(it.json) }, now)
         return WidgetModel(
             title = "You",
-            avatar = AvatarComposer.compose(base, resolved),
+            restingAvatar = base,
+            selfPresence = resolved,
             availability = resolved.availability,
             activity = resolved.activity?.type,
             mood = resolved.mood,
@@ -73,10 +86,10 @@ object WidgetData {
     suspend fun friend(dao: IdlDao, clock: IdlClock, appWidgetId: Int): WidgetModel {
         val sub = dao.widgetSubscription(appWidgetId)
         val friendId = sub?.friendUserId
-            ?: return WidgetModel("Choose a friend", null, subtitle = "Tap to pick", deepLink = "idl://widgets")
+            ?: return WidgetModel("Choose a friend", subtitle = "Tap to pick", deepLink = "idl://widgets")
         val friend = dao.friendNow(friendId)
         if (friend == null || FriendStatus.Serializer.fromWire(friend.status) != FriendStatus.ACCEPTED) {
-            return WidgetModel("Not connected", null, subtitle = "This friend is no longer shared", deepLink = "idl://home")
+            return WidgetModel("Not connected", subtitle = "This friend is no longer shared", deepLink = "idl://home")
         }
         val row = dao.friendPresenceNow(friendId)
         val now = clock.now()
@@ -87,7 +100,8 @@ object WidgetData {
         val stale = fetchedAt != null && lastFailed && Duration.between(fetchedAt, now) > STALE_AFTER
         return WidgetModel(
             title = friend.displayName,
-            avatar = view?.avatar,
+            restingAvatar = view?.restingAvatar,
+            friendView = view,
             availability = view?.availability,
             activity = view?.activityType,
             mood = view?.mood,
