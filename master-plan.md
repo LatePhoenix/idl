@@ -164,7 +164,7 @@ in one PR.
 
 ### P1 — correctness, privacy and design issues
 
-#### F-04 · Charge balance is client-authoritative and can be farmed via the device clock · 🟡 P1
+#### F-04 · Charge balance is client-authoritative and can be farmed via the device clock · 🟡 P1 (blocker for paid Charge)
 - **Evidence:** `ChargeEngine` uses device time; each evaluation after a gap longer than 24 h
   pays a full 24 h. Repeatedly moving the clock forward mints up to 24 h of Charge each time.
   The balance lives only in Room, and `SessionRepository.signOut()` (`clearAllTables`) wipes it.
@@ -172,23 +172,32 @@ in one PR.
   table plus a `claim_charge()` RPC evaluated with server `now()`, with tethers derived from
   server-known widget subscriptions. The client keeps only a display cache. Until then, label
   Charge "preview" and don't build spending on it.
+- **Now mandatory (D-32):** Charge can be bought with real money, so the ledger must be
+  server-authoritative, with every purchase verified server-side before credit (C.6).
 - **Verify:** SQL tests for accrual, the cap and clock independence; the client shows the
   server balance after reinstall.
 
-#### F-05 · "Friend pinned my widget" is a new private behavioural signal · ⏸ P1
+#### F-05 · "Friend pinned my widget" is a new private behavioural signal · ⬜ P1 (decided 2026-10-04)
 - **Evidence:** `FriendTether.hasRemoteWidgetInstalled`, the per-friend "resonating" dot
   painted on that friend's widget, and the widget content description "…, resonating" tell me
   whether a *specific* friend has *me* pinned. That works like a read receipt, which the
   product spec says to avoid. It isn't covered by the privacy model or audience rules. Today
   only debug toggles set it (no server field yet).
-- **Decision needed** (see §6 Q1) **before** any server sync of widget-install state. Options:
-  - (a) Show only an aggregate ("3 mutual tethers") with no per-friend indicator.
-  - (b) Per-friend indicator only when both users opt in.
-  - (c) Make it a privacy category (`widget_pin`, default `only_me`) and filter it through
-    `presence_view`.
-- **Verify:** golden vectors cover the new category if (c) is chosen.
+- **Decision (user, 2026-10-04, D-30a):** no. A user must never learn that a *specific*
+  friend has pinned their widget.
+- **Fix:**
+  - Remove the per-friend "resonating" dot (`AvatarBadges.resonating`,
+    `WidgetModel.resonating`) and the "…, resonating" content description.
+  - Charge UI shows the balance and a qualitative "earning" state. Don't show the tether count
+    or the exact hourly rate: with few friends, either one reveals who pinned you, and a rate
+    change reveals *when*.
+  - Server side (C.3): widget-install state is used only inside the ledger RPC. No RPC or
+    `PresenceView` field ever returns another user's pin state, and SQL tests assert this.
+  - The debug toggles may stay, fake backend only.
+- **Verify:** UI and widget tests assert no per-friend tether indicator; SQL behaviour test
+  proves no RPC exposes `hasRemoteWidgetInstalled`-equivalent data.
 
-#### F-06 · Charge needs product guardrails recorded · ⏸ P1
+#### F-06 · Charge guardrails · ⬜ P1 (approved 2026-10-04)
 - **Context:** the user's intent (2026-10-04): Charge is a passive resource that encourages use
   and will be spent on customization and avatar accessories. Recorded as D-30.
 - **Tensions with the product spec:**
@@ -197,13 +206,17 @@ in one PR.
     though the diminishing rates (10, 10, 8, 6, 2…) limit this
   - social pressure ("pin me back so I earn")
   - Monetization §17.3: the core vocabulary is never gated
-- **Proposed guardrails (confirm in §6 Q2):**
-  - no notifications about Charge or lost tethers
-  - never show who *hasn't* pinned you
-  - no streaks or decay
-  - the 24 h cap is a ceiling, not a penalty, and is explained in-app
-  - Charge buys only cosmetics, never status vocabulary, privacy or widget features
-  - consider moving the balance out of the Status Deck (a fast-action surface) into Avatar Lab
+- **Approved guardrails (user, 2026-10-04, D-30b). Treat these as invariants:**
+  - no notifications about Charge, earnings or lost tethers
+  - never show who has or hasn't pinned you (F-05)
+  - no streaks, no decay, no "come back" mechanics
+  - the 24 h cap is a ceiling, not a penalty, and is explained in-app (C.5)
+  - Charge buys only cosmetics (avatar decorations, accessories, customizations), never status
+    vocabulary, privacy, widget features or accessibility (master plan §17.3)
+  - the balance stays on the Status Deck (user decision); keep it compact so it doesn't slow
+    the one-tap flow
+- **Fix:** add the first four to `AGENTS.md` invariants when the Charge UI is next touched,
+  and add a test that the Status Deck quick states stay the first actionable row.
 
 #### F-07 · Widgets hard-code dark-wallpaper contrast · 🟡 P1
 - `Widgets.kt` always uses `WallpaperContrastMode.DARK_WALLPAPER`, so light-wallpaper users get
@@ -288,8 +301,18 @@ in one PR.
 
 ## 4. Roadmap
 
-Order of work: **Track 0 → Milestone 1 remainder and Avatar Phases 2–3 (in parallel) →
-Avatar Phases 4–7 → closed alpha → Avatar Phase 8 → v0.5 → v1.0.**
+Order of work (updated 2026-10-04 per user: real backend projects come once avatars feel right):
+
+1. **Track 0** (audit fixes)
+2. **Avatar Phases 2, 4, 5, 6, 7**: the avatar look, creation and customization. This is the
+   current product focus.
+3. Then, when the user is happy with avatars: **Milestone 1.5–1.6** (the user creates the
+   Supabase + Firebase projects), and **Avatar Phase 3** and **Charge C.3/C.6** against the
+   real backend. Phase 3 can be built and tested earlier against the local Docker stack.
+4. Closed alpha → Avatar Phase 8 (final art) → v0.5 → v1.0.
+
+Server-only work that doesn't need a real project (SQL migrations, golden vectors, local
+PostgREST tests) can be done at any time.
 
 ### Track 0 · Audit fixes (do first)
 
@@ -316,11 +339,11 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | 1.1 | Schema, RLS lockdown, RPC API | ✅ | `supabase/migrations/20261003000000_idl_init.sql` |
 | 1.2 | Golden privacy vectors (Kotlin ↔ SQL) | ✅ | 29 cases, mutation-checked |
 | 1.3 | `SupabaseIdlBackend` + auto-selection | ✅ | |
-| 1.4 | Email-code auth, refresh, sign-out | 🟡 | Needs a real project (§6 Q5) |
-| 1.5 | **Create the real Supabase project** and apply the migration; set the OTP email template | ⬜ | User action: `supabase/README.md` |
-| 1.6 | FCM: `push-fanout` edge function (drain `push_outbox`), `FirebasePushSource`, `register_device` from the app | ⬜ | Needs a Firebase project (§6 Q5) |
+| 1.4 | Email-code auth, refresh, sign-out | 🟡 | Needs a real project (after avatar work, D-34) |
+| 1.5 | **Create the real Supabase project** and apply the migration; set the OTP email template | ⏸ | User action, after avatar work (D-34); see `supabase/README.md` |
+| 1.6 | FCM: `push-fanout` edge function (drain `push_outbox`), `FirebasePushSource`, `register_device` from the app | ⏸ | Needs a Firebase project (after avatar work, D-34). The edge function can be written and unit-tested earlier |
 | 1.7 | QR scanning (CameraX + ZXing) | ⬜ | Code entry works today |
-| 1.8 | Crash reporting (D-07) + privacy-safe analytics events | ⬜ | Vendor undecided (§6 Q4) |
+| 1.8 | Crash reporting: Firebase Crashlytics per D-33 (no PII, Settings opt-out, no Google Analytics SDK); privacy-safe in-house analytics counters | ⬜ | Implement behind the `CrashReporter` seam; needs the Firebase project (1.6) |
 | 1.9 | Account deletion RPC; pg_cron cleanup of expired rows; Keystore-backed session storage | ⬜ | |
 | 1.10 | Invite-redeem attempt rate limit (brute-force guard) | ⬜ | Codes have ~49 bits; add a limit anyway |
 | 1.11 | CI | ✅ | Running on GitHub; see F-14/F-18 for gaps |
@@ -344,10 +367,12 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | # | Item | Status | Notes |
 | --- | --- | --- | --- |
 | C.1 | Local prototype: `ChargeEngine`, tethers, Status Deck banner, debug toggles | ✅ | `0ea04a7`; 10 unit tests |
-| C.2 | Decide the tether visibility model (F-05) and guardrails (F-06) | ⏸ | §6 Q1–Q2 |
-| C.3 | Server-authoritative ledger + server-known widget subscriptions (F-04) | ⬜ | After 1.5; before any spending |
-| C.4 | Spending: Charge → cosmetic unlocks via `asset_catalog` entitlements | ⬜ | After Avatar Phase 3; never gates the §17.3 vocabulary |
-| C.5 | Explain Charge in-app (cap, how tethers work) without pressure mechanics | ⬜ | |
+| C.2 | Apply the decided visibility model and guardrails: remove per-friend tether signals, show qualitative earning state | ⬜ | F-05, F-06; can be done now, locally |
+| C.3 | Server-authoritative ledger (`charge_ledger`, `claim_charge()` on server time) + server-known widget subscriptions; pin state never exposed | ⬜ | F-04, F-05. SQL can be built and tested locally now; goes live after 1.5 |
+| C.4 | Spending: Charge → avatar decorations, accessories and customizations via `asset_catalog` tiers + an `entitlements` table, with a server-side `purchase_with_charge()` RPC | ⬜ | After Avatar Phase 3; never gates the §17.3 vocabulary |
+| C.5 | Explain Charge in-app (cap, how tethers work) without pressure mechanics | ⬜ | Guardrails F-06 |
+| C.6 | **Buy Charge (D-32):** Google Play Billing consumables; server-side purchase-token verification (Play Developer API, in an edge function) before credit; idempotent ledger entries; refund/void handling via Real-time Developer Notifications | ⬜ | Requires C.3 and the Play Console account. No client-side crediting |
+| C.7 | Paid-currency compliance: Play policy for virtual currency, "Contains in-app purchases" listing, privacy policy update, refund/withdrawal terms (incl. EU), age rating, parental guidance | ⬜ | Before paid Charge ships; needs a human/legal review |
 
 ### Closed alpha checklist (gate)
 
@@ -355,7 +380,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 - [ ] Milestone 1 items 1.4–1.9 done
 - [ ] Avatar Phase 3 landed (privacy contract v2)
 - [ ] Real Supabase + Firebase projects; signed release build; crash reporting on
-- [ ] Privacy review of Charge tethers (F-05) completed
+- [ ] Charge: per-friend tether signals removed (F-05); server ledger live if Charge is enabled (F-04)
 
 ### Milestone 2 · v0.5 Social depth (after the alpha shows retention)
 
@@ -372,30 +397,38 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-30). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-34). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
 - **D-28** availability is never color-only · **D-29** legacy bases fold into five; placeholder art
-- **D-30** Charge: passive resource from mutual widget tethers, to be spent on cosmetics
-  (2026-10-04, user). Open sub-decisions: §6 Q1–Q2.
+- **D-30** Charge: passive resource from mutual widget tethers, spent on avatar decorations,
+  accessories and customizations (2026-10-04, user)
+  - **D-30a:** no per-friend tether visibility
+  - **D-30b:** guardrails approved; the balance stays on the Status Deck
 - **D-31 (to record with Track 0.2):** temporary explicit accessories versus signature conflicts.
+- **D-32** Charge can be bought with real money via Google Play Billing; this requires a
+  server-authoritative ledger with verified purchases (2026-10-04, user)
+- **D-33** Crash reporting = Firebase Crashlytics, with no PII and an opt-out; no Google
+  Analytics SDK (2026-10-04, delegated to Claude)
+- **D-34** Real Supabase/Firebase projects get created once the user is happy with the avatars,
+  avatar creation and customization (2026-10-04, user)
 
 ---
 
 ## 6. Open questions for the user
 
-1. **Charge tether visibility (F-05):** may a user learn that a *specific* friend has pinned
-   their widget? Options: aggregate only / mutual opt-in / privacy category.
-2. **Charge guardrails (F-06):** approve the proposed list? Should the balance stay on the
-   Status Deck or move to the Avatar Lab?
-3. **Charge spending:** which cosmetics will be purchasable first, and is there ever a paid
-   path into Charge? A paid path would make server authority (F-04) and a store review
-   mandatory.
-4. **Crash reporting vendor (D-07):** Firebase Crashlytics (Firebase is coming for FCM anyway)
-   or Sentry?
-5. **Real projects:** when will the Supabase and Firebase projects be created (Milestone 1.5,
-   1.6)? Both need you; Cursor and Claude can't create accounts.
+None open. Answered 2026-10-04:
+
+| Q | Answer | Recorded as |
+| --- | --- | --- |
+| Per-friend tether visibility? | **No** | D-30a, F-05 |
+| Charge guardrails? Balance on the Status Deck? | **Yes** to both | D-30b, F-06 |
+| What does Charge buy; is Charge purchasable? | Avatar decorations, accessories, customizations; **yes**, purchasable | D-30, D-32, C.4, C.6, C.7 |
+| Crash-reporting vendor? | Delegated → **Firebase Crashlytics** | D-33, 1.8 |
+| When are the real projects created? | Once avatars, creation and customization feel right | D-34, roadmap order |
+
+Add new questions here as they come up.
 
 ---
 
@@ -421,4 +454,5 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-30). The most relevant t
 | 2026-10-04 | Cursor | Charge prototype (local), Room v2 | `0ea04a7`, PR #1 |
 | 2026-10-04 | Cursor | Availability shape glyphs | `d4a336e`, PR #2 |
 | 2026-10-04 | Cursor | Widgets painted from resolved avatar (introduced F-01–F-03) | `16f0343`, PR #3 |
+| 2026-10-04 | User/Claude | Decisions D-30a/b, D-32, D-33, D-34 recorded; roadmap reordered (avatars before real backend projects) | this PR |
 | 2026-10-04 | Claude | Full audit: 141 JVM ✅, 9/9 device ✅ (one flake), CI ✅; device and JVM probes confirmed F-01/F-02; this master plan; findings F-01…F-20 | this commit |
