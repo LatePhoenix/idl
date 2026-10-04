@@ -32,8 +32,8 @@ task per branch/PR where practical. Reference IDs in commit messages (e.g. `Fixe
 **P2** next milestone · **P3** later/nice to have.
 
 **Don't** mark anything ✅ unless it was built, tested, and (for anything visual or on the
-home screen) checked on a device or by snapshot test. CI being green isn't enough on its own:
-CI has no device or snapshot tests yet (F-14).
+home screen) checked on a device or by snapshot test. CI runs Roborazzi snapshot
+verification (F-14, PR #11). Device tests are still local; there is no emulator job.
 
 ---
 
@@ -48,13 +48,13 @@ CI has no device or snapshot tests yet (F-14).
 | Local `main` | 13 commits behind `origin/main`. Run `git checkout main && git pull` |
 | `avatar-creator` | Same content as `origin/main` minus merge commits. Start new work from `origin/main` |
 | `milestone-1-supabase` | Fully merged; can be deleted |
-| CI (`.github/workflows/ci.yml`) | ✅ Green on every PR. Jobs: `android` (unit tests, lint, debug build) and `backend` (SQL suite + PostgREST IT). **No device or snapshot tests** |
+| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` when the android job fails. No emulator job |
 
 ### 1.2 Verified numbers (Claude, 2026-10-04 on `origin/main`)
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 154 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 39 warnings. Re-run 2026-10-04 for the PR #5 follow-up |
+| `scripts/check.sh` | ✅ 165 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 41 warnings. The two new warnings are `NewerVersionAvailable` for Roborazzi 1.76.0, which this Kotlin 2.0.21 tree cannot compile (see F-14). Re-run 2026-10-04 on `test/roborazzi-f14` |
 | Instrumented tests (Pixel 9 emulator, API 37) | ✅ 12/12 pass on `emulator-5554`, including the widget-path bitmap checks. Cold-start flake still open (F-20) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
@@ -308,11 +308,17 @@ in one PR.
 
 ### P2/P3 — process and maintenance
 
-#### F-14 · CI can't catch visual or widget regressions · ⬜ P1
-- F-01 and F-02 merged with green CI. **Fix:** add Roborazzi + Robolectric (already approved)
-  snapshot tests for the widget render path and the avatar target matrix, run in CI.
-  Optionally add an emulator job for `connectedDebugAndroidTest`. Make "device-check visual
-  changes" part of the PR template.
+#### F-14 · CI can't catch visual or widget regressions · ✅ P1
+- F-01 and F-02 merged with green CI because CI never rendered a bitmap.
+- **Fixed (PR #11):** Roborazzi 1.60.0 + Robolectric 4.17 snapshot the widget path
+  (`WidgetRenderInputs.from` → `AvatarResolver` → `AvatarRenderer.bitmap` at 256 px).
+  Goldens live in `app/src/test/snapshots/widget/`. `verifyRoborazziDebug` runs in
+  `scripts/check.sh` and the android CI job; diff images upload as `roborazzi-diffs` on failure.
+  Availability bitmaps are also compared as raw pixels, so a missing glyph fails even if the
+  goldens are re-recorded. `.github/pull_request_template.md` asks for a snapshot or a device
+  screenshot on visual changes.
+- Roborazzi 1.76.0 is built with Kotlin 2.3 metadata. This project is Kotlin 2.0.21, so 1.60.0
+  (the newest release still built with 2.0.21) is the pin. No emulator job yet.
 
 #### F-15 · Documentation drift · ⬜ P2
 - `AGENTS.md` "Current work" still pointed at Phase 1 (fixed in this commit).
@@ -384,7 +390,7 @@ PostgREST tests) can be done at any time.
 | --- | --- | --- | --- |
 | 0.1 | Widget render path rebuilt on `restingAvatar` + `VisiblePresence`; badges from resolved layers | F-01, F-02(1), F-03 | ✅ |
 | 0.2 | Resolver: slot priority = highest among matching sources; record the D-31 rule; end-to-end tests | F-02(2) | ✅ |
-| 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ⬜ |
+| 0.3 | Snapshot tests (Roborazzi) for the widget path + target matrix, in CI | F-14 | ✅ |
 | 0.4 | Render cache: clear on sign-out/purge, byte-sized LRU, atomic writes | F-10 | ⬜ |
 | 0.5 | Wallpaper-aware contrast for widgets | F-07 | ⬜ |
 | 0.6 | Glyphs from manifest; a11y de-duplication; scene fallthrough | F-08, F-11, F-12 | ⬜ |
@@ -418,7 +424,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
-| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-07–F-10 and F-14 |
+| 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | F-01 and F-03 fixed in Track 0.1. F-14 snapshot tests landed in Track 0.3. Still needs a task spec (`docs/handoff/PHASE_2_TASK.md`) covering F-07–F-10 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
 | 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
@@ -715,7 +721,6 @@ win once Track 0 is done.
 - Widget "stale" indicator styling pass; show "updated Xh ago" consistently.
 - Expiry labels round down ("7h left" right after setting 8h); consider "~8h left".
 - Replace the brittle `lastSyncError.contains("Offline")` check on Home with a typed sync state.
-- A PR template with a checklist: invariants, device screenshot, report updated.
 
 ---
 
@@ -741,3 +746,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
 | 2026-10-04 | Cursor | Remove per-friend tether signals. Status Deck shows balance and earning / not earning. Guardrails 10–13 in AGENTS.md. 161 JVM, 15/15 device | `b28e44e`, PR #12, F-05 ✅, F-06 🟡, C.2 ✅ |
 | 2026-10-04 | Cursor | CI actions bumped to checkout v7, setup-java v6, setup-gradle v6; runner pinned to ubuntu-24.04 | F-18, PR #10 |
+| 2026-10-04 | Cursor | F-14: JVM widget snapshots in CI. 165 tests, 0 failed, 1 skipped | `3555e44`, PR #11 |
