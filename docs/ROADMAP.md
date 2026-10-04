@@ -21,7 +21,7 @@
 ## Next implementation order
 
 1. **Branch** from up-to-date `origin/main`. Do not reuse a dirty local `main` (it was behind `origin/main` at the last audit).
-2. **Schema 3 fields** on `AvatarConfiguration`, with defaults, plus round-trip and migration tests. No UI.
+2. **Schema 3 fields** on `AvatarConfiguration`, with defaults, plus round-trip and migration tests. No UI. Done in `avatar/schema-3`. `familyId` stays blank unless the caller passes an explicit base→family map.
 3. **`VectorPicture` loader** and a `VectorAssetRenderer` that draws one solid path and one gradient path. Unit-test the picture parser on the JVM by keeping the parser in `domain`. The `Canvas` implementation stays in `app.idl.avatar`.
 4. **One hand-authored original picture set**, not a Noto import: one round face, two expressions, one hairstyle, one beard, one glasses pair, one background. Original art avoids a license import in the same change as the renderer. Mark `license: proprietary-idl`.
 5. **Wire `render.type = vector`** through the existing resolver. Procedural assets keep working.

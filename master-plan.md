@@ -726,3 +726,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | PR #5 follow-up: STATUS accessories, default 2×2 widget uses STANDARD, render failures stay in the fallback. 154 JVM, 12/12 device | PR #5 |
 | 2026-10-04 | Cursor | Avatar base exploration v2: the family picks were withdrawn, and blob A's light and dark 48px sheets are the temporary stand-in | `docs/handoff/reports/2026-10-04-avatar-bases-v2.md` |
 | 2026-10-04 | Cursor | D-39: emoji-style vector compositor design. Canvas path IR, no Noto import yet | `docs/ARCHITECTURE.md`, `docs/ROADMAP.md` |
+| 2026-10-04 | Cursor | Avatar recipe schema 3: pack, family, colors, transforms, background. Schema 2 still decodes | `AvatarConfiguration.migrateRecipe` |
