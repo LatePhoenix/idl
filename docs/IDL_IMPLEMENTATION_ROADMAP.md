@@ -1,5 +1,7 @@
 # iDL Implementation Roadmap
 
+> **Superseded by [`master-plan.md`](../master-plan.md)** (2026-10-04). Kept for history; don't update.
+
 Status legend: ✅ built, tested, and verified on the Pixel 9 emulator (API 37) · 🟡 partial · ⬜ not started
 
 ## Milestone 0 — Foundation (done in this pass)

@@ -109,6 +109,14 @@ is never the only cue.
 **D-29 · Legacy bases fold into the five MVP bases** (see IDL_AVATAR_CREATOR_PLAN §6.2). Art
 stays placeholder until the product idea is validated.
 
+**D-30 · Charge (user, 2026-10-04).** A passive resource earned while friends have mutually
+pinned each other's widgets. It will be spent on customization and avatar accessories. Accrual
+is computed on evaluation (no timers) with diminishing per-tether rates (10, 10, 8, 6, then 2
+per hour) and a 24 h uncollected cap. The current implementation is a local prototype. Open
+before shipping: the tether visibility model, guardrails against engagement pressure, and a
+server-authoritative ledger before anything is spendable (master-plan F-04…F-06). Charge must
+never gate the core vocabulary, privacy or widget features (master plan §17.3).
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

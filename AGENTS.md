@@ -7,13 +7,17 @@ are already made. **Do not reopen a recorded decision without asking the user.**
 
 ## Current work
 
-Avatar creator, **Phase 1**: [`docs/handoff/PHASE_1_TASK.md`](docs/handoff/PHASE_1_TASK.md).
-That file is the authoritative spec for the current task. Plan and context:
-`docs/IDL_AVATAR_CREATOR_PLAN.md` (phases) and `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
-(product requirements, cited as §n).
+**[`master-plan.md`](master-plan.md) is the living plan.** It has the current state, the open
+audit findings (F-xx) in priority order, the roadmap, open questions and the work log. Start
+there, follow its §0 "How to use", and update it when you finish an item.
 
-Branch: `avatar-creator`. Commit in small, reviewable steps on this branch. Don't merge,
-rebase onto, or push other branches.
+Right now: **Track 0 (audit fixes) comes before any new feature work.** Avatar specs are
+`docs/IDL_AVATAR_CREATOR_PLAN.md` (phases) and `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
+(requirements, cited as §n).
+
+Branching: start each item from an up-to-date `origin/main` on its own branch, commit in small
+reviewable steps, and open a PR. Visual or widget changes need a device screenshot or a snapshot
+test in the PR (CI has no device tests yet).
 
 ## Commands
 
