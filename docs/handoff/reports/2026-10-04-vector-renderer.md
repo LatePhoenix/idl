@@ -73,3 +73,4 @@ The renderer commit is that tree. The checkpoint commit is docs only. `scripts/c
 
 - `e7813de` Record procedural goldens the widget suite did not cover yet.
 - `8281a04` Drive resolved avatar paint from the compositor so vector parts can interleave without moving procedural pixels.
+- `f5b04c8` Record the Phase 2 vector-renderer checkpoint and mark the Canvas renderer implemented.
