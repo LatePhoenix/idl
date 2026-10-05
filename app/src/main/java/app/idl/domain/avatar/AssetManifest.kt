@@ -9,8 +9,8 @@ import kotlinx.serialization.Serializable
 
 /*
  * Versioned asset packs (master plan §10). A pack is a JSON manifest. Assets are either
- * `procedural` (drawn by a named painter: today's placeholder art) or `raster` (WebP layers:
- * final art), and both go through the same anchors, z-order, compatibility and fallback rules.
+ * `procedural` (drawn by a named painter: today's placeholder art), `vector` (picture JSON),
+ * or `raster` (WebP layers). All of them go through the same anchors, compatibility and fallback rules.
  */
 
 @Serializable(with = AssetCategory.Serializer::class)
@@ -32,7 +32,11 @@ enum class AssetCategory(val defaultZ: Int, val multiple: Boolean = false, val d
     FRAME(130),
     AVAILABILITY_INDICATOR(140),
     ACTIVITY_BADGE(150),
-    REACTION_OVERLAY(160, multiple = true);
+    REACTION_OVERLAY(160, multiple = true),
+    /** Identity hair. [defaultZ] is unused by the procedural painter; vector parts carry their own band. */
+    HAIR(25),
+    /** Identity facial hair. Same rule as [HAIR]. */
+    FACIAL_HAIR(35);
 
     object Serializer : WireEnumSerializer<AssetCategory>("AssetCategory", entries, EXPRESSION_OVERLAY)
 }
@@ -54,11 +58,11 @@ enum class FaceOcclusion {
 
 @Serializable
 data class AssetRender(
-    /** `procedural` or `raster`. */
+    /** `procedural`, `vector`, or `raster`. */
     val type: String = "procedural",
     /** Painter key for procedural assets (see avatar.AvatarRenderer); defaults to the asset ID. */
     val painter: String? = null,
-    /** Layer file for raster assets, relative to the pack directory. */
+    /** Layer file for raster or vector assets, relative to the pack directory. */
     val file: String? = null,
 )
 
@@ -101,6 +105,14 @@ data class AssetDef(
     val colors: PaletteColors? = null,
     /** Shape glyph for indicators and badges: availability must never be color-only. */
     val glyph: String? = null,
+    /** Bumps when a vector picture's pixels change. Procedural rows stay at 1. */
+    val contentVersion: Int = 1,
+    /** Slot name to default `#RRGGBB` or `#AARRGGBB`. Empty on procedural rows. */
+    val colorSlots: Map<String, String> = emptyMap(),
+    /** Base family id. Only [AssetCategory.BASE] may set this. */
+    val family: String? = null,
+    /** Identity placement before a recipe [ItemTransform]. */
+    val defaultTransform: ItemTransform? = null,
 ) {
     val z: Int get() = zIndex ?: category.defaultZ
     val painterKey: String get() = render.painter ?: id
@@ -161,6 +173,11 @@ data class AssetManifest(
     val assets: List<AssetDef> = emptyList(),
     val expressions: List<ExpressionDef> = emptyList(),
     val semantics: Map<String, SemanticMapping> = emptyMap(),
+    /**
+     * expression id → base id → parts. Merged into [ExpressionDef.baseOverrides] in manifest order.
+     * Eye and mouth family variants do not apply to these part ids when the asset is vector.
+     */
+    val expressionOverrides: Map<String, Map<String, ExpressionParts>> = emptyMap(),
     /** Retired asset ID → replacement. Saved avatars must never break (§10.5). */
     val retired: Map<String, String> = emptyMap(),
 ) {
@@ -173,7 +190,24 @@ data class AssetManifest(
 class AssetRegistry(val manifests: List<AssetManifest>) {
 
     private val assets: Map<String, AssetDef> = manifests.flatMap { it.assets }.associateBy { it.id }
-    private val expressions: Map<String, ExpressionDef> = manifests.flatMap { it.expressions }.associateBy { it.id }
+    private val expressions: Map<String, ExpressionDef> = buildMap {
+        for (manifest in manifests) {
+            for (expression in manifest.expressions) {
+                val prior = this[expression.id]
+                this[expression.id] = if (prior == null) {
+                    expression
+                } else {
+                    expression.copy(baseOverrides = prior.baseOverrides + expression.baseOverrides)
+                }
+            }
+        }
+        for (manifest in manifests) {
+            for ((expressionId, byBase) in manifest.expressionOverrides) {
+                val existing = this[expressionId] ?: continue
+                this[expressionId] = existing.copy(baseOverrides = existing.baseOverrides + byBase)
+            }
+        }
+    }
     private val semantics: Map<String, SemanticMapping> = manifests.fold(emptyMap()) { acc, m -> acc + m.semantics }
     private val retired: Map<String, String> = manifests.fold(emptyMap()) { acc, m -> acc + m.retired }
 
@@ -184,6 +218,12 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
 
     val allAssets: Collection<AssetDef> get() = assets.values
     val allExpressions: Collection<ExpressionDef> get() = expressions.values
+
+    /** Base asset id → family id, for bases that declare [AssetDef.family]. */
+    val baseFamilies: Map<String, String> = assets.values
+        .filter { it.category == AssetCategory.BASE && !it.family.isNullOrBlank() }
+        .sortedBy { it.id }
+        .associate { it.id to it.family!! }
 
     /** Resolves retired IDs to their replacement (bounded, so cycles can't hang). */
     fun canonicalId(id: String): String {
@@ -209,6 +249,10 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
         val issues = mutableListOf<String>()
         val allIds = manifests.flatMap { m -> m.assets.map { it.id } }
         allIds.groupBy { it }.filterValues { it.size > 1 }.keys.forEach { issues += "duplicate asset id $it" }
+        // A second pack adds per-base parts through expressionOverrides. It must not redefine an expression.
+        manifests.flatMap { m -> m.expressions.map { it.id } }
+            .groupBy { it }.filterValues { it.size > 1 }.keys.sorted()
+            .forEach { issues += "expression $it is defined by more than one pack" }
         val bases = ofCategory(AssetCategory.BASE).map { it.id }.toSet()
 
         fun ref(owner: String, id: String?, vararg categories: AssetCategory) {
@@ -226,8 +270,13 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
             a.conflictsWith.forEach { ref(a.id, it) }
             a.requires.forEach { ref(a.id, it) }
             ref(a.id, a.fallback, a.category)
-            if (a.render.type !in setOf("procedural", "raster")) issues += "${a.id} has unknown render type ${a.render.type}"
+            if (a.render.type !in setOf("procedural", "raster", "vector")) issues += "${a.id} has unknown render type ${a.render.type}"
             if (a.render.type == "raster" && a.render.file.isNullOrBlank()) issues += "${a.id} has no file"
+            if (a.render.type == "vector") {
+                if (a.render.file.isNullOrBlank()) issues += "${a.id} has no file"
+                if (a.colorSlots.isEmpty()) issues += "${a.id} has no color slots"
+            }
+            if (a.family != null && a.category != AssetCategory.BASE) issues += "${a.id} declares a family but is not a base"
             if (a.category == AssetCategory.PALETTE && a.colors == null) issues += "${a.id} palette has no colors"
             if (a.category == AssetCategory.BASE) {
                 REQUIRED_BASE_ANCHORS.filterNot { it in a.anchors }.forEach { issues += "${a.id} is missing anchor $it" }
@@ -261,6 +310,35 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
             e.overlays.forEach { ref("expression ${e.id}", it, AssetCategory.EXPRESSION_OVERLAY) }
             e.extras.forEach { ref("expression ${e.id}", it, AssetCategory.EXPRESSION_OVERLAY) }
             e.baseOverrides.keys.filterNot { it in bases }.forEach { issues += "expression ${e.id} overrides unknown base $it" }
+        }
+        val overridePairs = mutableSetOf<Pair<String, String>>()
+        fun claim(expressionId: String, baseId: String) {
+            if (!overridePairs.add(expressionId to baseId)) {
+                issues += "expression $expressionId overrides $baseId twice"
+            }
+        }
+        for (manifest in manifests) {
+            for (expression in manifest.expressions) {
+                expression.baseOverrides.keys.forEach { claim(expression.id, it) }
+            }
+            for ((expressionId, byBase) in manifest.expressionOverrides) {
+                if (expression(expressionId) == null) issues += "expressionOverrides names unknown expression $expressionId"
+                for ((baseId, parts) in byBase) {
+                    claim(expressionId, baseId)
+                    listOfNotNull(parts.eyes, parts.brows, parts.mouth).forEach { partId ->
+                        if (asset(partId) == null) issues += "expression $expressionId override names unknown part $partId"
+                    }
+                }
+            }
+        }
+        val slotDefaults = mutableMapOf<String, MutableSet<String>>()
+        for (asset in assets.values) {
+            for ((slot, hex) in asset.colorSlots) {
+                slotDefaults.getOrPut(slot) { mutableSetOf() }.add(hex.lowercase())
+            }
+        }
+        slotDefaults.filterValues { it.size > 1 }.keys.sorted().forEach {
+            issues += "color slot $it has conflicting defaults"
         }
 
         for ((key, s) in semantics) {

@@ -63,6 +63,8 @@ internal fun sandbox(
     extra: List<AssetDef> = emptyList(),
     semantics: Map<String, SemanticMapping> = emptyMap(),
     retired: Map<String, String> = emptyMap(),
+    expressions: List<ExpressionDef> = listOf(ExpressionDef("neutral", "Neutral", eyes = "eye_open", mouth = "mouth_line")),
+    expressionOverrides: Map<String, Map<String, ExpressionParts>> = emptyMap(),
 ): AssetRegistry {
     val required = listOf(
         AssetDef(
@@ -84,8 +86,9 @@ internal fun sandbox(
         minimumRendererVersion = 2,
         defaults = PackDefaults("base_a", "pal_a", "scene_a", "frame_a", "eye_a", "mouth_a"),
         assets = required + extra,
-        expressions = listOf(ExpressionDef("neutral", "Neutral", eyes = "eye_open", mouth = "mouth_line")),
+        expressions = expressions,
         semantics = semantics,
+        expressionOverrides = expressionOverrides,
         retired = retired,
     )))
 }

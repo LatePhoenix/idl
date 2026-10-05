@@ -125,6 +125,22 @@ class AssetPackTest {
         assertNotEquals(emptyList<String>(), registry.asset("feature_antennae")!!.conflictsWith)
     }
 
+    @Test fun `every shipped vector picture validates and its file exists`() {
+        val root = repoRoot()
+        for (manifest in registry.manifests) {
+            for (asset in manifest.assets) {
+                if (asset.render.type != "vector") continue
+                val file = asset.render.file
+                assertFalse(asset.id, file.isNullOrBlank())
+                val pictureFile = File(root, "app/src/main/assets/packs/${manifest.packId}/v${manifest.version}/$file")
+                assertTrue(pictureFile.path, pictureFile.isFile)
+                val picture = VectorPicture.parse(pictureFile.readText())
+                val issues = VectorPictureValidator.validate(picture, asset)
+                assertEquals(issues.joinToString("\n"), emptyList<String>(), issues)
+            }
+        }
+    }
+
     @Test fun `domain sources do not import android`() {
         val hits = File(repoRoot(), "app/src/main/java/app/idl/domain").walk()
             .filter { it.extension == "kt" }

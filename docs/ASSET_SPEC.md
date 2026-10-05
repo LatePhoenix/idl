@@ -10,28 +10,45 @@ Every vector asset is normalized to a **1024×1024** logical canvas with a requi
 ```json
 {
   "schemaVersion": 1,
-  "id": "hair_bob",
+  "id": "beard_round_full",
   "contentVersion": 1,
   "viewBox": 1024,
+  "clipPaths": [
+    { "id": "mouth_hole", "commands": "M 430 690 C ... Z" }
+  ],
   "parts": [
     {
-      "id": "back",
-      "zBand": 20,
-      "colorSlot": "hair.primary",
-      "commands": "M ...",
-      "clip": null
+      "id": "beard",
+      "zBand": 60,
+      "fill": { "slot": "beard.primary" },
+      "fillRule": "nonzero",
+      "opacity": 1.0,
+      "clip": { "id": "mouth_hole", "mode": "difference" },
+      "commands": "M 300 640 C ... Z"
     },
     {
-      "id": "bangs",
-      "zBand": 70,
-      "colorSlot": "hair.primary",
-      "commands": "M ..."
+      "id": "face",
+      "zBand": 40,
+      "fill": {
+        "radial": { "cx": 430, "cy": 400, "r": 620,
+          "stops": [ { "offset": 0.0, "slot": "face.highlight" },
+                     { "offset": 1.0, "slot": "face.primary" } ] }
+      },
+      "commands": "M 512 96 C ... Z"
     }
   ]
 }
 ```
 
-`commands` is an SVG path `d` string in viewBox space. Fills are either a slot name or a gradient whose stops reference slot names. A missing slot falls back to the asset's default color, then to a documented neutral. It does not fall back to black silence.
+`schemaVersion` must be 1. `id` equals the manifest asset id. `contentVersion` is at least 1 and equals the asset's `contentVersion`. `viewBox` is 1024.
+
+`commands` is an SVG path `d` string in viewBox space: `M m L l H h V v C c S s Q q T t Z z`, with implicit repeats and compact numbers. `A`/`a` arcs, non-finite numbers, and unknown letters are rejected. The parser emits absolute move, line, quad, cubic, and close.
+
+`fill` is exactly one of a slot, a linear gradient `{x1,y1,x2,y2,stops}`, or a radial gradient `{cx,cy,r,stops}`. Stops are at least two, with strictly increasing offsets in 0..1. Each stop is a slot plus an optional alpha in 0..1. `fillRule` is `nonzero` (default) or `evenodd`. `opacity` is 0..1, default 1. `clip` is optional `{id, mode}` where mode is `intersect` or `difference` and `id` exists in `clipPaths`. `allowOverflow` true permits geometry outside −16..1040.
+
+`zBand` is one of 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110. Bands at 200 and above are rejected on a part.
+
+A missing slot falls back to the recipe override, then a derived shadow or highlight, then the asset's default color, then the neutral `#FF9E9E9E`. It does not fall back to black silence.
 
 ## 2. Manifest entry
 
