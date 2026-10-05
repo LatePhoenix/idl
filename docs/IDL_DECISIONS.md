@@ -206,6 +206,42 @@ friend can infer when that friend pinned them back. Accepted: it only concerns f
 chose to pin themselves, and it never names anyone. D-30a still holds: no per-friend pin state,
 no tether count, no exact rate. The C.3 server ledger does not need batched crediting for this.
 
+**D-41 · Schema 3 becomes the saved avatar format everywhere, now (user, 2026-10-05; Q12 = a).**
+`AvatarConfiguration` (recipe schema 3) replaces v1 `AvatarConfig` as what Room stores, what
+`put_avatar` accepts, and what `presence_view` returns. It comes with a Room migration that turns
+v1 rows into recipes through `LegacyAvatarMigration`, a server migration, and new golden vectors.
+This is the core of Avatar Phase 3 (D-24): the server filters semantics and the client composes,
+so the server-side `compose_avatar` of v1 status visuals is retired in the same change. The
+contract changes once. F-29's `decode()` and `prepareForWrite()` guard is wired in here.
+Supersedes the "store v1" assumption in D-39 and the PHASE_2 spec.
+
+**D-42 · The avatar is an original teardrop emoji face built for maximum customization (user, 2026-10-05).**
+- **Original art only.** No Noto or other third-party emoji art, to avoid license issues. This
+  replaces D-39's "Noto may be imported later" and drops `docs/ROADMAP.md` step 9's import.
+  The D-39 renderer, compositor and recipe format are unchanged.
+- **Base shape:** a slightly teardrop-shaped face with the narrow end down, reading as a pseudo
+  neck. The new family is `teardrop_face`, and it's the default base for new avatars. The round
+  face from Phase 2 is retired to it (invariant 5).
+- **Expressions:** the catalog covers every standard smiley-face emotion in the pinned Unicode
+  emoji set (`config/emoji_face_scope.json`). Finished hat and glasses faces are split into
+  items; face-hand emoji use hand overlays. Expressions are core vocabulary and stay free
+  (invariant 6). An explicitly chosen expression is mood data and is shown only when the viewer
+  may see mood (D-24, F-19).
+- **Customization is the product's core.** The base is designed for hair, facial hair,
+  headwear, eyewear, jewelry, tops (shirts), props, backgrounds, frames and per-part colors, with
+  the most choice the 48 px widget can still read. Expressions never replace identity items, and
+  identity items never replace expressions.
+- Tops need shoulders or a collar below the neck. How much body shows is Q15.
+
+**D-43 · Integrations are reopened for exploration (user, 2026-10-05; amends D-38).** The user
+wants to explore Spotify (show when they're listening to music, for example with headphones),
+Steam (show when they're playing, for example holding a controller) and other easy
+integrations. Research comes first (master-plan I.0). On-device signals that need no account
+link may be built before the real backend. Account-linked integrations (Spotify Web API, Steam)
+wait for the real backend (D-34). D-09 still applies: only official, user-authorized APIs, no
+scraping, opt-in per integration, and automated sources never override a manual status
+(invariant 4). Discord, Xbox, PlayStation, Meta Quest and VRChat stay on hold as in D-38.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated
@@ -215,7 +251,7 @@ no tether count, no exact rate. The C.3 server ledger does not need batched cred
    must batch; payloads carry ids only.
 3. **Widget update reliability** on OEM-skinned Android (battery optimisers kill background
    work). Mitigate with push-driven updates + honest stale display; measure refresh failure rate.
-4. **Avatar art direction** — D-39 adopts emoji-style vectors as bootstrap art. Canvas stays.
-   Noto-derived pictures must stay swappable for a house style, or the product has no durable
-   identity (master plan §3.2).
+4. **Avatar art direction** — D-42 makes the avatar an original teardrop emoji face. Canvas
+   stays (D-39). Legibility at 48 px limits how much customization can show at once; check
+   every content batch at widget size.
 5. **Invisible mode signal leakage** — toggling must not trigger visible pushes or timestamp changes.

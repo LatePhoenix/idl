@@ -6,7 +6,7 @@
 
 Last full review: **2026-10-05 by Claude** (everything through `origin/main` `7a175a6`, PR #23).
 
-**Next work: see §4.0 "Next up".**
+**Next work: see §4.0 "Next up".** The current focus is the Avatar program (§4.1, D-41/D-42).
 
 ---
 
@@ -80,7 +80,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1, plus recipe schema 3 (PR #9). `itemIds`, color slots and vector assets resolve (Phase 2 PR A) |
 | Vector avatar art (D-39) | 🟡 | `emoji_core` v1: original round face, neutral and happy, bob hair, full beard, wire glasses, soft background. `CanvasVectorAssetRenderer` draws it through the same compositor as the procedural layers. Only visible on the debug **Settings → Vector slice** screen: no saved avatar uses it, and widgets still show the procedural pack (ROADMAP step 10) |
-| Avatar editor for the new recipe format | ⬜ | Avatar Studio still edits v1 `AvatarConfig`, and Room and the server store v1. Blocked on Q12 |
+| Avatar editor for the new recipe format | ⬜ | Avatar Studio still edits v1 `AvatarConfig`, and Room and the server store v1. D-41 switches the saved format (AV.4); the editor is AV.6 |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names come from the manifest (F-08 ✅) |
 | Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes. Memory access is locked (F-10 ✅, F-26 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
@@ -95,7 +95,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-40). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-43). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
@@ -488,12 +488,14 @@ in one PR.
 Order of work (updated 2026-10-04 per user: real backend projects come once avatars feel right):
 
 1. **Track 0** (audit fixes): ✅ done 2026-10-04
-2. **Avatar Phases 2, 4, 5, 6, 7** plus **U.1–U.4**: the avatar look, creation and
-   customization, including bubbles, the friends-first home, per-friend looks and weather.
-   This is the current product focus.
+2. **The Avatar program (§4.1, D-41/D-42):** the original teardrop face, every smiley-face
+   expression, schema 3 saved everywhere, the editor, and wave after wave of customization
+   content. This is the product's "bread and butter" and the current focus. U.1–U.4 and
+   Avatar Phases 6–7 follow or interleave.
 3. Then, when the user is happy with avatars: **Milestone 1.5–1.6** (the user creates the
-   Supabase + Firebase projects), and **Avatar Phase 3** and **Charge C.3/C.6** against the
-   real backend. Phase 3 can be built and tested earlier against the local Docker stack.
+   Supabase + Firebase projects), **Charge C.3/C.6**, and the account-linked integrations
+   (Steam, Spotify; §4.2) against the real backend. Avatar Phase 3 is pulled forward as AV.4
+   and is tested on the local Docker stack.
 4. Closed alpha → Avatar Phase 8 (final art) → v0.5 → v1.0.
 
 Server-only work that doesn't need a real project (SQL migrations, golden vectors, local
@@ -505,11 +507,167 @@ Take the first item that's ready. Update this table when an item finishes or a n
 
 | # | Item | Ready? | Notes |
 | --- | --- | --- | --- |
-| N.1 | **Phase 2 follow-ups:** F-30 (slice snapshots at widget targets) and F-31 (pack directory per asset) | ✅ Ready. No spec needed: each finding has its fix and verify steps. One PR, branch `avatar/phase-2-followups` | Small. Tests plus a registry change. Existing goldens must not change |
-| N.2 | **Answer Q12 and Q13** (§6) | ⏸ user | Q12 decides how the editor saves. Q13 decides whether the hair gets redrawn first |
-| N.3 | **U.1 thought bubbles** | Spec needed (`docs/handoff/U1_BUBBLES_TASK.md`; ask Claude) | Independent of the editor. Touches presence, privacy (`status_note`), `put_presence` validation and golden vectors. All testable on the local Docker stack |
-| N.4 | **Avatar editor slice and export** (ROADMAP steps 6–7; overlaps Avatar Phase 4 Quick Creator) | Spec needed, after Q12 | Wires F-29. Picks the six `emoji_core` choices, with colors, undo and reset; exports PNG and recipe JSON |
-| N.5 | **Widget cutover to vector art** (ROADMAP step 10) | After N.1 and N.4 | Must keep availability and activity glyphs; needs the F-30 goldens |
+| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.2 | First visible step of D-42. Includes F-30 |
+| N.2 | **F-31** pack directory per asset | ✅ Ready. The finding has its fix and verify steps | Small. Can run alongside N.1 on its own branch |
+| N.3 | **AV.3 Expression catalog** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.3 | Data and review only, no art. Its output drives AV.5 |
+| N.4 | **Answer Q14 and Q15** (§6) | ⏸ user | Q15 (how much body shows for shirts) is needed before tops (AV.7) |
+| N.5 | **AV.4 Schema 3 saved everywhere** (D-41, Avatar Phase 3 core) | Spec needed (`docs/handoff/AV4_SCHEMA3_PERSIST_TASK.md`; ask Claude) | Room migration, server migration, `presence_view` v2, golden vectors |
+| N.6 | **AV.6 Editor and export** | Spec needed, after AV.4 | The customization screen |
+| N.7 | **I.0 Integration research** (§4.2) | Ask Claude | Produces `docs/INTEGRATIONS_RESEARCH.md`; decides I.1 and I.2 |
+| N.8 | **U.1 Thought bubbles** | Spec needed | Unchanged; slots in when the avatar work allows |
+
+### 4.1 Avatar program (D-41, D-42): the bread and butter
+
+Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
+and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
+format from Phase 2 stay (D-39). Every item ships original art (`license: proprietary-idl`).
+
+| # | Item | Status | Depends on | Notes |
+| --- | --- | --- | --- | --- |
+| AV.1 | Decisions and design docs: D-41, D-42, D-43; scope file; ROADMAP, ARCHITECTURE and LICENSING notes | ✅ | | Done by Claude, 2026-10-05 |
+| AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ⬜ | | Spec below |
+| AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ⬜ | | Spec below |
+| AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ⬜ | | Spec needed. Contract changes once |
+| AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Each batch: goldens at 48 / 96 / 512 and a contact sheet; free forever (invariant 6) |
+| AV.6 | Editor (Avatar Phases 4–5 merged): category strip, grid, colors, undo/redo, seeded randomize, 48 px preview, save through `prepareForWrite`, export PNG and recipe JSON (ROADMAP 6–7) | ⬜ | AV.4 | Spec needed |
+| AV.7 | Content waves, in this order: hair (10+), facial hair (6+), headwear, eyewear, jewelry and piercings, tops (after Q15), mouth and hand props, backgrounds, frames | ⬜ | AV.2; tops need Q15 | Each wave: original art, validator, goldens, 48 px review. Free baseline per Q14 |
+| AV.8 | Widget cutover to vector art (ROADMAP step 10) | ⬜ | AV.4, AV.5 batch 1 | Must keep availability and activity glyphs |
+| AV.9 | Customization depth: OKLCH color picker, patterns on tops, per-mood expression overrides (`semanticVisualOverrides`), saved looks, per-friend looks (U.3) | ⬜ | AV.6 | Later waves; each gets a spec |
+
+**Rules for every AV item**
+- Original art only (D-42). Pictures pass `VectorPictureValidator`. The validator is the CI gate.
+- Each content PR adds goldens at `COMPACT_WIDGET` (48 px), `STANDARD_WIDGET` (96 px) and 512 px,
+  plus a device screenshot of the Vector slice screen (extend that screen as content grows).
+- Identity items never change with mood, and mood-derived parts never show when mood is hidden
+  (invariant 2).
+- Removing or renaming a shipped asset needs a `retired` mapping (invariant 5).
+- Category additions follow PHASE_2 rules: new `AssetCategory` values only where an editor tab
+  needs them; wire names stay stable.
+
+#### AV.2 spec · Teardrop base and hair redraw
+
+Branch `avatar/teardrop-base` from `origin/main`. Pack `emoji_core` moves to **v2**
+(`packs/emoji_core/v2/`, with `v1` removed and every v1 id retired to its replacement in the v2
+manifest). The pack version is in the render key, so caches rebuild once.
+
+1. **`base_teardrop`** (BASE, `family: teardrop_face`, the new default vector base). Draw on the
+   1024 grid:
+   - crown at about y 96
+   - widest at about y 430, about 760 wide (x 132–892)
+   - sides curve in to a neck about 260 wide at y 930, then run straight off the bottom edge so
+     tops can cover it later
+   - a slight, not pointy, teardrop: the face must still read as a face at 48 px
+
+   Parts: `face` (radial gradient, highlight upper left), `shade` (lower cheeks and neck),
+   `outline` (even-odd ring), all band 40. Slots: `face.primary`, `face.shadow`,
+   `face.highlight`, `outline`.
+
+   Anchors are stored normalized (value / 1024), as the registry requires:
+
+   | Anchor | Position (1024 grid) |
+   | --- | --- |
+   | `head_top` | (512, 96) |
+   | `forehead` | (512, 250) |
+   | `temple_left` / `temple_right` | (190, 360) / (834, 360) |
+   | `eye_line` | (512, 430) |
+   | `ear_left` / `ear_right` | (140, 470) / (884, 470) |
+   | `nose` | (512, 520) |
+   | `upper_lip` | (512, 610) |
+   | `mouth` | (512, 640) |
+   | `jaw_left` / `jaw_right` | (300, 700) / (724, 700) |
+   | `chin` | (512, 790) |
+   | `neck` | (512, 930) |
+   | `accessory_center` | (512, 430) |
+
+   Also keep the registry's required anchors. Write the face-safe zone too.
+2. **Expression parts re-placed:** `eyes_round_neutral`, `eyes_round_happy`, `brows_round_relaxed`,
+   `mouth_round_neutral` and `mouth_round_smile` move to the teardrop's eye line and mouth anchor
+   (`contentVersion` 2). `expressionOverrides` for neutral and happy key on `base_teardrop`.
+3. **Hair redraw (Q13).** The Phase 2 bob read as a hood. New rules:
+   - Rear hair shows only outside the head silhouette, at the sides and top. Never draw a full
+     circle behind the head.
+   - Bangs follow a curved hairline with a visible parting, not a straight band.
+   - Hair has a highlight strand (`hair.highlight`, derived), so it reads as hair at 48 px.
+
+   Ship three styles: `hair_short_crop`, `hair_bob` (retires `hair_round_bob`) and
+   `hair_long_straight`, which falls behind the shoulders.
+4. **Facial hair redraw:**
+   - `beard_full` (retires `beard_round_full`), shaped to the teardrop jaw, keeping the mouth hole
+   - `stubble` (low-opacity texture shape)
+   - `mustache_classic`
+5. **Retire** `base_round_face` → `base_teardrop` in the v2 manifest. `glasses_round_wire` and
+   `scene_round_soft` move to v2 unchanged unless they need re-placing. Glasses sit on `eye_line`.
+6. **F-30 included:** `VectorSliceSnapshotTest` adds `COMPACT_WIDGET` and `STANDARD_WIDGET` renders
+   with layer assertions. Update `EmojiSlice` recipes to the teardrop and the new hair styles.
+7. **Acceptance:**
+   - all existing procedural goldens unchanged; vector goldens re-recorded and reviewed
+   - a contact sheet of every hair × facial hair combination at 48 px and 512 px attached to the PR
+   - device screenshots of the Vector slice screen
+   - nothing reads as a hood or a headband at 48 px
+   - `scripts/check.sh` and `--device` pass
+
+#### AV.3 spec · Expression catalog
+
+Branch `avatar/expression-catalog`. No art and no Kotlin behavior change.
+
+1. **Download the pinned file.** Get `emoji-test.txt` (URL and date in
+   `config/emoji_face_scope.json`) into `config/unicode/emoji-test-18.0.txt`. It's Unicode data
+   under the Unicode license; add that notice to `docs/LICENSING.md`.
+2. **Generate** `config/expression_catalog.json` with a script under `tools/` (Kotlin JVM test or
+   Python; no new Gradle dependency). Generated means checked in and reproducible. The script
+   reads only `fully-qualified` entries in `includeSubgroups`, one entry per distinct face, with:
+   - `codepoints`, `cldrName`, `subgroup`
+   - `expressionId` (snake case from the CLDR name, e.g. `grinning_face_with_sweat`)
+   - `mood`: the existing `Mood` it best expresses, or null
+   - `parts`: proposed `eyes`, `brows`, `mouth` shape names; `overlays` (tears, sweat, blush,
+     hearts, Zs, hand…)
+   - `decomposedItems` for face-hat and face-glasses entries
+   - `priority`: 1 = default face for a `Mood`, 2 = everything else
+3. **Write** `docs/avatar/EXPRESSION_CATALOG.md`: a human-readable table generated from the
+   JSON, plus the shared part vocabulary. Shapes are reused across expressions, so list the
+   distinct eye, brow, mouth and overlay shapes and how many expressions use each. That list is
+   AV.5's art to-do list.
+4. **Mapping rules:**
+   - each of the 16 `Mood` values has exactly one priority-1 expression
+   - `Expression` enum values map onto catalog ids, keeping today's wire names as aliases (no
+     saved-data change)
+   - costume and animal heads are excluded (deferred in the scope file)
+5. **Acceptance:**
+   - a JVM test re-runs the generator and diffs the checked-in JSON
+   - a test checks every `Mood` has one priority-1 expression
+   - the report lists the count of expressions and distinct shapes, and the expressions whose
+     mapping needs the user's eye (ambiguous moods)
+
+### 4.2 Integrations (D-43): explore Spotify, Steam and other easy ones
+
+The visuals already exist: `activity:listening` adds headphones and the listening badge, and
+`activity:gaming` adds a controller and the gaming badge (core pack semantics). Integrations only
+have to produce an automated activity. They never override a manual status (invariant 4).
+
+| # | Item | Status | Notes |
+| --- | --- | --- | --- |
+| I.0 | Research note `docs/INTEGRATIONS_RESEARCH.md`: current terms, quotas and permissions for each candidate below; privacy design; recommendation | ⬜ | Ask Claude. Re-verify every API term at the time of writing |
+| I.1 | **On-device "listening to music"** (no account): detect playback on the phone and publish `activity: listening` as `ANDROID_LOCAL` with a short expiry | ⬜ | Likely the easiest win. Options to weigh in I.0: `AudioManager.isMusicActive()` (no permission, but needs polling) or a notification listener with `MediaSessionManager` (event-driven and knows the app, but a sensitive permission with Play policy review). Never send track names unless the user shares `activity_name` |
+| I.2 | **Spotify account link** (Web API "currently playing") | ⬜ | Needs OAuth and server polling; Spotify has tightened its developer quota rules, so verify whether a small app can get past development mode at all. If not, I.1 covers "listening" |
+| I.3 | **Steam account link** (OpenID sign-in plus `GetPlayerSummaries` `gameextrainfo`) | ⬜ | Feasible (§7.1-A). Server-side polling with backoff, Steam Web API key on the server, works only when the user's game details are public. After the real backend (D-34). Source `STEAM` already exists |
+| I.4 | **Other easy ones** for I.0 to rank: headphones connected (no permission), charging, a calendar busy block (on device only; titles never leave the phone), walking or driving (Activity Recognition), Twitch live (public API, server) | ⬜ | Each is opt-in, has a consent record (`integration_consents`), and gets an `activity_source` privacy category (default only me) |
+
+### 4.3 Account and profile customization (exploration)
+
+Customization beyond the avatar, to be designed after AV.6. None of these is scheduled yet:
+- profile accent color and app theme
+- alternate launcher icons
+- widget style: frame shape, border, background, name label on or off
+- custom quick states (Avatar Phase 6)
+- bubble styles (U.1)
+- a personal reaction set
+- nameplate fonts within accessibility limits
+- an optional pronouns field
+
+Rules:
+- Nothing becomes a follower count or a streak.
+- Accessibility settings are never sold (§17.3, D-30b).
+- Charge may sell cosmetics only (D-30).
 
 ### Track 0 · Audit fixes — ✅ done (2026-10-04)
 
@@ -552,9 +710,9 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 | --- | --- | --- | --- |
 | 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 fixed in Track 0.6 |
 | 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | Spec is `docs/handoff/PHASE_2_TASK.md`. PR A (sections 2–5, PR #21) and PR B (section 6, PR #22) are merged. PR C (sections 7–8, PR #23) ships `emoji_core` v1 and a debug-only Vector slice screen. Procedural goldens are unchanged; every render key changed once because the pack list changed. Editor, export, Noto import, and widget cutover are still open. F-09 stays 🟡. F-10 is fixed in Track 0.4 |
-| 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
-| 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
-| 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | `material3-adaptive` approved |
+| 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | **Pulled forward as AV.4 (D-41).** Contract changes once. Include F-19 |
+| 4 | Quick Creator + widget preview strip + accessibility | ⬜ | Merged into AV.6 |
+| 5 | Avatar Lab (undo/redo, constrained random, saved looks, adaptive layouts) | ⬜ | Merged into AV.6 and AV.9. `material3-adaptive` approved |
 | 6 | Status Deck v2: 10 editable presets (§9.3), semantic overrides editor, QS tile, launcher shortcuts, notification action, reaction overlays | ⬜ | Per-status audience deferred to Phase 9 |
 | 7 | Widget hardening: size-aware targets, wallpaper colors, pre-warm cache, launcher QA matrix | ⬜ | Parts move into Track 0 |
 | 8 | Final art (`core_launch` raster pack) | ⏸ | Blocked: placeholder art until the idea is validated (D-29) |
@@ -606,7 +764,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-40). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-43). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -638,6 +796,12 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-40). The most relevant t
   availability and activity badges; a vector painter has to keep drawing them.
 - **D-40** The "Earning" banner may reveal when a pin you made became mutual; accepted, since it
   only concerns friends you pinned yourself (2026-10-04, user)
+- **D-41** Schema 3 is the saved avatar format everywhere, now; this pulls Avatar Phase 3 forward
+  as AV.4 (2026-10-05, user, Q12 = a)
+- **D-42** Original teardrop emoji face (narrow end down as a pseudo neck), every smiley-face
+  emotion, built for maximum customization; no Noto import (2026-10-05, user)
+- **D-43** Integrations reopened for exploration: Spotify, Steam, other easy ones; research
+  first, on-device ones may come before the real backend (2026-10-05, user; amends D-38)
 
 ---
 
@@ -662,7 +826,9 @@ Answered 2026-10-04 (feature ideas, §7.1):
 | Q7 What may a per-friend look change? | **Anything**, including base, palette and signature | D-35 |
 | Q8 Tap targets? | In the app, tapping a friend's avatar opens "how I look to them" (config). Tapping a friend's **home-screen widget** should communicate something *from* that friend: **not designed yet** | D-36; open Q11 |
 | Q9 Whose weather? | Live weather where **I** am changes how **my** avatar is presented to friends | D-37 |
-| Q10 Platform account connections? | **Hold off** for now | D-38; proposal A parked |
+| Q10 Platform account connections? | **Hold off** for now. Reopened for exploration 2026-10-05 | D-38, D-43 |
+| Q12 How does the editor save? | **(a)** schema 3 everywhere, now (2026-10-05) | D-41, AV.4 |
+| Q13 Redraw the hair? | **Yes**, on the new teardrop base (2026-10-05) | D-42, AV.2 |
 
 Open:
 
@@ -671,21 +837,23 @@ Open:
     Ideas to consider: their latest reaction to you, their bubble or note, a "they're
     around" prompt, or a quick-react sheet.
 
-12. **How does the new editor save? (blocks N.4)** The editor builds schema 3 `AvatarConfiguration`
-    recipes (hair, beard, colors). Room and the server store v1 `AvatarConfig`, which can't express
-    those. Options:
-    - (a) Make schema 3 the saved format now: a Room migration for the `avatars` JSON, a server
-      column and RPC change, and new golden vectors. That overlaps Avatar Phase 3, so do them together.
-    - (b) Ship the editor saving on the device only first (you see it; friends and widgets still get
-      the v1 avatar), then switch to (a) together with Phase 3.
-    - (c) Keep editing v1 and squeeze vector items into v1 fields. Not recommended.
+14. **What is always free?** D-42 makes customization the core, and D-30 lets Charge buy
+    cosmetics. Claude recommends a free baseline that's never sold:
+    - every skin color and the color picker
+    - every expression (invariant 6)
+    - at least 10 hairstyles across hair textures
+    - basic facial hair, glasses and tops
+    - plain backgrounds and frames
 
-    **Claude recommends (b), then (a) with Phase 3:** you can use the editor soon, and the server
-    contract changes only once.
-13. **Redraw the hair now?** The bob's rear part is a full circle around the head, so at
-    48–128 px it reads as a dark hood or halo, and the bangs read as a headband (PR #23 review).
-    Options: a small art PR before the editor, or keep it as a placeholder until more art arrives
-    (ROADMAP step 9).
+    Charge then buys extras: themed hats, jewelry, patterns, special backgrounds and effects.
+    Yes, or a different line?
+15. **How much body shows, for shirts?** Tops need something below the neck, but every pixel
+    of body makes the face smaller at 48 px. Options:
+    - (a) collar and shoulder hint only: the face stays large, and tops read as a collar
+    - (b) a head-and-shoulders bust: tops read clearly, and the face is about 20% smaller
+    - (c) both: a bust at large sizes, cropped to the collar at widget size
+
+    Claude recommends (c).
 
 Add new questions here as they come up.
 
@@ -701,7 +869,9 @@ task IDs and record a decision in `docs/IDL_DECISIONS.md`.
 
 #### A · Platform sign-ins with presence badges
 
-**Status: ⏸ on hold (D-38, 2026-10-04).** Kept for reference; feature flags stay off.
+**Status: reopened for exploration (D-43, 2026-10-05).** Spotify and Steam come first, through
+§4.2. The feasibility table below is from 2026-10-04 and gets re-verified in I.0. Feature flags
+stay off until an item ships.
 
 **Idea:** link Steam, Discord, Xbox, PlayStation, Meta Quest and VRChat accounts. Each shows its
 own badge while the user is seen on that platform (playing, online, in a world). Proposed badge
@@ -910,3 +1080,4 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Phase 2 PR C: original `emoji_core` slice and a debug-only Vector slice screen. Procedural pixels unchanged. 216 JVM, 21/21 device. F-09 stays 🟡 | `6bc0a4a`, `0a28713`, PR #23, `docs/handoff/reports/2026-10-04-emoji-core-slice.md` |
 | 2026-10-04 | Claude | Audit of PR #23 (Phase 2 PR C): acceptance met; 216 JVM, 21/21 device; follow-ups: compact-target slice snapshots before the widget cutover, and the hair art reads as a hood at small sizes | PR #23 |
 | 2026-10-05 | Claude | Merged PR #23. Phase 2 vector core done (PRs #21–#23). Plan refreshed for handoff: §4.0 Next up, F-30 and F-31 added, F-16 and F-17 closed, F-09 status, Q12 (editor persistence) and Q13 (hair art) opened | `7a175a6` |
+| 2026-10-05 | Claude | Avatar vision recorded: D-41 (schema 3 saved everywhere), D-42 (original teardrop face, every smiley emotion, maximum customization, no Noto), D-43 (integrations exploration). New §4.1 Avatar program with AV.2 and AV.3 specs, §4.2 Integrations, §4.3 account customization; Next up rewritten; Q14 and Q15 opened; scope file adds face-hand | this PR |
