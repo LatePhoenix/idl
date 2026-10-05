@@ -249,6 +249,10 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
         val issues = mutableListOf<String>()
         val allIds = manifests.flatMap { m -> m.assets.map { it.id } }
         allIds.groupBy { it }.filterValues { it.size > 1 }.keys.forEach { issues += "duplicate asset id $it" }
+        // A second pack adds per-base parts through expressionOverrides. It must not redefine an expression.
+        manifests.flatMap { m -> m.expressions.map { it.id } }
+            .groupBy { it }.filterValues { it.size > 1 }.keys.sorted()
+            .forEach { issues += "expression $it is defined by more than one pack" }
         val bases = ofCategory(AssetCategory.BASE).map { it.id }.toSet()
 
         fun ref(owner: String, id: String?, vararg categories: AssetCategory) {

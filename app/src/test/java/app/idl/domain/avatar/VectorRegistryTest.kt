@@ -41,6 +41,15 @@ class VectorRegistryTest {
         assertTrue(issues.any { "unknown part" in it })
     }
 
+    @Test fun `a second pack may not redefine an expression`() {
+        val happy = ExpressionDef("happy", "Happy", eyes = "eye_open", mouth = "mouth_line")
+        val registry = AssetRegistry(listOf(
+            manifest(expressions = listOf(happy)),
+            manifest(packId = "emoji_core", expressions = listOf(happy.copy(eyes = "eye_open"))),
+        ))
+        assertTrue(registry.validate().any { "expression happy is defined by more than one pack" in it })
+    }
+
     @Test fun `baseFamilies maps a base and migrateRecipe stores the family`() {
         val round = AssetDef(
             "base_round_face", AssetCategory.BASE, "Round face",

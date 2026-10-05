@@ -64,3 +64,10 @@ The same script is run again on the checkpoint commit before it is pushed.
 
 - `7f01c94` Add the vector picture domain so later art can resolve without moving today's goldens.
 - `8204759` Record the Phase 2 vector-domain checkpoint and match `CompositeOrder` to the spec.
+
+## Review follow-up (Claude, 2026-10-04)
+
+- `CompositeOrderTest` gained `procedural ops match today's layer order for worn items and face styles`. It covers freckles, blush, ears, glasses, sunglasses, hats, the hoodie and the blanket at the standard and profile targets. It also asserts that the signature op comes right after the base whenever `PlaceholderFrames` inserts `FACE_STYLE`. The original parity test used a bare config and excluded `FACE_STYLE`, so it couldn't catch a wrong band for signature features. The new test fails when `SIGNATURE_FEATURE` is moved to band 55.
+- `AssetRegistry.validate()` reports an expression defined by more than one pack (spec §1: a second pack uses `expressionOverrides`). Previously the later definition silently replaced the earlier one's parts. Test: `a second pack may not redefine an expression`.
+- For PR B: the renderer must paint `Layer.FACE_STYLE` for a procedural `SIGNATURE_FEATURE` op only when the frame's face style isn't classic. Ears are still drawn inside `head()`.
+

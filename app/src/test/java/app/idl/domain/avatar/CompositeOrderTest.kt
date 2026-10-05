@@ -1,5 +1,11 @@
 package app.idl.domain.avatar
 
+import app.idl.domain.AvatarConfig
+import app.idl.domain.BaseForm
+import app.idl.domain.BodyAccessory
+import app.idl.domain.FaceAccessory
+import app.idl.domain.FaceStyle
+import app.idl.domain.HeadAccessory
 import app.idl.domain.Layer
 import app.idl.domain.PresenceResolver
 import app.idl.domain.QuickState
@@ -23,6 +29,38 @@ class CompositeOrderTest {
             assertTrue(quick.id, ops.none { it is DrawOp.VectorPart })
             assertTrue(quick.id, ops.dropWhile { !it.chrome }.all { it.chrome })
         }
+    }
+
+    @Test fun `procedural ops match today's layer order for worn items and face styles`() {
+        val registry = coreRegistry()
+        val resolver = AvatarResolver(registry)
+        val saved = listOf(
+            AvatarConfig(
+                baseForm = BaseForm.CAT, faceStyle = FaceStyle.FRECKLES, headAccessory = HeadAccessory.BEANIE,
+                faceAccessory = FaceAccessory.GLASSES, bodyAccessory = BodyAccessory.HOODIE,
+            ),
+            AvatarConfig(
+                baseForm = BaseForm.FOX, faceStyle = FaceStyle.BLUSHY, headAccessory = HeadAccessory.CROWN,
+                faceAccessory = FaceAccessory.SUNGLASSES, bodyAccessory = BodyAccessory.BLANKET,
+            ),
+            AvatarConfig(baseForm = BaseForm.ALIEN, headAccessory = HeadAccessory.HEADPHONES),
+        )
+        var sawFaceStyle = false
+        for (v1 in saved) for (target in listOf(RenderTarget.STANDARD_WIDGET, RenderTarget.PROFILE)) {
+            val label = "${v1.baseForm} at $target"
+            val configuration = LegacyAvatarMigration.migrate(v1, registry)
+            val resolved = resolver.resolve(request(configuration, target = target, sizePx = target.defaultSizePx))
+            val frame = PlaceholderFrames.from(resolved, registry)
+            val ops = CompositeOrder.ops(resolved, registry)
+            assertEquals(label, frame.layers.filter { it != Layer.FACE_STYLE }, ops.mapNotNull { it.toLayer() })
+            if (Layer.FACE_STYLE in frame.layers) {
+                // The renderer paints FACE_STYLE for the signature op, so it must follow the base directly.
+                sawFaceStyle = true
+                val categories = ops.filterIsInstance<DrawOp.Procedural>().map { it.category }
+                assertEquals(label, categories.indexOf(AssetCategory.BASE) + 1, categories.indexOf(AssetCategory.SIGNATURE_FEATURE))
+            }
+        }
+        assertTrue("no case kept a face style", sawFaceStyle)
     }
 
     @Test fun `hair back is before the base and bangs are after the eyes`() {
