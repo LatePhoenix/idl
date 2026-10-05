@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -6 148 86" width="592" height="344">
+<!-- iDL wordmark W1: leaning i with the teardrop face as its dot. -->
+<rect x="-12" y="-6" width="148" height="86" fill="#3A2247"/>
+<g transform="rotate(-10 17 55)"><rect x="10" y="42" width="14" height="28" rx="7" fill="#FFE9D2"/><g transform="translate(17.5 21) scale(0.62) translate(-54 -55.5)"><path d="M54 26 C70 26 81 38 81 53 C81 66 71 74 62 81 Q54 87 46 81 C37 74 27 66 27 53 C27 38 38 26 54 26 Z" fill="#FF8E6E"/><ellipse cx="38" cy="61" rx="5" ry="3" fill="#EE6355"/><ellipse cx="71" cy="60" rx="4.5" ry="2.8" fill="#EE6355"/><path d="M38 50 Q44 44 50 50" fill="none" stroke="#2A1430" stroke-width="5.5" stroke-linecap="round"/><circle cx="64" cy="48" r="6" fill="#2A1430"/><path d="M45 60 Q55 70 64 59" fill="none" stroke="#2A1430" stroke-width="5.5" stroke-linecap="round"/></g></g>
+<path fill-rule="evenodd" fill="#FFE9D2" d="M36 33 Q36 26 43 26 H56 A24 22 0 0 1 56 70 H43 Q36 70 36 63 Z M50 39 H55 A11 9 0 0 1 55 57 H50 Z"/>
+<path d="M97 33 V63 H120" fill="none" stroke="#FFE9D2" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -242,6 +242,15 @@ wait for the real backend (D-34). D-09 still applies: only official, user-author
 scraping, opt-in per integration, and automated sources never override a manual status
 (invariant 4). Discord, Xbox, PlayStation, Meta Quest and VRChat stay on hold as in D-38.
 
+**D-44 · Launcher icon and wordmark (user, 2026-10-05).** The launcher icon is "R1": a
+lowercase "i" leaning 10 degrees, whose dot is the D-42 teardrop face winking, coral on a cream
+tile with a plum stem. The wordmark is "W1": the same leaning "i" followed by rounded "D" and "L"
+letterforms in plum (cream on dark surfaces). The art is original and generated from
+`docs/art/brand/gen_brand.py`. The themed-icon layer cuts the features out of the face so they
+survive Android 13+ tinting. Trade-off accepted: the cream tile has little edge contrast on very
+light wallpapers (a plum tile was offered and declined). Chosen over Gemini output, after two
+rounds of concepts drawn by Claude.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

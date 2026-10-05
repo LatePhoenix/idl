@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="1080" height="1080">
+<!-- iDL launcher icon R1. Adaptive-icon canvas: launchers show the centre 72x72. -->
+<rect width="108" height="108" fill="#FFF1E1"/>
+<g transform="rotate(-10 54 56)"><rect x="47.5" y="64" width="15" height="21" rx="7.5" fill="#3A2247"/><g transform="translate(55 41.5) scale(0.66) translate(-54 -55.5)"><path d="M54 26 C70 26 81 38 81 53 C81 66 71 74 62 81 Q54 87 46 81 C37 74 27 66 27 53 C27 38 38 26 54 26 Z" fill="#FF8E6E"/><ellipse cx="38" cy="61" rx="5" ry="3" fill="#EE6355"/><ellipse cx="71" cy="60" rx="4.5" ry="2.8" fill="#EE6355"/><path d="M38 50 Q44 44 50 50" fill="none" stroke="#3A2247" stroke-width="5.5" stroke-linecap="round"/><circle cx="64" cy="48" r="6" fill="#3A2247"/><path d="M45 60 Q55 70 64 59" fill="none" stroke="#3A2247" stroke-width="5.5" stroke-linecap="round"/></g></g>
+</svg>

@@ -765,7 +765,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-43). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-44). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -803,6 +803,8 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-43). The most relevant t
   emotion, built for maximum customization; no Noto import (2026-10-05, user)
 - **D-43** Integrations reopened for exploration: Spotify, Steam, other easy ones; research
   first, on-device ones may come before the real backend (2026-10-05, user; amends D-38)
+- **D-44** Launcher icon R1 (leaning "i" whose dot is the winking teardrop face, cream tile) and
+  wordmark W1; art in `docs/art/brand/` (2026-10-05, user)
 
 ---
 
@@ -1083,3 +1085,4 @@ win once Track 0 is done.
 | 2026-10-05 | Claude | Merged PR #23. Phase 2 vector core done (PRs #21–#23). Plan refreshed for handoff: §4.0 Next up, F-30 and F-31 added, F-16 and F-17 closed, F-09 status, Q12 (editor persistence) and Q13 (hair art) opened | `7a175a6` |
 | 2026-10-05 | Claude | Avatar vision recorded: D-41 (schema 3 saved everywhere), D-42 (original teardrop face, every smiley emotion, maximum customization, no Noto), D-43 (integrations exploration). New §4.1 Avatar program with AV.2 and AV.3 specs, §4.2 Integrations, §4.3 account customization; Next up rewritten; Q14 and Q15 opened; scope file adds face-hand | this PR |
 | 2026-10-05 | Cursor | AV.2: teardrop base and hair redraw in `emoji_core` v2. Procedural goldens unchanged. 220 JVM, 21/21 device, lint 0/42. F-30 ✅ | `b49afe0`, PR #27, `docs/handoff/reports/2026-10-05-teardrop-base.md` |
+| 2026-10-05 | Claude | Brand: launcher icon R1 and wordmark W1 chosen (D-44). New adaptive foreground, cut-out monochrome layer, cream background; SVG masters and generator in `docs/art/brand/`; `LauncherIconSnapshotTest` with 4 goldens | `docs/handoff/reports/2026-10-05-launcher-icon.md`, branch `brand/launcher-icon` |
