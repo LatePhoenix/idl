@@ -1,6 +1,6 @@
 # Roadmap — emoji-style avatar compositor
 
-**Status:** Design accepted as D-39. Implementation has not started.  
+**Status:** Steps 3–5 and 8 are done. The editor, export, Noto import, and widget cutover are still open.  
 **Living project plan:** [`master-plan.md`](../master-plan.md). F-01 and F-02 are fixed on main. This roadmap is the avatar-art track.
 
 ## Done in this step
@@ -22,12 +22,12 @@
 
 1. **Branch** from up-to-date `origin/main`. Do not reuse a dirty local `main` (it was behind `origin/main` at the last audit).
 2. **Schema 3 fields** on `AvatarConfiguration`, with defaults, plus round-trip and migration tests. No UI. Done in `avatar/schema-3`. `familyId` stays blank unless the caller passes an explicit base→family map.
-3. **`VectorPicture` loader** and a `VectorAssetRenderer` that draws one solid path and one gradient path. Unit-test the picture parser on the JVM by keeping the parser in `domain`. The `Canvas` implementation stays in `app.idl.avatar`.
-4. **One hand-authored original picture set**, not a Noto import: one round face, two expressions, one hairstyle, one beard, one glasses pair, one background. Original art avoids a license import in the same change as the renderer. Mark `license: proprietary-idl`.
-5. **Wire `render.type = vector`** through the existing resolver. Procedural assets keep working.
+3. **Done.** `VectorPicture` loader and `CanvasVectorAssetRenderer`. The parser stays in `domain`. The Canvas implementation is `app.idl.avatar`.
+4. **Done.** One hand-authored original picture set, `emoji_core` v1, license `proprietary-idl`. No Noto files. Round face, neutral and happy, bob, beard, wire glasses, soft background.
+5. **Done.** `render.type = vector` resolves through the existing pipeline. Procedural assets still paint the same pixels.
 6. **Editor slice** for those six choices: preview, category strip, undo, reset. 48 px preview beside the large one.
 7. **Export** a 1024 px transparent PNG and the schema 3 JSON from that screen.
-8. **Tests:** recipe round-trip, missing-asset fallback, deterministic render checksum of the vector path, exact bitmap dimensions. Run `scripts/check.sh`. Do not delete a test to go green.
+8. **Done.** Pack validation, deterministic vector renders, exact bitmap dimensions at 48 and 512, and Roborazzi goldens for the slice. `scripts/check.sh` stays required. Do not delete a test to go green.
 9. **Only then** the asset-pipeline CLI and a Noto import of the vertical-slice counts in `ASSET_SPEC.md` §5, with `THIRD_PARTY_NOTICES.md` and `modified` flags.
 10. **Widget cutover** only in a change that still draws availability and activity glyphs. Screenshot or snapshot required.
 
@@ -49,5 +49,5 @@
 
 ## Open decisions
 
-- Whether the first pictures are original (recommended in step 4) or a small pinned Noto import. The license rules allow either. Original first is the smaller legal change.
-- Whether hair, beard, and jewelry become new `AssetCategory` values or reuse `SIGNATURE_FEATURE` / `HEAD_ACCESSORY`. Prefer new categories when the editor tabs need them, in the schema 3 change, not before.
+- First pictures are original `emoji_core` art. A Noto import waits for step 9.
+- Hair and facial hair are `AssetCategory` values. Glasses stay `FACE_ACCESSORY`. Jewelry is still later.

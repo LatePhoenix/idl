@@ -1,6 +1,6 @@
 # Asset spec — vector avatar pack
 
-**Status:** Design, 2026-10-04. No vector assets are imported yet.  
+**Status:** Picture format is implemented. `emoji_core` v1 ships original art under `license: proprietary-idl`. No Noto files.  
 **Pack layout today:** `app/src/main/assets/packs/<packId>/v<n>/manifest.json` (D-26).
 
 ## 1. Picture format
