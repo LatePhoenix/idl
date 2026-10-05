@@ -1,6 +1,6 @@
 # Asset spec — vector avatar pack
 
-**Status:** Picture format is implemented. `emoji_core` v1 ships original art under `license: proprietary-idl`. No Noto files.  
+**Status:** Picture format is implemented. `emoji_core` v2 ships the teardrop base and the redrawn hair under `license: proprietary-idl`. No Noto files.  
 **Pack layout today:** `app/src/main/assets/packs/<packId>/v<n>/manifest.json` (D-26).
 
 ## 1. Picture format
