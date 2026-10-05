@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "mouth_round_smile",
-  "contentVersion": 1,
+  "contentVersion": 2,
   "viewBox": 1024,
   "parts": [
     {
@@ -10,7 +10,7 @@
       "fill": {
         "slot": "mouth"
       },
-      "commands": "M 400 640 C 430 760 594 760 624 640 C 584 710 440 710 400 640 Z"
+      "commands": "M 400 595 C 430 715 594 715 624 595 C 584 665 440 665 400 595 Z"
     }
   ]
 }

@@ -59,7 +59,7 @@ fun VectorSliceScreen(c: AppContainer, onBack: () -> Unit) {
         ) {
             SectionTitle("Hair")
             Text(
-                "Changing the primary color also moves the derived shadow, unless the shadow is unlinked.",
+                "Changing the primary color also moves the derived shadow and highlight, unless the shadow is unlinked.",
                 style = MaterialTheme.typography.bodySmall,
             )
             ChoiceChips(

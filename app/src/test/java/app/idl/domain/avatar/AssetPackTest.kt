@@ -21,7 +21,7 @@ class AssetPackTest {
     @Test fun `core proto validates with no issues`() {
         val issues = registry.validate()
         assertEquals(issues.joinToString("\n"), emptyList<String>(), issues)
-        assertEquals(listOf("core_proto@1", "emoji_core@1"), registry.packVersions)
+        assertEquals(listOf("core_proto@1", "emoji_core@2"), registry.packVersions)
     }
 
     @Test fun `palettes use v1 body colors and a 35 percent darken for the outline`() {
@@ -38,8 +38,8 @@ class AssetPackTest {
         }
     }
 
-    @Test fun `every base shares the placeholder anchors and face-safe zone`() {
-        registry.ofCategory(AssetCategory.BASE).forEach { base ->
+    @Test fun `every procedural base shares the placeholder anchors and face-safe zone`() {
+        registry.ofCategory(AssetCategory.BASE).filter { it.render.type != "vector" }.forEach { base ->
             assertEquals(0.5f, base.anchors.getValue("head_top").x, 0.001f)
             assertEquals(0.25f, base.anchors.getValue("head_top").y, 0.001f)
             assertEquals(0.5f, base.anchors.getValue("face_center").x, 0.001f)
@@ -125,16 +125,59 @@ class AssetPackTest {
         assertNotEquals(emptyList<String>(), registry.asset("feature_antennae")!!.conflictsWith)
     }
 
-    @Test fun `round face overrides neutral and happy and leaves other expressions procedural`() {
+    @Test fun `teardrop base carries the AV 2 anchors and face-safe zone`() {
+        val base = registry.asset("base_teardrop")!!
+        fun n(px: Int) = px / 1024f
+        val anchors = base.anchors
+        assertEquals(n(512), anchors.getValue("head_top").x, 0.001f)
+        assertEquals(n(96), anchors.getValue("head_top").y, 0.001f)
+        assertEquals(n(250), anchors.getValue("forehead").y, 0.001f)
+        assertEquals(n(190), anchors.getValue("temple_left").x, 0.001f)
+        assertEquals(n(360), anchors.getValue("temple_left").y, 0.001f)
+        assertEquals(n(834), anchors.getValue("temple_right").x, 0.001f)
+        assertEquals(n(430), anchors.getValue("eye_line").y, 0.001f)
+        assertEquals(n(140), anchors.getValue("ear_left").x, 0.001f)
+        assertEquals(n(470), anchors.getValue("ear_left").y, 0.001f)
+        assertEquals(n(884), anchors.getValue("ear_right").x, 0.001f)
+        assertEquals(n(520), anchors.getValue("nose").y, 0.001f)
+        assertEquals(n(610), anchors.getValue("upper_lip").y, 0.001f)
+        assertEquals(n(640), anchors.getValue("mouth").y, 0.001f)
+        assertEquals(n(300), anchors.getValue("jaw_left").x, 0.001f)
+        assertEquals(n(700), anchors.getValue("jaw_left").y, 0.001f)
+        assertEquals(n(724), anchors.getValue("jaw_right").x, 0.001f)
+        assertEquals(n(790), anchors.getValue("chin").y, 0.001f)
+        assertEquals(n(930), anchors.getValue("neck").y, 0.001f)
+        assertEquals(n(430), anchors.getValue("accessory_center").y, 0.001f)
+        assertEquals(n(480), anchors.getValue("face_center").y, 0.001f)
+        assertEquals(n(430), anchors.getValue("eyes").y, 0.001f)
+        assertEquals(n(980), anchors.getValue("prop_hand").y, 0.001f)
+        assertEquals(n(1000), anchors.getValue("body").y, 0.001f)
+        val zone = base.faceSafeZone!!
+        assertEquals(n(280), zone.left, 0.001f)
+        assertEquals(n(250), zone.top, 0.001f)
+        assertEquals(n(744), zone.right, 0.001f)
+        assertEquals(n(820), zone.bottom, 0.001f)
+        assertEquals("teardrop_face", registry.baseFamilies["base_teardrop"])
+    }
+
+    @Test fun `renamed v1 ids retire onto the teardrop replacements`() {
+        assertEquals("base_teardrop", registry.canonicalId("base_round_face"))
+        assertEquals("hair_bob", registry.canonicalId("hair_round_bob"))
+        assertEquals("beard_full", registry.canonicalId("beard_round_full"))
+        assertEquals("eyes_round_neutral", registry.canonicalId("eyes_round_neutral"))
+        assertEquals("glasses_round_wire", registry.canonicalId("glasses_round_wire"))
+    }
+
+    @Test fun `teardrop overrides neutral and happy and leaves other expressions procedural`() {
         val neutral = registry.expression("neutral")!!
         val happy = registry.expression("happy")!!
         val sleepy = registry.expression("sleepy")!!
-        assertEquals("eyes_round_neutral", neutral.partsFor("base_round_face").eyes)
-        assertEquals("brows_round_relaxed", neutral.partsFor("base_round_face").brows)
-        assertEquals("mouth_round_neutral", neutral.partsFor("base_round_face").mouth)
-        assertEquals("eyes_round_happy", happy.partsFor("base_round_face").eyes)
-        assertEquals("mouth_round_smile", happy.partsFor("base_round_face").mouth)
-        assertEquals(sleepy.eyes, sleepy.partsFor("base_round_face").eyes)
+        assertEquals("eyes_round_neutral", neutral.partsFor("base_teardrop").eyes)
+        assertEquals("brows_round_relaxed", neutral.partsFor("base_teardrop").brows)
+        assertEquals("mouth_round_neutral", neutral.partsFor("base_teardrop").mouth)
+        assertEquals("eyes_round_happy", happy.partsFor("base_teardrop").eyes)
+        assertEquals("mouth_round_smile", happy.partsFor("base_teardrop").mouth)
+        assertEquals(sleepy.eyes, sleepy.partsFor("base_teardrop").eyes)
         assertEquals("eyes_closed_line", sleepy.partsFor("base_blob").eyes)
     }
 

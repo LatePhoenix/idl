@@ -1,0 +1,376 @@
+{
+  "packId": "emoji_core",
+  "version": 2,
+  "minimumRendererVersion": 2,
+  "assets": [
+    {
+      "id": "base_teardrop",
+      "category": "base",
+      "accessibilityLabel": "Teardrop face",
+      "render": {
+        "type": "vector",
+        "file": "pictures/base_teardrop.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "face.primary": "#FFC83D",
+        "face.shadow": "#E0A21A",
+        "face.highlight": "#FFE38A",
+        "outline": "#7A4E00"
+      },
+      "family": "teardrop_face",
+      "anchors": {
+        "head_top": {
+          "x": 0.5,
+          "y": 0.09375
+        },
+        "forehead": {
+          "x": 0.5,
+          "y": 0.244141
+        },
+        "temple_left": {
+          "x": 0.185547,
+          "y": 0.351562
+        },
+        "temple_right": {
+          "x": 0.814453,
+          "y": 0.351562
+        },
+        "eye_line": {
+          "x": 0.5,
+          "y": 0.419922
+        },
+        "ear_left": {
+          "x": 0.136719,
+          "y": 0.458984
+        },
+        "ear_right": {
+          "x": 0.863281,
+          "y": 0.458984
+        },
+        "nose": {
+          "x": 0.5,
+          "y": 0.507812
+        },
+        "upper_lip": {
+          "x": 0.5,
+          "y": 0.595703
+        },
+        "mouth": {
+          "x": 0.5,
+          "y": 0.625
+        },
+        "jaw_left": {
+          "x": 0.292969,
+          "y": 0.683594
+        },
+        "jaw_right": {
+          "x": 0.707031,
+          "y": 0.683594
+        },
+        "chin": {
+          "x": 0.5,
+          "y": 0.771484
+        },
+        "neck": {
+          "x": 0.5,
+          "y": 0.908203
+        },
+        "accessory_center": {
+          "x": 0.5,
+          "y": 0.419922
+        },
+        "face_center": {
+          "x": 0.5,
+          "y": 0.46875
+        },
+        "eyes": {
+          "x": 0.5,
+          "y": 0.419922
+        },
+        "prop_hand": {
+          "x": 0.175781,
+          "y": 0.957031
+        },
+        "body": {
+          "x": 0.5,
+          "y": 0.976562
+        }
+      },
+      "faceSafeZone": {
+        "left": 0.273438,
+        "top": 0.244141,
+        "right": 0.726562,
+        "bottom": 0.800781
+      }
+    },
+    {
+      "id": "eyes_round_neutral",
+      "category": "face_eye",
+      "accessibilityLabel": "Round eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_neutral.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "eye.iris": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_happy",
+      "category": "face_eye",
+      "accessibilityLabel": "Happy eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_happy.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "eye.iris": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "brows_round_relaxed",
+      "category": "face_brow",
+      "accessibilityLabel": "Relaxed brows",
+      "render": {
+        "type": "vector",
+        "file": "pictures/brows_round_relaxed.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "hair.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_neutral",
+      "category": "face_mouth",
+      "accessibilityLabel": "Neutral mouth",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_neutral.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_smile",
+      "category": "face_mouth",
+      "accessibilityLabel": "Smile",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_smile.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "hair_short_crop",
+      "category": "hair",
+      "accessibilityLabel": "Short crop",
+      "render": {
+        "type": "vector",
+        "file": "pictures/hair_short_crop.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "hair.primary": "#5B3A29",
+        "hair.shadow": "#3E271B",
+        "hair.highlight": "#8C7569"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "hair_bob",
+      "category": "hair",
+      "accessibilityLabel": "Bob",
+      "render": {
+        "type": "vector",
+        "file": "pictures/hair_bob.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "hair.primary": "#5B3A29",
+        "hair.shadow": "#3E271B",
+        "hair.highlight": "#8C7569"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "hair_long_straight",
+      "category": "hair",
+      "accessibilityLabel": "Long straight hair",
+      "render": {
+        "type": "vector",
+        "file": "pictures/hair_long_straight.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "hair.primary": "#5B3A29",
+        "hair.shadow": "#3E271B",
+        "hair.highlight": "#8C7569"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "beard_full",
+      "category": "facial_hair",
+      "accessibilityLabel": "Full beard",
+      "render": {
+        "type": "vector",
+        "file": "pictures/beard_full.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "beard.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "stubble",
+      "category": "facial_hair",
+      "accessibilityLabel": "Stubble",
+      "render": {
+        "type": "vector",
+        "file": "pictures/stubble.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "beard.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mustache_classic",
+      "category": "facial_hair",
+      "accessibilityLabel": "Mustache",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mustache_classic.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "beard.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "glasses_round_wire",
+      "category": "face_accessory",
+      "accessibilityLabel": "Wire glasses",
+      "render": {
+        "type": "vector",
+        "file": "pictures/glasses_round_wire.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 2,
+      "colorSlots": {
+        "glasses.frame": "#2B2B2B",
+        "glasses.lens": "#6FA8DC"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ],
+      "conflictsWith": [
+        "head_vr_headset"
+      ]
+    },
+    {
+      "id": "scene_round_soft",
+      "category": "scene",
+      "accessibilityLabel": "Soft background",
+      "render": {
+        "type": "vector",
+        "file": "pictures/scene_round_soft.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "accessory.primary": "#DCEBFF",
+        "accessory.secondary": "#F6F0FF"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    }
+  ],
+  "expressionOverrides": {
+    "neutral": {
+      "base_teardrop": {
+        "eyes": "eyes_round_neutral",
+        "brows": "brows_round_relaxed",
+        "mouth": "mouth_round_neutral"
+      }
+    },
+    "happy": {
+      "base_teardrop": {
+        "eyes": "eyes_round_happy",
+        "brows": "brows_round_relaxed",
+        "mouth": "mouth_round_smile"
+      }
+    }
+  },
+  "retired": {
+    "base_round_face": "base_teardrop",
+    "hair_round_bob": "hair_bob",
+    "beard_round_full": "beard_full"
+  }
+}
