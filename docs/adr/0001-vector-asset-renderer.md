@@ -1,6 +1,6 @@
 # ADR 0001 — Vector asset renderer
 
-**Status:** Accepted (design). Not implemented.  
+**Status:** Accepted. Implemented by `CanvasVectorAssetRenderer` (PR #22). The emoji slice is still open.  
 **Date:** 2026-10-04  
 **Deciders:** user direction in D-39; engineering constraint from D-01, D-05, D-06.
 
