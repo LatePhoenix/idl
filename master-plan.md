@@ -95,6 +95,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
 | `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` | D-39 emoji-style compositor. Design only; does not replace the rows above |
 | `docs/handoff/PHASE_1_TASK.md` | Avatar Phase 1 spec (done) |
+| `docs/handoff/PHASE_2_TASK.md` | Avatar Phase 2 spec: vector renderer core, D-39 slice (ROADMAP steps 3–5, 8) |
 | `supabase/README.md` | Server: security model, local tests, real-project setup |
 | `docs/IDL_IMPLEMENTATION_ROADMAP.md` | **Superseded by this file**; kept for history |
 
@@ -841,5 +842,7 @@ win once Track 0 is done.
 | 2026-10-04 | Cursor | Snapshot follow-ups: upload-artifact v7, sleepy compact vs standard, required asset registry on the config renderer. 181 JVM, 18/18 device | `492a5ca`, PR #17, F-23 ✅, F-24 ✅, F-25 ✅, F-26 ✅ |
 | 2026-10-04 | Cursor | Housekeeping and schema 3 follow-ups: PowerShell check script, boot wait, doc drift, recipe load and write guard. 183 JVM, 18/18 device | `a88b1de`, PR #18, F-15 ✅, F-20 ✅, F-27 ✅, F-28 ✅, F-29 🟡 |
 | 2026-10-04 | Claude | Audit of PRs #17–#18. Merged #17 into #18 and renumbered #18's findings to F-27–F-29 (they collided with #17's F-23–F-25). F-29 set to 🟡: the write guard isn't wired because no recipe is persisted yet, so the unused Avatar Studio `recipe` parameter was removed. D-40 recorded (accept the Earning timing signal). 184 JVM, 18/18 device, check.ps1 matches | PR #18, F-29, D-40 |
+| 2026-10-04 | Claude | Phase 2 task spec: picture IR, path parser, validator, `itemIds`, color slots, compositor order, Canvas vector renderer, original `emoji_core` slice, debug screen; three PRs | `docs/handoff/PHASE_2_TASK.md` |
+| 2026-10-04 | Cursor | Deleted merged branches: avatar-creator, avatar/schema-3, charge/no-tether-signals-f05, ci/action-bumps-f18, docs/avatar-bases-v2, docs/emoji-avatar-architecture, docs/feature-ideas, docs/master-plan, fix/glyphs-a11y-scenes-f08-f11-f12, fix/render-cache-f10, fix/widget-presence-f01-f03, test/roborazzi-f14, test/room-migration-f13, test/snapshot-followups, widget/wallpaper-contrast-f07, chore/docs-tooling-schema3, and local milestone-1-supabase | branch cleanup |
 | 2026-10-04 | Cursor | Phase 2 PR A: vector picture model, path parser, validator, item ids, color slots, composite order. JVM only. Existing Roborazzi goldens unchanged. 207 JVM. F-09 stays 🟡 | `7f01c94`, PR #21, `docs/handoff/reports/2026-10-04-vector-domain.md` |
 | 2026-10-04 | Claude | Audit of PR #21 (Phase 2 PR A): no blocking issues. Added a broader procedural-order parity test (face styles and worn items, verified by a band mutation) and a registry error for an expression redefined by a second pack | PR #21 |
