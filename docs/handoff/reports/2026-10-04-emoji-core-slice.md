@@ -1,6 +1,6 @@
 # 2026-10-04 — Phase 2 PR C: emoji_core slice
 
-Branch `avatar/emoji-core-slice` from `origin/main` (`2847b2d`, merge of PR #22). Sections 7 and 8 of `docs/handoff/PHASE_2_TASK.md` only.
+Branch `avatar/emoji-core-slice` from `origin/main` (`2847b2d`, merge of PR #22). Sections 7 and 8 of `docs/handoff/PHASE_2_TASK.md` only. PR #23.
 
 ## Acceptance
 
@@ -79,3 +79,4 @@ Taken on the Pixel 9 AVD (`emulator-5554`) from the debug screen:
 
 - `6bc0a4a` Add the original emoji_core picture set beside the procedural pack.
 - `0a28713` Show the emoji slice on a debug screen and snapshot it at three sizes.
+- `c4519dc` Record the emoji_core slice checkpoint and mark roadmap steps 3-5 and 8 done.
