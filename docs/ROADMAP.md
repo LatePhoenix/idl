@@ -1,6 +1,8 @@
 # Roadmap — emoji-style avatar compositor
 
-**Status:** Steps 3–5 and 8 are done. The editor, export, Noto import, and widget cutover are still open.  
+**Status:** Steps 3–5 and 8 are done. **D-42 (2026-10-05) changes the rest:** the art is original
+teardrop-face art, step 9's Noto import is dropped, and the plan of record for the remaining work
+is `master-plan.md` §4.1 (Avatar program).  
 **Living project plan:** [`master-plan.md`](../master-plan.md). F-01 and F-02 are fixed on main. This roadmap is the avatar-art track.
 
 ## Done in this step

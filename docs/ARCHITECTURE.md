@@ -51,7 +51,8 @@ A recipe names a **family** and a **base asset**. The family selects which ancho
 
 | Family id | Role | Existing base it can sit beside |
 | --- | --- | --- |
-| `round_face` | Ordinary emoji face | `base_blob` until art replaces it |
+| `teardrop_face` | **Default (D-42).** Emoji face, slightly teardrop-shaped, narrow end down as a pseudo neck | `base_teardrop` |
+| `round_face` | Ordinary emoji face (Phase 2 slice). Retired to `teardrop_face` by D-42 | `base_round_face`, retired to `base_teardrop` |
 | `human_head` | Head with neck and ears as separate anchors | none yet; do not revive the retired `human` id without a migration |
 | `cat_face` | Cat head | `base_critter` is not the same silhouette; keep both ids |
 | `monkey_face` | Monkey head | new |

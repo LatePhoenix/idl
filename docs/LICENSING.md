@@ -1,6 +1,7 @@
 # Licensing — bootstrap emoji art
 
-**Status:** Rules for a future import. **No Noto files are in this repository.**  
+**Status:** D-42 (2026-10-05) makes all avatar art original, so no Noto import is planned. These rules
+stay only in case that decision changes. **No Noto files are in this repository.**  
 `THIRD_PARTY_NOTICES.md` is created at the first import, not before. An empty notice file would claim attribution we have not copied.
 
 ## 1. Allowed source
