@@ -21,7 +21,7 @@ class AssetPackTest {
     @Test fun `core proto validates with no issues`() {
         val issues = registry.validate()
         assertEquals(issues.joinToString("\n"), emptyList<String>(), issues)
-        assertEquals(listOf("core_proto@1"), registry.packVersions)
+        assertEquals(listOf("core_proto@1", "emoji_core@1"), registry.packVersions)
     }
 
     @Test fun `palettes use v1 body colors and a 35 percent darken for the outline`() {

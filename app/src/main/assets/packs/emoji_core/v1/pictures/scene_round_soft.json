@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "scene_round_soft",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "bg",
+      "zBand": 0,
+      "fill": {
+        "linear": {
+          "x1": 0,
+          "y1": 0,
+          "x2": 0,
+          "y2": 1024,
+          "stops": [
+            {
+              "offset": 0.0,
+              "slot": "accessory.primary"
+            },
+            {
+              "offset": 1.0,
+              "slot": "accessory.secondary"
+            }
+          ]
+        }
+      },
+      "commands": "M 0 0 L 1024 0 L 1024 1024 L 0 1024 Z"
+    }
+  ]
+}
