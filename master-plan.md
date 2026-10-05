@@ -4,14 +4,18 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last full review: **2026-10-04 by Claude** (audit of everything through `origin/main` `9f033e0`).
+Last full review: **2026-10-05 by Claude** (everything through `origin/main` `7a175a6`, PR #23).
+
+**Next work: see §4.0 "Next up".**
 
 ---
 
 ## 0. How to use this document
 
-**Before starting work:** read §1 (state) and §3 (open findings). Pick the highest-priority
-open item (§4 shows the order). Read its linked spec.
+**Before starting work:** read §1 (state), then take the first ready item in §4.0 "Next up".
+Read its linked finding or spec. An item marked **spec needed** waits for a task spec in
+`docs/handoff/` (ask Claude) before any code is written (F-17 rule). An item marked **user**
+waits for an answer in §6.
 
 **While working:** follow `AGENTS.md` (invariants, commands, conventions). One finding or
 task per branch/PR where practical. Reference IDs in commit messages (e.g. `Fixes F-01`).
@@ -37,24 +41,24 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 
 ---
 
-## 1. Current state (2026-10-04)
+## 1. Current state (2026-10-05)
 
 ### 1.1 Branches and CI
 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `5b81bd6` (merge of PR #14). Start new work from here |
-| `avatar-creator` | Same content as `origin/main` minus merge commits. Start new work from `origin/main` |
-| `milestone-1-supabase` | Fully merged; can be deleted |
+| `origin/main` | `7a175a6` (merge of PR #23, Phase 2 PR C). Start new work from here |
+| Open PRs | None |
+| Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job |
 
-### 1.2 Verified numbers (Claude, 2026-10-04 on `origin/main`)
+### 1.2 Verified numbers (Claude, 2026-10-05)
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 184 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. `scripts/check.ps1` printed the same counts. Re-run 2026-10-04 by Claude on PR #18 with PR #17 merged in |
-| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 18/18 pass on `emulator-5554`. `scripts/check.sh --device` waited for boot and unlocked first (F-20 ✅) |
+| `scripts/check.sh` | ✅ 216 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. Run on PR #23's head, which merged unchanged as `7a175a6`. CI green |
+| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 21/21 pass on `emulator-5554`, including `VectorSliceDeviceTest`. `scripts/check.sh --device` waits for boot and unlocks first (F-20 ✅) |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
 | Secrets | ✅ None tracked (`local.properties` gitignored; anon key only via BuildConfig) |
@@ -74,8 +78,10 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Reactions (send, inbox, dismiss, expire, rate limit) | ✅ | |
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
-| Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1; 46+ tests |
-| Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names are still duplicated in `StatusGlyphs` (F-08) |
+| Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1, plus recipe schema 3 (PR #9). `itemIds`, color slots and vector assets resolve (Phase 2 PR A) |
+| Vector avatar art (D-39) | 🟡 | `emoji_core` v1: original round face, neutral and happy, bob hair, full beard, wire glasses, soft background. `CanvasVectorAssetRenderer` draws it through the same compositor as the procedural layers. Only visible on the debug **Settings → Vector slice** screen: no saved avatar uses it, and widgets still show the procedural pack (ROADMAP step 10) |
+| Avatar editor for the new recipe format | ⬜ | Avatar Studio still edits v1 `AvatarConfig`, and Room and the server store v1. Blocked on Q12 |
+| Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names come from the manifest (F-08 ✅) |
 | Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes. Memory access is locked (F-10 ✅, F-26 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
 | Push delivery (FCM) | ⬜ | Outbox and `register_device` exist; no edge function or app receiver |
@@ -275,6 +281,9 @@ in one PR.
   renders as a blob.
 - **Fix in Phase 2:** paint each `ResolvedLayer` by `AssetDef.painterKey`, then delete the
   adapter.
+- **Status (2026-10-05):** partly done. Since Phase 2 PR B the renderer is driven by
+  `CompositeOrder`, and vector assets bypass the adapter. Procedural layers still go through it,
+  so it retires category by category as vector art replaces procedural art.
 
 #### F-10 · Render cache hygiene · ✅ P1
 - Rendered friend images in `cacheDir/renders` survive friend removal, block and sign-out. They
@@ -354,14 +363,17 @@ in one PR.
   resolver. The work log names PRs #7, #8 and #9. `docs/ROADMAP.md` no longer says D-31 is
   unrecorded.
 
-#### F-16 · Checkpoint report inaccuracy · ⬜ P3
+#### F-16 · Checkpoint report inaccuracy · ✅ P3
 - `docs/handoff/reports/2026-10-04-charge.md` says "Not committed" and "Commits: none", but it
   shipped in `0ea04a7`. Reports must be finalized after committing.
+- **Fixed (2026-10-05):** the report now names `0ea04a7` and PR #1.
 
-#### F-17 · Phase 2 work merged without a spec or device check · ⬜ P3 (process)
+#### F-17 · Phase 2 work merged without a spec or device check · ✅ P3 (process)
 - Glyphs, contrast, render cache and the widget resolver path landed piecemeal (PRs #2–#3).
   **Rule from now on:** each avatar phase gets a task spec in `docs/handoff/` first, and visual
   PRs need a device screenshot or snapshot test.
+- **In effect:** Phase 2 PRs #21–#23 followed `docs/handoff/PHASE_2_TASK.md`, and every visual
+  change came with goldens and device screenshots. The rule stays: see §0.
 
 #### F-18 · CI action versions deprecated · ✅ P3
 - `actions/checkout@v4`, `actions/setup-java@v4` and `gradle/actions/setup-gradle@v4` run on
@@ -450,13 +462,32 @@ in one PR.
   `AvatarConfiguration` becomes the persisted format (vector editor, `docs/ROADMAP.md` step 6).
   The editor must show the `NeedsAppUpdate` message instead of saving.
 
+#### F-30 · Vector slice snapshots don't use widget targets · ⬜ P2 (from PR #23)
+- `EmojiSlice` renders 48, 128 and 512 px with `RenderTarget.PROFILE`. The 48 px goldens
+  therefore skip compact-widget simplification (`minSizePx`, `widgetSafe`, badge-versus-prop), so
+  nothing yet shows what a small widget would drop from the vector slice.
+- **Fix:** in `VectorSliceSnapshotTest`, render the slice recipes at `COMPACT_WIDGET` (48 px) and
+  `STANDARD_WIDGET` (96 px), with targets chosen through `WidgetRenderInputs.targetFor`. Assert
+  which vector layers survive at each target, and record goldens. Keep the existing PROFILE goldens.
+- **Verify:** the new goldens plus layer assertions. Required before the widget cutover (ROADMAP step 10).
+
+#### F-31 · Picture files are found by trying each pack directory · ⬜ P3 (from PR #22)
+- `AppContainer.vectorPictures` reads `render.file` by trying every `AssetPacks.SHIPPED` directory
+  in order. If two packs ship the same relative file, the first pack wins and the wrong picture
+  loads (it then fails validation and the layer is skipped). Safe today, because picture files
+  are named after unique asset ids.
+- **Fix:** `AssetPacks.registry` records each asset's pack directory, and the picture cache reads
+  `<packDir>/<render.file>`. Keep the domain Android-free: the registry stores the path string, and
+  `AppContainer` still opens the file.
+- **Verify:** a JVM test with two packs that ship the same relative file name loads each pack's own picture.
+
 ---
 
 ## 4. Roadmap
 
 Order of work (updated 2026-10-04 per user: real backend projects come once avatars feel right):
 
-1. **Track 0** (audit fixes)
+1. **Track 0** (audit fixes): ✅ done 2026-10-04
 2. **Avatar Phases 2, 4, 5, 6, 7** plus **U.1–U.4**: the avatar look, creation and
    customization, including bubbles, the friends-first home, per-friend looks and weather.
    This is the current product focus.
@@ -468,7 +499,19 @@ Order of work (updated 2026-10-04 per user: real backend projects come once avat
 Server-only work that doesn't need a real project (SQL migrations, golden vectors, local
 PostgREST tests) can be done at any time.
 
-### Track 0 · Audit fixes (do first)
+### 4.0 Next up (start here)
+
+Take the first item that's ready. Update this table when an item finishes or a new one is ready.
+
+| # | Item | Ready? | Notes |
+| --- | --- | --- | --- |
+| N.1 | **Phase 2 follow-ups:** F-30 (slice snapshots at widget targets) and F-31 (pack directory per asset) | ✅ Ready. No spec needed: each finding has its fix and verify steps. One PR, branch `avatar/phase-2-followups` | Small. Tests plus a registry change. Existing goldens must not change |
+| N.2 | **Answer Q12 and Q13** (§6) | ⏸ user | Q12 decides how the editor saves. Q13 decides whether the hair gets redrawn first |
+| N.3 | **U.1 thought bubbles** | Spec needed (`docs/handoff/U1_BUBBLES_TASK.md`; ask Claude) | Independent of the editor. Touches presence, privacy (`status_note`), `put_presence` validation and golden vectors. All testable on the local Docker stack |
+| N.4 | **Avatar editor slice and export** (ROADMAP steps 6–7; overlaps Avatar Phase 4 Quick Creator) | Spec needed, after Q12 | Wires F-29. Picks the six `emoji_core` choices, with colors, undo and reset; exports PNG and recipe JSON |
+| N.5 | **Widget cutover to vector art** (ROADMAP step 10) | After N.1 and N.4 | Must keep availability and activity glyphs; needs the F-30 goldens |
+
+### Track 0 · Audit fixes — ✅ done (2026-10-04)
 
 | # | Item | Findings | Status |
 | --- | --- | --- | --- |
@@ -507,7 +550,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 
 | Phase | Scope | Status | Notes |
 | --- | --- | --- | --- |
-| 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 remain |
+| 1 | Model v2, asset pack, compatibility, resolver, migration | ✅ | F-02(2) fixed in Track 0.2. F-11 and F-12 fixed in Track 0.6 |
 | 2 | Renderer v2: paint `ResolvedLayer`s by painter key, per-base anchors, brows, availability glyphs, high-contrast and wallpaper modes, render cache, snapshot tests, RenderSheet exporter | 🟡 | Spec is `docs/handoff/PHASE_2_TASK.md`. PR A (sections 2–5, PR #21) and PR B (section 6, PR #22) are merged. PR C (sections 7–8, PR #23) ships `emoji_core` v1 and a debug-only Vector slice screen. Procedural goldens are unchanged; every render key changed once because the pack list changed. Editor, export, Noto import, and widget cutover are still open. F-09 stays 🟡. F-10 is fixed in Track 0.4 |
 | 3 | Privacy contract v2 (D-24): server filters semantics, `PresenceView` v2, `asset_catalog`, new golden vectors | ⬜ | Must land before the closed alpha (contract changes once). Include F-19 |
 | 4 | Quick Creator + widget preview strip + accessibility | ⬜ | |
@@ -542,7 +585,7 @@ Fake backend, presence, privacy, Status Deck, friends, reactions, widgets, docs.
 
 ### Closed alpha checklist (gate)
 
-- [ ] Track 0 done; widgets device-verified on Pixel Launcher + one OEM launcher
+- [ ] Track 0 ✅ (2026-10-04). Still needed: widgets device-verified on Pixel Launcher + one OEM launcher
 - [ ] Milestone 1 items 1.4–1.9 done
 - [ ] Avatar Phase 3 landed (privacy contract v2)
 - [ ] Real Supabase + Firebase projects; signed release build; crash reporting on
@@ -627,6 +670,22 @@ Open:
     communicate from that friend? Until decided, it keeps opening the friend profile.
     Ideas to consider: their latest reaction to you, their bubble or note, a "they're
     around" prompt, or a quick-react sheet.
+
+12. **How does the new editor save? (blocks N.4)** The editor builds schema 3 `AvatarConfiguration`
+    recipes (hair, beard, colors). Room and the server store v1 `AvatarConfig`, which can't express
+    those. Options:
+    - (a) Make schema 3 the saved format now: a Room migration for the `avatars` JSON, a server
+      column and RPC change, and new golden vectors. That overlaps Avatar Phase 3, so do them together.
+    - (b) Ship the editor saving on the device only first (you see it; friends and widgets still get
+      the v1 avatar), then switch to (a) together with Phase 3.
+    - (c) Keep editing v1 and squeeze vector items into v1 fields. Not recommended.
+
+    **Claude recommends (b), then (a) with Phase 3:** you can use the editor soon, and the server
+    contract changes only once.
+13. **Redraw the hair now?** The bob's rear part is a full circle around the head, so at
+    48–128 px it reads as a dark hood or halo, and the bangs read as a headband (PR #23 review).
+    Options: a small art PR before the editor, or keep it as a placeholder until more art arrives
+    (ROADMAP step 9).
 
 Add new questions here as they come up.
 
@@ -850,3 +909,4 @@ win once Track 0 is done.
 | 2026-10-04 | Claude | Audit of PR #22 (Phase 2 PR B): goldens verified before and after the refactor. Fixed a vector scene dropping the frame clip (regression test added). 214 JVM, 18/18 device | PR #22 |
 | 2026-10-04 | Cursor | Phase 2 PR C: original `emoji_core` slice and a debug-only Vector slice screen. Procedural pixels unchanged. 216 JVM, 21/21 device. F-09 stays 🟡 | `6bc0a4a`, `0a28713`, PR #23, `docs/handoff/reports/2026-10-04-emoji-core-slice.md` |
 | 2026-10-04 | Claude | Audit of PR #23 (Phase 2 PR C): acceptance met; 216 JVM, 21/21 device; follow-ups: compact-target slice snapshots before the widget cutover, and the hair art reads as a hood at small sizes | PR #23 |
+| 2026-10-05 | Claude | Merged PR #23. Phase 2 vector core done (PRs #21–#23). Plan refreshed for handoff: §4.0 Next up, F-30 and F-31 added, F-16 and F-17 closed, F-09 status, Q12 (editor persistence) and Q13 (hair art) opened | `7a175a6` |

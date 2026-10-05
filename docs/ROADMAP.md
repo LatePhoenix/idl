@@ -36,7 +36,7 @@
 - Remaining slice content (6–12 expressions, 3 families, full accessory counts).
 - OKLCH-derived shade slots and the advanced color picker.
 - Anchor fitting with per-family overrides and user transforms.
-- Golden images at 32, 48, 64, 128, 512, and 1024 px. Roborazzi is approved but not added; adding it still needs a deliberate dependency change.
+- Golden images at 32, 48, 64, 128, 512, and 1024 px. Roborazzi is in place (F-14); the slice has goldens at 48, 128 and 512 px (PROFILE target). Widget-target goldens are F-30.
 - Performance pass against the targets below. Revise the numbers after measurement.
 - House-style pack that replaces any Noto-derived pictures under the same ids.
 
