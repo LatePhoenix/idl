@@ -21,7 +21,7 @@ class AssetPackTest {
     @Test fun `core proto validates with no issues`() {
         val issues = registry.validate()
         assertEquals(issues.joinToString("\n"), emptyList<String>(), issues)
-        assertEquals(listOf("core_proto@1"), registry.packVersions)
+        assertEquals(listOf("core_proto@1", "emoji_core@1"), registry.packVersions)
     }
 
     @Test fun `palettes use v1 body colors and a 35 percent darken for the outline`() {
@@ -123,6 +123,19 @@ class AssetPackTest {
         assertTrue(registry.asset("face_glasses_round")!!.conflictsWith.contains("head_vr_headset"))
         assertFalse(registry.asset("head_vr_headset")!!.conflictsWith.contains("face_glasses_round"))
         assertNotEquals(emptyList<String>(), registry.asset("feature_antennae")!!.conflictsWith)
+    }
+
+    @Test fun `round face overrides neutral and happy and leaves other expressions procedural`() {
+        val neutral = registry.expression("neutral")!!
+        val happy = registry.expression("happy")!!
+        val sleepy = registry.expression("sleepy")!!
+        assertEquals("eyes_round_neutral", neutral.partsFor("base_round_face").eyes)
+        assertEquals("brows_round_relaxed", neutral.partsFor("base_round_face").brows)
+        assertEquals("mouth_round_neutral", neutral.partsFor("base_round_face").mouth)
+        assertEquals("eyes_round_happy", happy.partsFor("base_round_face").eyes)
+        assertEquals("mouth_round_smile", happy.partsFor("base_round_face").mouth)
+        assertEquals(sleepy.eyes, sleepy.partsFor("base_round_face").eyes)
+        assertEquals("eyes_closed_line", sleepy.partsFor("base_blob").eyes)
     }
 
     @Test fun `every shipped vector picture validates and its file exists`() {

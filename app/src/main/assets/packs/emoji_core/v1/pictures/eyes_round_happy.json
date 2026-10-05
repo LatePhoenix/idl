@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "eyes_round_happy",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "eyes",
+      "zBand": 50,
+      "fill": {
+        "slot": "eye.iris"
+      },
+      "commands": "M 328 500 C 366 436 434 436 472 500 C 436 478 364 478 328 500 Z M 552 500 C 590 436 658 436 696 500 C 660 478 588 478 552 500 Z"
+    }
+  ]
+}

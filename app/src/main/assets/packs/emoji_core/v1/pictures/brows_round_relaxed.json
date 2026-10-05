@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "brows_round_relaxed",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "brows",
+      "zBand": 50,
+      "fill": {
+        "slot": "hair.primary"
+      },
+      "commands": "M 330 408 C 370 372 430 372 470 408 C 432 394 368 394 330 408 Z M 554 408 C 594 372 654 372 694 408 C 656 394 592 394 554 408 Z"
+    }
+  ]
+}
