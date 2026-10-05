@@ -125,6 +125,19 @@ class AssetPackTest {
         assertNotEquals(emptyList<String>(), registry.asset("feature_antennae")!!.conflictsWith)
     }
 
+    @Test fun `round face overrides neutral and happy and leaves other expressions procedural`() {
+        val neutral = registry.expression("neutral")!!
+        val happy = registry.expression("happy")!!
+        val sleepy = registry.expression("sleepy")!!
+        assertEquals("eyes_round_neutral", neutral.partsFor("base_round_face").eyes)
+        assertEquals("brows_round_relaxed", neutral.partsFor("base_round_face").brows)
+        assertEquals("mouth_round_neutral", neutral.partsFor("base_round_face").mouth)
+        assertEquals("eyes_round_happy", happy.partsFor("base_round_face").eyes)
+        assertEquals("mouth_round_smile", happy.partsFor("base_round_face").mouth)
+        assertEquals(sleepy.eyes, sleepy.partsFor("base_round_face").eyes)
+        assertEquals("eyes_closed_line", sleepy.partsFor("base_blob").eyes)
+    }
+
     @Test fun `every shipped vector picture validates and its file exists`() {
         val root = repoRoot()
         for (manifest in registry.manifests) {

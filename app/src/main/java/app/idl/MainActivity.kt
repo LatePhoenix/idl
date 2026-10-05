@@ -27,6 +27,7 @@ import app.idl.ui.home.HomeScreen
 import app.idl.ui.invite.AddFriendScreen
 import app.idl.ui.onboarding.OnboardingScreen
 import app.idl.ui.privacy.PrivacyCenterScreen
+import app.idl.ui.debug.VectorSliceScreen
 import app.idl.ui.settings.SettingsScreen
 import app.idl.ui.status.StatusDeckScreen
 import app.idl.ui.theme.IdlTheme
@@ -116,7 +117,16 @@ private fun IdlNavHost(c: AppContainer, nav: NavHostController, start: String) {
         composable("privacy") { PrivacyCenterScreen(c, onBack = back) }
         composable("widgets", deepLinks = listOf(navDeepLink { uriPattern = "idl://widgets" })) { WidgetsScreen(c, onBack = back) }
         composable("settings") {
-            SettingsScreen(c, onBack = back, onAvatarStudio = { nav.navigate("avatar") }, onSignedOut = { nav.navigate("onboarding") { popUpTo(0) } })
+            SettingsScreen(
+                c,
+                onBack = back,
+                onAvatarStudio = { nav.navigate("avatar") },
+                onSignedOut = { nav.navigate("onboarding") { popUpTo(0) } },
+                onVectorSlice = { nav.navigate("vector-slice") },
+            )
+        }
+        if (BuildConfig.DEBUG) {
+            composable("vector-slice") { VectorSliceScreen(c, onBack = back) }
         }
     }
 }

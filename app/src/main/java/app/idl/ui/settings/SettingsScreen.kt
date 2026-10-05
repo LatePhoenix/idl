@@ -41,7 +41,13 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Unit, onSignedOut: () -> Unit) {
+fun SettingsScreen(
+    c: AppContainer,
+    onBack: () -> Unit,
+    onAvatarStudio: () -> Unit,
+    onSignedOut: () -> Unit,
+    onVectorSlice: () -> Unit = {},
+) {
     val scope = rememberCoroutineScope()
     val notif by c.settings.notifications.collectAsState(initial = AppSettings.Notifications(true, false, true))
     val wallpaper by c.settings.wallpaperContrast.collectAsState(initial = WallpaperContrastPreference.AUTO)
@@ -63,6 +69,12 @@ fun SettingsScreen(c: AppContainer, onBack: () -> Unit, onAvatarStudio: () -> Un
     Scaffold(topBar = { IdlTopBar("Settings", onBack = onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
             OutlinedButton(onClick = onAvatarStudio, modifier = Modifier.fillMaxWidth()) { Text("Edit avatar") }
+            if (BuildConfig.DEBUG) {
+                OutlinedButton(
+                    onClick = onVectorSlice,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("vectorSlice"),
+                ) { Text("Vector slice") }
+            }
 
             SectionTitle("Widgets")
             Text(
