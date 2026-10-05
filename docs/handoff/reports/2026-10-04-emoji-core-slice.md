@@ -80,3 +80,11 @@ Taken on the Pixel 9 AVD (`emulator-5554`) from the debug screen:
 - `6bc0a4a` Add the original emoji_core picture set beside the procedural pack.
 - `0a28713` Show the emoji slice on a debug screen and snapshot it at three sizes.
 - `c4519dc` Record the emoji_core slice checkpoint and mark roadmap steps 3-5 and 8 done.
+
+## Review (Claude, 2026-10-04)
+
+- Verified on the PR head: `scripts/check.sh` 216 tests, 0 failed, 1 skipped, lint 0 errors / 42 warnings; `connectedDebugAndroidTest` 21/21 on `emulator-5554`. The existing widget goldens are unchanged.
+- The goldens and screenshots meet spec §12.3. Hair is behind and in front of the head, the mouth shows through the beard, the eyes show through the lenses, the frame corners stay rounded with the vector scene, and the availability glyph and VR badge draw above the character.
+- Follow-up for the widget cutover (ROADMAP step 10): `EmojiSlice` renders every size with `RenderTarget.PROFILE`, so the 48 px goldens don't show compact-widget simplification. Snapshot the slice at `COMPACT_WIDGET` and `STANDARD_WIDGET` before vector art reaches widgets.
+- Art note for the user: the hair's rear part is a full circle around the head, so at 48–128 px it reads as a dark hood or halo, and the bangs read as a headband. That's within the spec's placeholder bar, but it's the first art anyone will see.
+
