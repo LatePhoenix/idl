@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import app.idl.IdlLog
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
@@ -24,7 +25,11 @@ import app.idl.domain.Layer
 import app.idl.domain.MouthShape
 import app.idl.domain.Scene
 import app.idl.domain.avatar.AccessibilityRenderMode
+import app.idl.domain.avatar.AssetCategory
 import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.CompositeOrder
+import app.idl.domain.avatar.DrawOp
+import app.idl.domain.avatar.ItemTransform
 import app.idl.domain.avatar.PlaceholderFrame
 import app.idl.domain.avatar.PlaceholderFrames
 import app.idl.domain.avatar.ResolvedAvatar
@@ -86,15 +91,20 @@ object AvatarRenderer {
         draw(Canvas(bmp), config, sizePx.toFloat(), badges, simplifyAtPx, contrast, registry)
     }
 
-    /** Paints a resolved v2 avatar with the procedural placeholder shapes. */
+    /**
+     * Paints a resolved avatar. [pictures] is required. A vector layer whose picture is missing
+     * is logged as `avatar.vector_missing` with the asset id only, then skipped so a procedural
+     * asset of that category can still draw.
+     */
     fun bitmap(
         resolved: ResolvedAvatar,
         registry: AssetRegistry,
+        pictures: VectorPictureCache,
         sizePx: Int,
         badges: AvatarBadges? = null,
         contrast: RenderContrast = RenderContrast(),
     ): Bitmap = blank(sizePx).also { bmp ->
-        draw(Canvas(bmp), PlaceholderFrames.from(resolved, registry), sizePx.toFloat(), badges, contrast)
+        draw(Canvas(bmp), resolved, registry, pictures, sizePx.toFloat(), badges, contrast)
     }
 
     private fun blank(sizePx: Int): Bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
@@ -133,6 +143,64 @@ object AvatarRenderer {
 
     fun draw(
         canvas: Canvas,
+        resolved: ResolvedAvatar,
+        registry: AssetRegistry,
+        pictures: VectorPictureCache,
+        size: Float,
+        badges: AvatarBadges? = null,
+        contrast: RenderContrast = RenderContrast(),
+    ) {
+        val frame = PlaceholderFrames.from(resolved, registry)
+        val loaded = HashMap<String, VectorPictureCache.PicturePaths?>()
+        val seen = HashSet<String>()
+        val proceduralFallback = mutableListOf<AssetCategory>()
+        fun load(assetId: String): VectorPictureCache.PicturePaths? {
+            if (assetId in seen) return loaded[assetId]
+            seen += assetId
+            val asset = registry.asset(assetId)
+            if (asset == null || asset.render.type != "vector") return null
+            val paths = pictures.get(asset)
+            if (paths != null) {
+                loaded[assetId] = paths
+                return paths
+            }
+            IdlLog.w("avatar.vector_missing", "asset" to asset.id)
+            val fallback = asset.fallback?.let { registry.asset(it) }
+            val fallbackPaths = if (fallback?.render?.type == "vector") pictures.get(fallback) else null
+            if (fallback != null && fallback.render.type != "vector" && CompositeOrder.proceduralBand(fallback.category) != null) {
+                proceduralFallback += fallback.category
+            }
+            loaded[assetId] = fallbackPaths
+            return fallbackPaths
+        }
+        val ops = CompositeOrder.ops(resolved, registry) { id -> load(id)?.picture }.toMutableList()
+        for (category in proceduralFallback.distinct()) {
+            if (ops.any { it is DrawOp.Procedural && it.category == category }) continue
+            val band = CompositeOrder.proceduralBand(category) ?: continue
+            val index = ops.indexOfFirst { op ->
+                val (opBand, opZ) = rank(op, registry, ::load)
+                opBand > band || (opBand == band && opZ > category.defaultZ)
+            }
+            val op = DrawOp.Procedural(category, chrome = band >= 200)
+            if (index < 0) ops += op else ops.add(index, op)
+        }
+        val painter = Painter(canvas, frame.config, size, contrast)
+        val vectors = CanvasVectorAssetRenderer()
+        val (framed, chrome) = ops.partition { !it.chrome }
+        val checkpoint = canvas.save()
+        try {
+            // The procedural scene clips to the frame. Without it (a vector scene, or none), clip here
+            // so vector parts and the procedural layers above them keep the frame shape.
+            if (framed.none { it is DrawOp.Procedural && it.category == AssetCategory.SCENE }) painter.frameClip()
+            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, ::load) }
+        } finally {
+            canvas.restoreToCount(checkpoint)
+        }
+        chrome.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, ::load) }
+    }
+
+    fun draw(
+        canvas: Canvas,
         frame: PlaceholderFrame,
         size: Float,
         badges: AvatarBadges? = null,
@@ -147,6 +215,69 @@ object AvatarRenderer {
             canvas.restoreToCount(checkpoint)
         }
         drawLayers(p, frame, overlay, badges)
+    }
+
+    private fun paintOp(
+        op: DrawOp,
+        painter: Painter,
+        frame: PlaceholderFrame,
+        badges: AvatarBadges?,
+        vectors: CanvasVectorAssetRenderer,
+        canvas: Canvas,
+        resolved: ResolvedAvatar,
+        registry: AssetRegistry,
+        size: Float,
+        load: (String) -> VectorPictureCache.PicturePaths?,
+    ) {
+        when (op) {
+            is DrawOp.Procedural -> when (op.category) {
+                AssetCategory.SCENE -> painter.scene(frame.sceneDetail)
+                AssetCategory.BODY_ACCESSORY -> painter.bodyAccessory()
+                AssetCategory.BASE -> painter.head()
+                AssetCategory.SIGNATURE_FEATURE -> if (frame.config.faceStyle != FaceStyle.CLASSIC) painter.faceStyle()
+                AssetCategory.FACE_EYE -> painter.eyes()
+                AssetCategory.FACE_BROW -> painter.brows()
+                AssetCategory.FACE_MOUTH -> painter.mouth()
+                AssetCategory.FACE_ACCESSORY -> painter.faceAccessory()
+                AssetCategory.HEAD_ACCESSORY -> painter.headAccessory()
+                AssetCategory.EXPRESSION_OVERLAY -> painter.extra()
+                AssetCategory.FOREGROUND_PROP -> painter.prop()
+                AssetCategory.AVAILABILITY_INDICATOR -> {
+                    val availability = frame.availability ?: badges?.availability
+                    val glyph = frame.availabilityGlyph
+                    if (availability != null && glyph != null) painter.availabilityBadge(glyph, availability)
+                }
+                AssetCategory.ACTIVITY_BADGE -> frame.activityGlyph?.let { painter.activityBadge(it) }
+                else -> Unit
+            }
+            is DrawOp.VectorPart -> {
+                val paths = load(op.assetId) ?: return
+                val worn = registry.asset(op.assetId) ?: return
+                vectors.draw(
+                    canvas,
+                    paths.picture,
+                    resolved.colorSlots,
+                    worn.defaultTransform ?: ItemTransform(),
+                    resolved.itemTransforms[op.assetId] ?: ItemTransform(),
+                    size,
+                    paths.parts,
+                    paths.clips,
+                    op.partIndex,
+                )
+            }
+        }
+    }
+
+    private fun rank(
+        op: DrawOp,
+        registry: AssetRegistry,
+        load: (String) -> VectorPictureCache.PicturePaths?,
+    ): Pair<Int, Int> = when (op) {
+        is DrawOp.Procedural -> (CompositeOrder.proceduralBand(op.category) ?: 0) to op.category.defaultZ
+        is DrawOp.VectorPart -> {
+            val band = load(op.assetId)?.picture?.parts?.getOrNull(op.partIndex)?.zBand ?: 0
+            band to (registry.asset(op.assetId)?.category?.defaultZ ?: 0)
+        }
     }
 
     private fun drawLayers(p: Painter, frame: PlaceholderFrame, layers: List<Layer>, badges: AvatarBadges?) {
@@ -192,7 +323,8 @@ object AvatarRenderer {
         val mouthY = cy + r * 0.38f
         val lw = ((s * 0.028f).coerceAtLeast(1.5f)) * contrast.strokeScale
 
-        fun scene(detail: Boolean) {
+        /** Clips to the frame shape. [scene] does this first; a vector scene needs it on its own. */
+        fun frameClip() {
             val bounds = RectF(0f, 0f, s, s)
             val clip = Path().apply {
                 when (cfg.frameStyle) {
@@ -201,6 +333,11 @@ object AvatarRenderer {
                 }
             }
             c.clipPath(clip)
+        }
+
+        fun scene(detail: Boolean) {
+            val bounds = RectF(0f, 0f, s, s)
+            frameClip()
             val (top, bottom) = sceneColors(cfg.scene)
             fill.shader = LinearGradient(0f, 0f, 0f, s, top, bottom, Shader.TileMode.CLAMP)
             c.drawRect(bounds, fill)

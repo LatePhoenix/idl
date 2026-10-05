@@ -4,12 +4,15 @@ import android.graphics.Bitmap
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderContrast
+import app.idl.avatar.VectorPictureCache
 import app.idl.domain.Activity
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
 import app.idl.domain.BaseForm
+import app.idl.domain.BodyAccessory
 import app.idl.domain.FaceAccessory
+import app.idl.domain.FaceStyle
 import app.idl.domain.HeadAccessory
 import app.idl.domain.PresenceResolver
 import app.idl.domain.PrivacyFilter
@@ -48,6 +51,7 @@ import java.time.Instant
 @Config(sdk = [35], application = android.app.Application::class)
 class WidgetSnapshotTest {
     private val registry = coreRegistry()
+    private val pictures = VectorPictureCache { file -> throw java.io.FileNotFoundException(file) }
     private val now = Instant.parse("2026-10-04T15:00:00Z")
 
     @Test fun `every availability differs at the default 2x2 size`() {
@@ -129,6 +133,28 @@ class WidgetSnapshotTest {
         snap("sleepy_compact", compact)
     }
 
+    @Test fun `procedural features the other goldens skip`() {
+        val target = WidgetRenderInputs.targetFor(110f, 110f)
+        assertEquals(RenderTarget.STANDARD_WIDGET, target)
+        val plain = pixels(draw(feature(AvatarConfig()), target).second)
+        listOf(
+            Triple("freckles", "feature_freckles", AvatarConfig(faceStyle = FaceStyle.FRECKLES)),
+            Triple("blush", "feature_blush", AvatarConfig(faceStyle = FaceStyle.BLUSHY)),
+            Triple("ears_cat", "feature_ears_cat", AvatarConfig(baseForm = BaseForm.CAT)),
+            Triple("ears_fox", "feature_ears_fox", AvatarConfig(baseForm = BaseForm.FOX)),
+            Triple("glasses", "face_glasses_round", AvatarConfig(faceAccessory = FaceAccessory.GLASSES)),
+            Triple("sunglasses", "face_sunglasses", AvatarConfig(faceAccessory = FaceAccessory.SUNGLASSES)),
+            Triple("hat", "head_wizard_hat", AvatarConfig(headAccessory = HeadAccessory.WIZARD_HAT)),
+            Triple("hoodie", "body_hoodie", AvatarConfig(bodyAccessory = BodyAccessory.HOODIE)),
+            Triple("blanket", "body_blanket", AvatarConfig(bodyAccessory = BodyAccessory.BLANKET)),
+        ).forEach { (name, assetId, saved) ->
+            val (resolved, bitmap) = draw(feature(saved), target)
+            assertTrue(name, resolved.has(assetId))
+            assertFalse(name, pixels(bitmap).contentEquals(plain))
+            snap(name, bitmap)
+        }
+    }
+
     @Test fun `light and dark wallpaper contrast differ`() {
         val target = WidgetRenderInputs.targetFor(110f, 110f)
         val model = self(Availability.AVAILABLE)
@@ -149,6 +175,7 @@ class WidgetSnapshotTest {
         val bitmap = AvatarRenderer.bitmap(
             resolved,
             registry,
+            pictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = wallpaper),
@@ -167,6 +194,12 @@ class WidgetSnapshotTest {
         )
         return WidgetModel(title = "Ari", friendView = view, deepLink = "idl://friend/u_ari")
     }
+
+    private fun feature(saved: AvatarConfig) = WidgetModel(
+        title = "Ari",
+        restingAvatar = saved,
+        deepLink = "idl://status",
+    )
 
     private fun self(availability: Availability) = WidgetModel(
         title = "Ari",
