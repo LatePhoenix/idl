@@ -11,7 +11,8 @@ are already made. **Do not reopen a recorded decision without asking the user.**
 audit findings (F-xx) in priority order, the roadmap, open questions and the work log. Start
 there, follow its §0 "How to use", and update it when you finish an item.
 
-Right now: **Track 0 (audit fixes) comes before any new feature work.** Avatar specs are
+Right now: **take the first ready item in `master-plan.md` §4.0 "Next up".** Track 0 is done.
+Don't start an item marked "spec needed" until its spec is in `docs/handoff/`. Avatar specs are
 `docs/IDL_AVATAR_CREATOR_PLAN.md` (phases) and `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
 (requirements, cited as §n).
 
