@@ -74,3 +74,11 @@ The renderer commit is that tree. The checkpoint commit is docs only. `scripts/c
 - `e7813de` Record procedural goldens the widget suite did not cover yet.
 - `8281a04` Drive resolved avatar paint from the compositor so vector parts can interleave without moving procedural pixels.
 - `f5b04c8` Record the Phase 2 vector-renderer checkpoint and mark the Canvas renderer implemented.
+
+## Review follow-up (Claude, 2026-10-04)
+
+- **Fixed: a vector scene lost the frame shape.** The squircle or circle clip was applied only inside the procedural `Painter.scene()`. When `SCENE` is a vector asset (PR C's `scene_round_soft`), no procedural scene runs, so the whole avatar drew as a square. `Painter.frameClip()` now holds the clip; `scene()` calls it first (same calls, so procedural pixels are unchanged), and the compositor calls it when the framed ops have no procedural scene. Test: `a vector scene keeps the frame shape` (the corner pixel stays transparent); it fails without the fix.
+- Verified that the nine goldens from `e7813de` pass on the pre-refactor renderer, and that every golden passes after the refactor.
+- Checks after the follow-up: `scripts/check.sh` 214 tests, 0 failed, 1 skipped, lint 0 errors / 42 warnings; `connectedDebugAndroidTest` 18/18 on `emulator-5554`.
+- Note for later (not blocking): `AppContainer.vectorPictures` finds a picture by trying each shipped pack directory in order. That's correct while picture files are named after unique asset ids. If two packs ever ship the same relative file, the first pack wins. The registry should record each asset's pack directory before a third pack lands.
+

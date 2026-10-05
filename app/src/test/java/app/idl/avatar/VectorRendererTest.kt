@@ -107,6 +107,33 @@ class VectorRendererTest {
         dotted.captureRoboImage("src/test/snapshots/widget/vector_dot.png")
     }
 
+    @Test fun `a vector scene keeps the frame shape`() {
+        val scene = AssetDef(
+            id = "scene_test_square",
+            category = AssetCategory.SCENE,
+            accessibilityLabel = "Square",
+            render = AssetRender(type = "vector", file = "pictures/scene_test_square.json"),
+            colorSlots = mapOf("accessory.secondary" to "#FF2E8792"),
+        )
+        val picture = """
+            {"schemaVersion":1,"id":"scene_test_square","contentVersion":1,"viewBox":1024,
+             "parts":[{"id":"bg","zBand":0,"fill":{"slot":"accessory.secondary"},"commands":"M 0 0 L 1024 0 L 1024 1024 L 0 1024 Z"}]}
+        """.trimIndent()
+        val registry = AssetRegistry(coreRegistry().manifests + AssetManifest(
+            packId = "test_pictures",
+            version = 1,
+            assets = listOf(scene),
+        ))
+        val resolved = AvatarResolver(registry).resolve(
+            request(config(scene = "scene_test_square"), target = RenderTarget.PROFILE, sizePx = 256),
+        )
+        assertTrue(resolved.layers.any { it.assetId == "scene_test_square" })
+        val bitmap = AvatarRenderer.bitmap(resolved, registry, VectorPictureCache { picture }, 256)
+        // Squircle corner: outside the frame stays transparent; the center is the scene color or the head.
+        assertEquals(0, bitmap.getPixel(2, 2) ushr 24)
+        assertEquals(0xFF, bitmap.getPixel(128, 20) ushr 24)
+    }
+
     private fun dot() = AssetDef(
         id = "mark_test_dot",
         category = AssetCategory.HAIR,

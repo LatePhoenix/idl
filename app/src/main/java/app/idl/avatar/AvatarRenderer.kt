@@ -189,6 +189,9 @@ object AvatarRenderer {
         val (framed, chrome) = ops.partition { !it.chrome }
         val checkpoint = canvas.save()
         try {
+            // The procedural scene clips to the frame. Without it (a vector scene, or none), clip here
+            // so vector parts and the procedural layers above them keep the frame shape.
+            if (framed.none { it is DrawOp.Procedural && it.category == AssetCategory.SCENE }) painter.frameClip()
             framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, ::load) }
         } finally {
             canvas.restoreToCount(checkpoint)
@@ -320,7 +323,8 @@ object AvatarRenderer {
         val mouthY = cy + r * 0.38f
         val lw = ((s * 0.028f).coerceAtLeast(1.5f)) * contrast.strokeScale
 
-        fun scene(detail: Boolean) {
+        /** Clips to the frame shape. [scene] does this first; a vector scene needs it on its own. */
+        fun frameClip() {
             val bounds = RectF(0f, 0f, s, s)
             val clip = Path().apply {
                 when (cfg.frameStyle) {
@@ -329,6 +333,11 @@ object AvatarRenderer {
                 }
             }
             c.clipPath(clip)
+        }
+
+        fun scene(detail: Boolean) {
+            val bounds = RectF(0f, 0f, s, s)
+            frameClip()
             val (top, bottom) = sceneColors(cfg.scene)
             fill.shader = LinearGradient(0f, 0f, 0f, s, top, bottom, Shader.TileMode.CLAMP)
             c.drawRect(bounds, fill)
