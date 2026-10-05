@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderContrast
+import app.idl.avatar.VectorPictureCache
 import app.idl.domain.Activity
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
@@ -50,6 +51,7 @@ import java.time.Instant
 @Config(sdk = [35], application = android.app.Application::class)
 class WidgetSnapshotTest {
     private val registry = coreRegistry()
+    private val pictures = VectorPictureCache { file -> throw java.io.FileNotFoundException(file) }
     private val now = Instant.parse("2026-10-04T15:00:00Z")
 
     @Test fun `every availability differs at the default 2x2 size`() {
@@ -173,6 +175,7 @@ class WidgetSnapshotTest {
         val bitmap = AvatarRenderer.bitmap(
             resolved,
             registry,
+            pictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = wallpaper),

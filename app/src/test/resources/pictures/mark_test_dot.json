@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "mark_test_dot",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "dot",
+      "zBand": 70,
+      "fill": { "slot": "accessory.primary" },
+      "commands": "M 412 280 L 612 280 L 612 480 L 412 480 Z"
+    }
+  ]
+}

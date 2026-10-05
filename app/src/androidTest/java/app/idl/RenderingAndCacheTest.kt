@@ -8,6 +8,7 @@ import app.idl.avatar.AvatarBadges
 import app.idl.avatar.RenderCache
 import app.idl.avatar.AvatarRenderer
 import app.idl.avatar.RenderContrast
+import app.idl.avatar.VectorPictureCache
 import app.idl.data.local.FriendTetherEntity
 import app.idl.data.local.IdlDatabase
 import app.idl.data.local.WidgetSubscriptionEntity
@@ -56,6 +57,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
+
+private val noPictures = VectorPictureCache { file -> throw java.io.FileNotFoundException(file) }
 
 @RunWith(AndroidJUnit4::class)
 class AvatarRendererTest {
@@ -209,6 +212,7 @@ class CacheAndWidgetDataTest {
             return AvatarRenderer.bitmap(
                 resolved,
                 registry,
+                noPictures,
                 256,
                 AvatarBadges(),
                 RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
@@ -295,6 +299,7 @@ class WidgetRenderPathTest {
         return AvatarRenderer.bitmap(
             resolved,
             registry,
+            noPictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
@@ -326,6 +331,7 @@ class WidgetRenderPathTest {
         return AvatarRenderer.bitmap(
             resolved,
             registry,
+            noPictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),

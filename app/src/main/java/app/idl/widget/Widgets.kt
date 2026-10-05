@@ -88,6 +88,7 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
                 AvatarRenderer.bitmap(
                     resolved,
                     registry,
+                    context.container.vectorPictures,
                     AVATAR_PX,
                     AvatarBadges(),
                     contrast,
