@@ -1,6 +1,6 @@
 # 2026-10-05 — AV.2 teardrop base and hair redraw
 
-Branch `avatar/teardrop-base` from `origin/main` (`037fdc1`). Item N.1 in `master-plan.md` §4.0, spec §4.1 AV.2. Commit `b49afe0`.
+Branch `avatar/teardrop-base` from `origin/main` (`037fdc1`). Item N.1 in `master-plan.md` §4.0, spec §4.1 AV.2. PR #27.
 
 ## Acceptance
 
@@ -76,4 +76,5 @@ On `b49afe0`, before the docs commit: **220 tests, 0 failed, 1 skipped**. Lint *
 
 ```
 b49afe0 Replace the round face with a teardrop base so hair sits outside the silhouette.
+878fb68 Record the teardrop base checkpoint, contact sheets, and device screenshots.
 ```

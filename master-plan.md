@@ -508,7 +508,7 @@ Take the first item that's ready. Update this table when an item finishes or a n
 
 | # | Item | Ready? | Notes |
 | --- | --- | --- | --- |
-| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Done (`b49afe0`) | F-30 closed with it. Next ready item is N.2 |
+| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Done (PR #27) | F-30 closed with it. Next ready item is N.2 |
 | N.2 | **F-31** pack directory per asset | ✅ Ready. The finding has its fix and verify steps | Small. Can run alongside N.1 on its own branch |
 | N.3 | **AV.3 Expression catalog** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.3 | Data and review only, no art. Its output drives AV.5 |
 | N.4 | **Answer Q14 and Q15** (§6) | ⏸ user | Q15 (how much body shows for shirts) is needed before tops (AV.7) |
@@ -1082,4 +1082,4 @@ win once Track 0 is done.
 | 2026-10-04 | Claude | Audit of PR #23 (Phase 2 PR C): acceptance met; 216 JVM, 21/21 device; follow-ups: compact-target slice snapshots before the widget cutover, and the hair art reads as a hood at small sizes | PR #23 |
 | 2026-10-05 | Claude | Merged PR #23. Phase 2 vector core done (PRs #21–#23). Plan refreshed for handoff: §4.0 Next up, F-30 and F-31 added, F-16 and F-17 closed, F-09 status, Q12 (editor persistence) and Q13 (hair art) opened | `7a175a6` |
 | 2026-10-05 | Claude | Avatar vision recorded: D-41 (schema 3 saved everywhere), D-42 (original teardrop face, every smiley emotion, maximum customization, no Noto), D-43 (integrations exploration). New §4.1 Avatar program with AV.2 and AV.3 specs, §4.2 Integrations, §4.3 account customization; Next up rewritten; Q14 and Q15 opened; scope file adds face-hand | this PR |
-| 2026-10-05 | Cursor | AV.2: teardrop base and hair redraw in `emoji_core` v2. Procedural goldens unchanged. 220 JVM, 21/21 device, lint 0/42. F-30 ✅ | `b49afe0`, `docs/handoff/reports/2026-10-05-teardrop-base.md` |
+| 2026-10-05 | Cursor | AV.2: teardrop base and hair redraw in `emoji_core` v2. Procedural goldens unchanged. 220 JVM, 21/21 device, lint 0/42. F-30 ✅ | `b49afe0`, PR #27, `docs/handoff/reports/2026-10-05-teardrop-base.md` |
