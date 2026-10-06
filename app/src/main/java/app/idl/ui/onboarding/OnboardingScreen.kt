@@ -1,10 +1,13 @@
 package app.idl.ui.onboarding
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -27,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.idl.AppContainer
+import app.idl.R
 import app.idl.avatar.AvatarImage
 import app.idl.data.repo.idlError
 import app.idl.domain.AvatarConfig
@@ -88,7 +93,11 @@ fun OnboardingScreen(c: AppContainer, onCreated: () -> Unit, onReturning: () -> 
                 AvatarImage(AvatarConfig(BaseForm.GHOST, AvatarPalette.body[8], expression = Expression.SLEEPY), "", size = 88.dp)
                 AvatarImage(AvatarConfig(BaseForm.ROBOT, AvatarPalette.body[9], expression = Expression.FOCUSED, themeColor = AvatarPalette.theme[1]), "", size = 72.dp)
             }
-            Text("iDL", style = MaterialTheme.typography.displayMedium)
+            Image(
+                painterResource(R.drawable.wordmark),
+                contentDescription = "iDL",
+                modifier = Modifier.height(64.dp).aspectRatio(136f / 71f),
+            )
             Text("Set your vibe. See your people.", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
             Text(
                 "A tiny, private status for a few close friends — right on your home screen. No feed, no followers, nothing to keep up with.",
