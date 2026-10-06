@@ -79,6 +79,17 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
                         }
                     }
                     drawPath(path, paint)
+                    // clipBy is validated on the picture and applied across assets in AP-8.
+                    part.stroke?.let { stroke ->
+                        paint.style = Paint.Style.STROKE
+                        paint.strokeWidth = stroke.width
+                        paint.strokeCap = capOf(stroke.cap)
+                        paint.strokeJoin = joinOf(stroke.join)
+                        paint.shader = null
+                        paint.color = withOpacity(colors[stroke.slot] ?: ColorSlots.NEUTRAL, part.opacity)
+                        drawPath(path, paint)
+                        paint.style = Paint.Style.FILL
+                    }
                 }
             }
         }
@@ -123,6 +134,18 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
     }
 
     private fun alphaOf(opacity: Float): Int = (opacity.coerceIn(0f, 1f) * 255f).toInt()
+
+    private fun capOf(name: String) = when (name) {
+        "butt" -> Paint.Cap.BUTT
+        "square" -> Paint.Cap.SQUARE
+        else -> Paint.Cap.ROUND
+    }
+
+    private fun joinOf(name: String) = when (name) {
+        "miter" -> Paint.Join.MITER
+        "bevel" -> Paint.Join.BEVEL
+        else -> Paint.Join.ROUND
+    }
 }
 
 interface VectorAssetRenderer {
