@@ -12,9 +12,11 @@ import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.ItemTransform
 import app.idl.domain.avatar.RenderTarget
+import app.idl.domain.avatar.ClipBy
 import app.idl.domain.avatar.VectorFill
 import app.idl.domain.avatar.VectorPart
 import app.idl.domain.avatar.VectorPicture
+import app.idl.domain.avatar.VectorStroke
 import app.idl.domain.avatar.config
 import app.idl.domain.avatar.coreRegistry
 import app.idl.domain.avatar.request
@@ -74,6 +76,36 @@ class VectorRendererTest {
         assertSame(path, cache.get(asset)!!.parts.single())
         assertEquals(null, cache.get(asset.copy(contentVersion = 2)))
         assertEquals(2, reads.get())
+    }
+
+    @Test fun `a stroke is drawn in the slot color`() {
+        val picture = VectorPicture(
+            schemaVersion = 2,
+            id = "stroke_probe",
+            contentVersion = 1,
+            viewBox = 1024,
+            parts = listOf(
+                VectorPart(
+                    id = "line",
+                    zBand = 40,
+                    fill = VectorFill(slot = "face.primary"),
+                    commands = "M 100 512 L 900 512",
+                    stroke = VectorStroke(slot = "outline", width = 32f),
+                    clipBy = listOf(ClipBy(mask = "occlude.hair_top", mode = "difference")),
+                ),
+            ),
+        )
+        val bitmap = Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+        CanvasVectorAssetRenderer().draw(
+            Canvas(bitmap),
+            picture,
+            mapOf("face.primary" to 0xFFFFC83D.toInt(), "outline" to 0xFF7A4E00.toInt()),
+            ItemTransform(),
+            1024f,
+        )
+        val mid = bitmap.getPixel(500, 512)
+        assertTrue((mid ushr 16) and 0xFF > 80 && (mid shr 8) and 0xFF < 120 && (mid and 0xFF) < 40)
+        assertEquals(0, bitmap.getPixel(500, 400))
     }
 
     @Test fun `a missing picture logs the asset id only`() {

@@ -16,6 +16,8 @@ object VectorPictureValidator {
     private const val BODY_MIN_X = -256f
     private const val BODY_MAX_X = 1280f
     private const val BODY_MAX_Y = 1536f
+    private val STROKE_CAPS = setOf("butt", "round", "square")
+    private val STROKE_JOINS = setOf("miter", "round", "bevel")
 
     internal fun inside(zBand: Int, x: Float, y: Float): Boolean {
         val body = zBand in BODY_REGION_BANDS
@@ -27,8 +29,8 @@ object VectorPictureValidator {
 
     fun validate(picture: VectorPicture, asset: AssetDef): List<String> {
         val issues = mutableListOf<String>()
-        if (picture.schemaVersion != VectorPicture.SCHEMA_VERSION) {
-            issues += "${picture.id} schemaVersion ${picture.schemaVersion} is not ${VectorPicture.SCHEMA_VERSION}"
+        if (picture.schemaVersion !in VectorPicture.SUPPORTED_SCHEMA_VERSIONS) {
+            issues += "${picture.id} schemaVersion ${picture.schemaVersion} is not 1 or 2"
         }
         if (picture.id != asset.id) issues += "picture id ${picture.id} does not match asset ${asset.id}"
         if (picture.contentVersion < 1) issues += "${picture.id} contentVersion must be >= 1"
@@ -37,6 +39,9 @@ object VectorPictureValidator {
         }
         if (picture.viewBox != VectorPicture.VIEW_BOX) issues += "${picture.id} viewBox must be ${VectorPicture.VIEW_BOX}"
 
+        picture.parts.mapNotNull { it.publishMask }.groupBy { it }.filterValues { it.size > 1 }.keys.sorted().forEach {
+            issues += "${picture.id} publishes mask $it more than once"
+        }
         val partIds = picture.parts.map { it.id }
         partIds.groupBy { it }.filterValues { it.size > 1 }.keys.sorted().forEach {
             issues += "${picture.id} has duplicate part id $it"
@@ -74,6 +79,7 @@ object VectorPictureValidator {
                 }
                 if (clip.id !in clipSet) issues += "${picture.id} part ${part.id} clips to missing path ${clip.id}"
             }
+            issues += version2Issues(picture, part, asset)
             val ops = parseCommands(part.commands)
             if (ops == null) {
                 issues += "${picture.id} part ${part.id} has unreadable commands"
@@ -83,6 +89,39 @@ object VectorPictureValidator {
             }
         }
         return issues.sorted()
+    }
+
+    private fun version2Issues(picture: VectorPicture, part: VectorPart, asset: AssetDef): List<String> {
+        val usesVersion2 = part.stroke != null || part.tags.isNotEmpty() || part.clipBy.isNotEmpty() || part.publishMask != null
+        if (picture.schemaVersion == 1 && usesVersion2) {
+            return listOf("${picture.id} part ${part.id} uses version 2 fields on schemaVersion 1")
+        }
+        if (picture.schemaVersion != 2) return emptyList()
+        val issues = mutableListOf<String>()
+        part.stroke?.let { stroke ->
+            if (stroke.slot !in asset.colorSlots) {
+                issues += "${picture.id} part ${part.id} stroke slot ${stroke.slot} is not on the asset"
+            }
+            if (stroke.width !in 16f..96f) {
+                issues += "${picture.id} part ${part.id} stroke width ${stroke.width} is outside 16..96"
+            }
+            if (stroke.cap !in STROKE_CAPS) issues += "${picture.id} part ${part.id} has unknown stroke cap ${stroke.cap}"
+            if (stroke.join !in STROKE_JOINS) issues += "${picture.id} part ${part.id} has unknown stroke join ${stroke.join}"
+        }
+        if (part.tags.any { it.isBlank() }) issues += "${picture.id} part ${part.id} has a blank tag"
+        part.tags.groupBy { it }.filterValues { it.size > 1 }.keys.sorted().forEach {
+            issues += "${picture.id} part ${part.id} repeats tag $it"
+        }
+        part.publishMask?.let { name ->
+            if (name.isBlank()) issues += "${picture.id} part ${part.id} publishes a blank mask"
+        }
+        for (clip in part.clipBy) {
+            if (clip.mask.isBlank()) issues += "${picture.id} part ${part.id} clipBy mask is blank"
+            if (clip.mode != "intersect" && clip.mode != "difference") {
+                issues += "${picture.id} part ${part.id} has unknown clipBy mode ${clip.mode}"
+            }
+        }
+        return issues
     }
 
     private fun gradientIssues(pictureId: String, partId: String, stops: List<GradientStop>, asset: AssetDef): List<String> {

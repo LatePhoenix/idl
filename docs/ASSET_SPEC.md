@@ -40,11 +40,13 @@ Every vector asset is normalized to a **1024×1024** logical canvas with a requi
 }
 ```
 
-`schemaVersion` must be 1. `id` equals the manifest asset id. `contentVersion` is at least 1 and equals the asset's `contentVersion`. `viewBox` is 1024.
+`schemaVersion` is 1 or 2. Version 1 pictures keep loading. Version 2 may add `stroke`, `tags`, `clipBy` and `publishMask`. `id` equals the manifest asset id. `contentVersion` is at least 1 and equals the asset's `contentVersion`. `viewBox` is 1024.
 
 `commands` is an SVG path `d` string in viewBox space: `M m L l H h V v C c S s Q q T t Z z`, with implicit repeats and compact numbers. `A`/`a` arcs, non-finite numbers, and unknown letters are rejected. The parser emits absolute move, line, quad, cubic, and close.
 
 `fill` is exactly one of a slot, a linear gradient `{x1,y1,x2,y2,stops}`, or a radial gradient `{cx,cy,r,stops}`. Stops are at least two, with strictly increasing offsets in 0..1. Each stop is a slot plus an optional alpha in 0..1. `fillRule` is `nonzero` (default) or `evenodd`. `opacity` is 0..1, default 1. `clip` is optional `{id, mode}` where mode is `intersect` or `difference` and `id` exists in `clipPaths`. `allowOverflow` true permits geometry outside the band's box. The box is −16..1040, except bands 0, 20, 34, 36 and 38, which may use the body region x −256..1280, y −16..1536.
+
+On schema 2, a part may also carry `stroke` `{slot, width, cap, join}`. `width` is 16..96 in viewBox units. `cap` is `butt`, `round` (default) or `square`. `join` is `miter`, `round` (default) or `bevel`. The stroke slot must be on the asset. `tags` is a list of non-blank strings with no repeats. `publishMask` names this part's path so another asset can clip to it. `clipBy` is a list of `{mask, mode}` subscriptions. Those masks are checked for shape here and applied when the picture is drawn in AP-8. A schema 1 part that sets any of these fields is rejected.
 
 `zBand` is one of 0, 10, 20, 30, 34, 36, 38, 40, 50, 60, 70, 80, 90, 100, 110. Bands at 200 and above are rejected on a part. 34 is the body, 36 is tops, 38 is outerwear.
 

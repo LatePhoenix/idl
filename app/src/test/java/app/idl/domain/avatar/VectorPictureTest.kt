@@ -22,12 +22,14 @@ class VectorPictureTest {
         assertEquals(picture.id, VectorPicture.parse(withExtra).id)
     }
 
-    @Test fun `schemaVersion 2 is rejected`() {
-        val json = VectorPicture.encode(sample()).replace("\"schemaVersion\": 1", "\"schemaVersion\": 2")
-            .replace("\"schemaVersion\":1", "\"schemaVersion\":2")
+    @Test fun `schemaVersion 2 loads and schemaVersion 3 is rejected`() {
+        val v2 = VectorPicture.encode(sample().copy(schemaVersion = 2))
+        assertEquals(2, VectorPicture.parse(v2).schemaVersion)
+        val v3 = v2.replace("\"schemaVersion\": 2", "\"schemaVersion\": 3")
+            .replace("\"schemaVersion\":2", "\"schemaVersion\":3")
         try {
-            VectorPicture.parse(json)
-            throw AssertionError("schema 2 should be rejected")
+            VectorPicture.parse(v3)
+            throw AssertionError("schema 3 should be rejected")
         } catch (error: IllegalArgumentException) {
             assertTrue(error.message!!.contains("schemaVersion"))
         }
@@ -39,7 +41,7 @@ class VectorPictureTest {
 
     @Test fun `validator reports each picture rule`() {
         val picture = sample()
-        assertReported(picture.copy(schemaVersion = 2), "schemaVersion")
+        assertReported(picture.copy(schemaVersion = 3), "schemaVersion")
         assertReported(picture.copy(id = "other"), "does not match")
         assertReported(picture.copy(contentVersion = 0), "contentVersion")
         assertReported(picture.copy(contentVersion = 9), "does not match asset")
@@ -108,6 +110,60 @@ class VectorPictureTest {
             picture.copy(parts = listOf(picture.parts[0].copy(fill = VectorFill(radial = alpha)))),
             "alpha",
         )
+    }
+
+    @Test fun `version 2 accepts a stroke, tags and mask syntax`() {
+        val picture = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(
+                sample().parts[0].copy(
+                    stroke = VectorStroke(slot = "hair.shadow", width = 16f),
+                    tags = listOf("hair_back"),
+                    clipBy = listOf(ClipBy(mask = "occlude.hair_top", mode = "difference")),
+                    publishMask = "occlude.side",
+                ),
+            ),
+        )
+        assertEquals(emptyList<String>(), VectorPictureValidator.validate(picture, asset))
+    }
+
+    @Test fun `version 2 rejects a bad stroke and version 1 rejects version 2 fields`() {
+        val part = sample().parts[0]
+        val wide = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(part.copy(stroke = VectorStroke(slot = "hair.primary", width = 8f))),
+        )
+        assertReported(wide, "stroke width")
+        val cap = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(part.copy(stroke = VectorStroke(slot = "hair.primary", width = 16f, cap = "flat"))),
+        )
+        assertReported(cap, "stroke cap")
+        val missing = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(part.copy(stroke = VectorStroke(slot = "outline", width = 16f))),
+        )
+        assertReported(missing, "stroke slot")
+        val mode = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(part.copy(clipBy = listOf(ClipBy(mask = "occlude.hair_top", mode = "xor")))),
+        )
+        assertReported(mode, "clipBy mode")
+        val repeated = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(part.copy(tags = listOf("hair_back", "hair_back"))),
+        )
+        assertReported(repeated, "repeats tag")
+        val onV1 = sample().copy(parts = listOf(part.copy(tags = listOf("hair_back"))))
+        assertReported(onV1, "schemaVersion 1")
+        val masks = sample().copy(
+            schemaVersion = 2,
+            parts = listOf(
+                part.copy(id = "a", publishMask = "occlude.side"),
+                part.copy(id = "b", publishMask = "occlude.side"),
+            ),
+        )
+        assertReported(masks, "more than once")
     }
 
     private fun assertReported(picture: VectorPicture, fragment: String) {
