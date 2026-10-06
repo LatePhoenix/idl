@@ -70,6 +70,8 @@ data class ResolvedAvatar(
     val colorSlots: Map<String, Int> = emptyMap(),
     /** Recipe transforms for assets that survived into [layers]. */
     val itemTransforms: Map<String, ItemTransform> = emptyMap(),
+    /** Viewport for this render. Part of [renderKey]. */
+    val framing: Framing = Framing.HEAD,
 )
 
 /**
@@ -305,6 +307,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
             accessibilityDescription = describe(baseId, expressionId, presence),
             colorSlots = ColorSlots.resolve(layers, config, registry),
             itemTransforms = config.itemTransforms.filterKeys { key -> layers.any { it.assetId == key } }.toSortedMap(),
+            framing = request.target.framing,
         )
     }
 
@@ -514,6 +517,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
             append(request.rendererVersion).append('|')
             append(registry.packVersions.joinToString(",")).append('|')
             append(request.target.wire).append('|')
+            append(request.target.framing.name).append('|')
             append(request.sizePx).append('|')
             append(request.wallpaperContrastMode.wire).append('|')
             append(request.accessibilityMode.wire).append('|')

@@ -9,8 +9,12 @@ import app.idl.domain.avatar.AssetManifest
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.AssetRender
 import app.idl.domain.avatar.AvatarResolver
+import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.ItemTransform
 import app.idl.domain.avatar.RenderTarget
+import app.idl.domain.avatar.VectorFill
+import app.idl.domain.avatar.VectorPart
+import app.idl.domain.avatar.VectorPicture
 import app.idl.domain.avatar.config
 import app.idl.domain.avatar.coreRegistry
 import app.idl.domain.avatar.request
@@ -105,6 +109,52 @@ class VectorRendererTest {
         val bare = AvatarRenderer.bitmap(plain, registry, cache, 256)
         assertFalse(dotted.sameAs(bare))
         dotted.captureRoboImage("src/test/snapshots/widget/vector_dot.png")
+    }
+
+    @Test fun `viewport translation happens in character space before the output scale`() {
+        val picture = VectorPicture(
+            schemaVersion = 1,
+            id = "framing_dot",
+            contentVersion = 1,
+            viewBox = 1024,
+            parts = listOf(
+                VectorPart("dot", 50, VectorFill(slot = "accessory.primary"), "M 200 200 L 800 200 L 800 700 L 200 700 Z"),
+            ),
+        )
+        val renderer = CanvasVectorAssetRenderer()
+        fun pixels(translateThenScale: Boolean): List<String> {
+            val bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            val scale = 48f / Framing.BUST.size
+            if (translateThenScale) {
+                canvas.translate(-Framing.BUST.originX, -Framing.BUST.originY)
+                canvas.scale(scale, scale)
+            } else {
+                canvas.scale(scale, scale)
+                canvas.translate(-Framing.BUST.originX, -Framing.BUST.originY)
+            }
+            renderer.draw(
+                canvas,
+                picture,
+                mapOf("accessory.primary" to 0xFFFF0000.toInt()),
+                ItemTransform(),
+                ItemTransform(),
+                VectorPicture.VIEW_BOX.toFloat(),
+                listOf(pathOf(picture.parts[0].commands, "nonzero")),
+                emptyMap(),
+                0,
+            )
+            val hits = mutableListOf<String>()
+            for (y in 0 until 48) {
+                for (x in 0 until 48) {
+                    val pixel = bitmap.getPixel(x, y)
+                    if ((pixel ushr 16) and 0xFF > 200 && (pixel and 0xFF) < 40) hits += "$x,$y"
+                }
+            }
+            return hits
+        }
+        assertEquals(emptyList<String>(), pixels(true))
+        assertTrue(pixels(false).contains("24,14"))
     }
 
     @Test fun `a vector scene keeps the frame shape`() {

@@ -74,13 +74,13 @@ class VectorPictureTest {
             "unreadable",
         )
         assertReported(
-            picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -100 0"))),
+            picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -300 0"))),
             "outside",
         )
         assertEquals(
             emptyList<String>(),
             VectorPictureValidator.validate(
-                picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -100 0", allowOverflow = true))),
+                picture.copy(parts = listOf(picture.parts[0].copy(commands = "M -300 0", allowOverflow = true))),
                 asset,
             ),
         )

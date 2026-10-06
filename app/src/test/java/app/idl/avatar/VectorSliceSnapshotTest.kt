@@ -47,13 +47,15 @@ class VectorSliceSnapshotTest {
             }
         }
         val neutral = drawn.getValue("neutral").getValue(48)
-        val face = neutral.getPixel(24, 18)
-        val eye = neutral.getPixel(18, 20)
+        // PROFILE is bust framing. Eye line y 420 maps to about y 15; the left eye is about x 19.
+        val face = neutral.getPixel(24, 15)
+        val eye = neutral.getPixel(19, 15)
         assertTrue("48 px face should stay readable", luma(face) - luma(eye) > 40)
 
         val hair = drawn.getValue("hair").getValue(48)
-        assertNotEquals(neutral.getPixel(24, 3), hair.getPixel(24, 3))
-        assertNotEquals(neutral.getPixel(18, 13), hair.getPixel(18, 13))
+        // Bob side masses, mapped through bust framing at 48 px.
+        assertNotEquals(neutral.getPixel(9, 14), hair.getPixel(9, 14))
+        assertNotEquals(neutral.getPixel(38, 14), hair.getPixel(38, 14))
 
         val scene = drawn.getValue("scene").getValue(512)
         val busy = drawn.getValue("busy").getValue(48)

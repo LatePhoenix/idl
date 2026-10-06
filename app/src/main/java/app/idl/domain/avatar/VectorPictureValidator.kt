@@ -6,10 +6,24 @@ package app.idl.domain.avatar
  */
 object VectorPictureValidator {
     /** Character bands a part may use. Chrome bands (200+) are rejected on picture parts. */
-    val CHARACTER_BANDS = setOf(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110)
+    val CHARACTER_BANDS = setOf(0, 10, 20, 30, 34, 36, 38, 40, 50, 60, 70, 80, 90, 100, 110)
+
+    /** Bands that may use the body region (x −256..1280, y −16..1536). */
+    val BODY_REGION_BANDS = setOf(0, 20, 34, 36, 38)
 
     private const val MIN_COORD = -16f
     private const val MAX_COORD = 1040f
+    private const val BODY_MIN_X = -256f
+    private const val BODY_MAX_X = 1280f
+    private const val BODY_MAX_Y = 1536f
+
+    internal fun inside(zBand: Int, x: Float, y: Float): Boolean {
+        val body = zBand in BODY_REGION_BANDS
+        val minX = if (body) BODY_MIN_X else MIN_COORD
+        val maxX = if (body) BODY_MAX_X else MAX_COORD
+        val maxY = if (body) BODY_MAX_Y else MAX_COORD
+        return x in minX..maxX && y in MIN_COORD..maxY
+    }
 
     fun validate(picture: VectorPicture, asset: AssetDef): List<String> {
         val issues = mutableListOf<String>()
@@ -63,8 +77,9 @@ object VectorPictureValidator {
             val ops = parseCommands(part.commands)
             if (ops == null) {
                 issues += "${picture.id} part ${part.id} has unreadable commands"
-            } else if (!part.allowOverflow && ops.any { op -> coordinates(op).any { (x, y) -> x < MIN_COORD || x > MAX_COORD || y < MIN_COORD || y > MAX_COORD } }) {
-                issues += "${picture.id} part ${part.id} geometry is outside -16..1040"
+            } else if (!part.allowOverflow && ops.any { op -> coordinates(op).any { (x, y) -> !inside(part.zBand, x, y) } }) {
+                val box = if (part.zBand in BODY_REGION_BANDS) "body region" else "-16..1040"
+                issues += "${picture.id} part ${part.id} geometry is outside $box"
             }
         }
         return issues.sorted()

@@ -29,7 +29,9 @@ import app.idl.domain.avatar.AssetCategory
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.CompositeOrder
 import app.idl.domain.avatar.DrawOp
+import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.ItemTransform
+import app.idl.domain.avatar.VectorPicture
 import app.idl.domain.avatar.PlaceholderFrame
 import app.idl.domain.avatar.PlaceholderFrames
 import app.idl.domain.avatar.ResolvedAvatar
@@ -187,16 +189,19 @@ object AvatarRenderer {
         val painter = Painter(canvas, frame.config, size, contrast)
         val vectors = CanvasVectorAssetRenderer()
         val (framed, chrome) = ops.partition { !it.chrome }
+        // Framing is the vector character viewport. Procedural bases keep the full 1024 square
+        // so a vector part still lines up with the placeholder head.
+        val useFraming = registry.asset(resolved.baseAssetId)?.render?.type == "vector"
         val checkpoint = canvas.save()
         try {
             // The procedural scene clips to the frame. Without it (a vector scene, or none), clip here
             // so vector parts and the procedural layers above them keep the frame shape.
             if (framed.none { it is DrawOp.Procedural && it.category == AssetCategory.SCENE }) painter.frameClip()
-            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, ::load) }
+            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming, ::load) }
         } finally {
             canvas.restoreToCount(checkpoint)
         }
-        chrome.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, ::load) }
+        chrome.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming = false, ::load) }
     }
 
     fun draw(
@@ -227,6 +232,7 @@ object AvatarRenderer {
         resolved: ResolvedAvatar,
         registry: AssetRegistry,
         size: Float,
+        useFraming: Boolean,
         load: (String) -> VectorPictureCache.PicturePaths?,
     ) {
         when (op) {
@@ -253,19 +259,40 @@ object AvatarRenderer {
             is DrawOp.VectorPart -> {
                 val paths = load(op.assetId) ?: return
                 val worn = registry.asset(op.assetId) ?: return
-                vectors.draw(
-                    canvas,
-                    paths.picture,
-                    resolved.colorSlots,
-                    worn.defaultTransform ?: ItemTransform(),
-                    resolved.itemTransforms[op.assetId] ?: ItemTransform(),
-                    size,
-                    paths.parts,
-                    paths.clips,
-                    op.partIndex,
-                )
+                val part = paths.picture.parts.getOrNull(op.partIndex) ?: return
+                val checkpoint = canvas.save()
+                try {
+                    // Backgrounds fill the output square. Other character parts use the framing
+                    // viewport. Chrome stays in output pixels.
+                    val character = useFraming && !op.chrome && part.zBand != 0
+                    if (character) applyFraming(canvas, resolved.framing, size)
+                    vectors.draw(
+                        canvas,
+                        paths.picture,
+                        resolved.colorSlots,
+                        worn.defaultTransform ?: ItemTransform(),
+                        resolved.itemTransforms[op.assetId] ?: ItemTransform(),
+                        if (character) VectorPicture.VIEW_BOX.toFloat() else size,
+                        paths.parts,
+                        paths.clips,
+                        op.partIndex,
+                    )
+                } finally {
+                    canvas.restoreToCount(checkpoint)
+                }
             }
         }
+    }
+
+    /**
+     * Maps the framing viewport onto the output square. Canvas pre-concatenates, so the later
+     * call is applied to the point first. Translate in character space, then scale:
+     * pixel = (character − origin) × (output / viewport).
+     */
+    private fun applyFraming(canvas: Canvas, framing: Framing, sizePx: Float) {
+        val scale = sizePx / framing.size
+        canvas.scale(scale, scale)
+        canvas.translate(-framing.originX, -framing.originY)
     }
 
     private fun rank(

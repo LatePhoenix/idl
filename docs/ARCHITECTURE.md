@@ -80,7 +80,10 @@ Stable z-bands, not selection order. An asset may emit more than one part (glass
 | 10 | Rear props |
 | 20 | Rear hair |
 | 30 | Rear jewelry |
-| 40 | Head, ears, neck |
+| 34 | Body: neck, shoulders, torso (skin slots) |
+| 36 | Tops |
+| 38 | Outerwear and collars |
+| 40 | Head, ears. The chin covers the top of the neck |
 | 50 | Expression and facial detail |
 | 60 | Beard, moustache, facial hair |
 | 70 | Front hair and bangs |
@@ -99,6 +102,8 @@ Stable z-bands, not selection order. An asset may emit more than one part (glass
 | 230 | Reaction overlays |
 
 `AssetCategory.defaultZ` in the current manifest is the procedural painter's order. Do not renumber it in place. Vector parts carry their own `zBand`. `CompositeOrder` paints procedural categories on the bands in the table above, including 95 and 105, and paints vector parts on their own `zBand`. A category drawn by a vector asset is not also drawn procedurally. A later migration can align `defaultZ` with these bands once the procedural pack is no longer what widgets draw.
+
+Parts on bands 0, 20, 34, 36 and 38 may extend into the body region (x −256..1280, y −16..1536). Every other part stays inside −16..1040 unless `allowOverflow` is set. `Framing` (`HEAD`, `BUST`) is the viewport `RenderTarget` uses. Background parts fill the output square. Other character parts are mapped from the framing viewport.
 
 Masks are data on the part (`clip` referencing another part id, or a named occluder such as `head.front`). The first slice needs only clip-to-path. Hair-behind-head, beard-around-mouth, lens tint, and a pipe stem into the mouth are the cases that justify clips. Do not add Kotlin `if (assetId == ...)` branches for them.
 
