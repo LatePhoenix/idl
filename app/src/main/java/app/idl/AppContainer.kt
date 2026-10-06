@@ -53,11 +53,10 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val assetRegistry: AssetRegistry by lazy {
         AssetPacks.registry { path -> app.assets.open(path).bufferedReader().use { it.readText() } }
     }
-    val vectorPictures = VectorPictureCache { file ->
-        val prefixes = AssetPacks.SHIPPED.map { it.substringBeforeLast("manifest.json") }
-        prefixes.firstNotNullOfOrNull { prefix ->
-            runCatching { app.assets.open(prefix + file).bufferedReader().use { it.readText() } }.getOrNull()
-        } ?: throw java.io.FileNotFoundException(file)
+    val vectorPictures = VectorPictureCache(
+        packDirectory = { asset -> assetRegistry.packDirectory(asset.id) },
+    ) { path ->
+        app.assets.open(path).bufferedReader().use { it.readText() }
     }
 
     val mockPush = MockPushSource()

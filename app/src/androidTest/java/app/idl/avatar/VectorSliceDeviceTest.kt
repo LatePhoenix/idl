@@ -10,7 +10,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.FileNotFoundException
 import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(AndroidJUnit4::class)
@@ -53,11 +52,10 @@ class VectorSliceDeviceTest {
         context.assets.open(path).bufferedReader().use { it.readText() }
     }
 
-    private fun cache(reads: AtomicInteger) = VectorPictureCache { file ->
+    private fun cache(reads: AtomicInteger) = VectorPictureCache(
+        packDirectory = { asset -> registry().packDirectory(asset.id) },
+    ) { path ->
         reads.incrementAndGet()
-        val prefixes = AssetPacks.SHIPPED.map { it.substringBeforeLast("manifest.json") }
-        prefixes.firstNotNullOfOrNull { prefix ->
-            runCatching { context.assets.open(prefix + file).bufferedReader().use { it.readText() } }.getOrNull()
-        } ?: throw FileNotFoundException(file)
+        context.assets.open(path).bufferedReader().use { it.readText() }
     }
 }

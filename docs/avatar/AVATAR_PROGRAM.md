@@ -291,7 +291,7 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
 | AP-1 | Brand silhouette is the avatar head (D-45) | | yes | | ✅ |
-| AP-2 | F-31: pack directory per asset | | | | ⬜ (may run beside AP-1) |
+| AP-2 | F-31: pack directory per asset | | | | 🔨 |
 | AP-3 | Body, body bands and framing (D-47) | AP-1 | yes | | ⬜ |
 | AP-4 | Authoring pipeline and picture format v2 | AP-2, AP-3 | | | ⬜ |
 | AP-5 | Expression catalog (was AV.3) | | | | ⬜ (may run beside AP-3/AP-4) |

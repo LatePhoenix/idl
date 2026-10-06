@@ -186,10 +186,24 @@ data class AssetManifest(
     }
 }
 
-/** Every pack the app ships, merged. Lookups follow retirement chains. */
-class AssetRegistry(val manifests: List<AssetManifest>) {
+/**
+ * Every pack the app ships, merged. Lookups follow retirement chains.
+ *
+ * [packDirectories] is parallel to [manifests]: the asset directory for that pack, with a trailing
+ * slash (`packs/emoji_core/v2/`). The picture cache opens `<directory><render.file>` so two packs
+ * can ship the same relative file name.
+ */
+class AssetRegistry(
+    val manifests: List<AssetManifest>,
+    private val packDirectories: List<String> = emptyList(),
+) {
 
     private val assets: Map<String, AssetDef> = manifests.flatMap { it.assets }.associateBy { it.id }
+    private val directoryByAsset: Map<String, String> = buildMap {
+        for ((manifest, directory) in manifests.zip(packDirectories)) {
+            for (asset in manifest.assets) put(asset.id, directory)
+        }
+    }
     private val expressions: Map<String, ExpressionDef> = buildMap {
         for (manifest in manifests) {
             for (expression in manifest.expressions) {
@@ -235,6 +249,9 @@ class AssetRegistry(val manifests: List<AssetManifest>) {
     }
 
     fun asset(id: String?): AssetDef? = id?.let { assets[canonicalId(it)] }
+
+    /** Directory that owns [assetId], or null when the registry was built without pack paths. */
+    fun packDirectory(assetId: String): String? = directoryByAsset[canonicalId(assetId)]
     fun expression(id: String?): ExpressionDef? = id?.let { expressions[it] }
     fun semantic(key: SemanticKey): SemanticMapping? = semantics[key.wire]
     fun ofCategory(category: AssetCategory): List<AssetDef> = assets.values.filter { it.category == category }.sortedBy { it.id }

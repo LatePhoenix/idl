@@ -14,6 +14,10 @@ object AssetPacks {
         "packs/emoji_core/v2/manifest.json",
     )
 
-    fun registry(read: (path: String) -> String): AssetRegistry =
-        AssetRegistry(SHIPPED.map { AssetManifest.parse(read(it)) })
+    fun registry(read: (path: String) -> String): AssetRegistry {
+        val loaded = SHIPPED.map { path ->
+            path.substringBeforeLast("manifest.json") to AssetManifest.parse(read(path))
+        }
+        return AssetRegistry(loaded.map { it.second }, loaded.map { it.first })
+    }
 }
