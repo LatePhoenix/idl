@@ -1,0 +1,22 @@
+{
+  "id": "teardrop",
+  "units": 108,
+  "note": "Brand teardrop (D-45). Local space matches docs/art/brand/gen_brand.py. The 1024-grid map is x' = 512 + (x - 54) * 760/54, y' = 96 + (y - 26) * 760/54.",
+  "path": [
+    { "op": "M", "points": [[54, 26]] },
+    { "op": "C", "points": [[70, 26], [81, 38], [81, 53]] },
+    { "op": "C", "points": [[81, 66], [71, 74], [62, 81]] },
+    { "op": "Q", "points": [[54, 87], [46, 81]] },
+    { "op": "C", "points": [[37, 74], [27, 66], [27, 53]] },
+    { "op": "C", "points": [[27, 38], [38, 26], [54, 26]] },
+    { "op": "Z" }
+  ],
+  "mapTo1024": {
+    "originX": 54,
+    "originY": 26,
+    "scaleNumerator": 760,
+    "scaleDenominator": 54,
+    "translateX": 512,
+    "translateY": 96
+  }
+}

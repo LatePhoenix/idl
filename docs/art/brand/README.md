@@ -25,7 +25,8 @@ D-42 as the dot of a lowercase "i" that leans 10 degrees.
 
 ## Editing
 
-Edit the geometry or colors in `gen_brand.py`, never the generated files. Then run:
+The teardrop outline lives in `config/teardrop_silhouette.json` (D-45). Edit colors and the other
+geometry in `gen_brand.py`, never the generated files. Then run:
 
 ```bash
 python docs/art/brand/gen_brand.py

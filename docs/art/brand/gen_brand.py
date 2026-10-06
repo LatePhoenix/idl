@@ -11,6 +11,7 @@ Outputs:
 Run from the repo root: python docs/art/brand/gen_brand.py
 All transforms are baked into the path data, so the drawables need no groups.
 """
+import json
 import math
 from pathlib import Path
 
@@ -23,16 +24,17 @@ CREAM = "#FFF1E1"
 CREAM_LETTER = "#FFE9D2"
 BLUSH = "#EE6355"
 
-# Teardrop face, narrow end down (D-42). Local space, centre (54, 55.5).
-TEARDROP = [
-    ("M", (54, 26)),
-    ("C", (70, 26), (81, 38), (81, 53)),
-    ("C", (81, 66), (71, 74), (62, 81)),
-    ("Q", (54, 87), (46, 81)),
-    ("C", (37, 74), (27, 66), (27, 53)),
-    ("C", (27, 38), (38, 26), (54, 26)),
-    ("Z",),
-]
+# Teardrop face, narrow end down (D-42, D-45). One source: config/teardrop_silhouette.json.
+def load_teardrop():
+    data = json.loads((ROOT / "config" / "teardrop_silhouette.json").read_text(encoding="utf-8"))
+    cmds = []
+    for seg in data["path"]:
+        pts = tuple(tuple(p) for p in seg.get("points", []))
+        cmds.append((seg["op"], *pts))
+    return cmds
+
+
+TEARDROP = load_teardrop()
 WINK_ARC = ((38, 50), (44, 44), (50, 50))      # closed left eye, quadratic
 SMILE_WINK = ((45, 60), (55, 70), (64, 59))    # lopsided smile, quadratic
 SMILE = ((45, 60), (54, 69), (63, 60))
