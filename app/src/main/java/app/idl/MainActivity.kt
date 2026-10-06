@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
     private var nav: NavHostController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The manifest launches with Theme.Idl.Starting (the wordmark splash); leave it before drawing.
+        setTheme(R.style.Theme_Idl)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val c = container

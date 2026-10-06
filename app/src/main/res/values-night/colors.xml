@@ -1,3 +1,6 @@
 <resources>
     <color name="idl_background">#FF17131B</color>
+    <color name="idl_splash_bg">#FF3A2247</color>
+    <color name="idl_wordmark_letters">#FFFFE9D2</color>
+    <color name="idl_wordmark_line">#FF2A1430</color>
 </resources>

@@ -1,4 +1,8 @@
 <resources>
     <color name="idl_background">#FFFFFBF7</color>
     <color name="idl_launcher_bg">#FFFFF1E1</color>
+    <!-- Splash screen and wordmark (D-44). values-night swaps them for dark mode. -->
+    <color name="idl_splash_bg">#FFFFF1E1</color>
+    <color name="idl_wordmark_letters">#FF3A2247</color>
+    <color name="idl_wordmark_line">#FF3A2247</color>
 </resources>

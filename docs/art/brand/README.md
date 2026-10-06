@@ -9,6 +9,7 @@ D-42 as the dot of a lowercase "i" that leans 10 degrees.
 | `wordmark-light.svg` | Wordmark W1, plum letters on a transparent background, for light surfaces. |
 | `wordmark-dark.svg` | Wordmark W1, cream letters on plum, for dark surfaces. |
 | `playstore-icon-512.png` | Google Play listing icon: 512×512, 32-bit PNG, full-bleed square (Play adds its own rounded mask). Rendered from the same drawables by `LauncherIconSnapshotTest`. |
+| `../../../app/src/main/res/drawable/splash_wordmark.xml` | W1 as the splash-screen image (Android 12+ splash icon, and centred in `splash_background.xml` on Android 8–11). Colors come from `idl_wordmark_*` and `idl_splash_bg`, which `values-night` swaps for dark mode. |
 | `gen_brand.py` | Generates all of the above, plus `ic_launcher_foreground.xml` and `ic_launcher_monochrome.xml` in `app/src/main/res/drawable/`. |
 
 ## Palette
@@ -33,6 +34,9 @@ python docs/art/brand/gen_brand.py
 Then refresh the Play Store icon with `./gradlew testDebugUnitTest --tests '*LauncherIconSnapshotTest*' -Pidl.updateGolden=true`.
 Without the flag, the test fails if `playstore-icon-512.png` no longer matches the drawables.
 
+`SplashWordmarkTest` checks the splash in light and dark mode at probe points the script also
+prints.
+
 `LauncherIconSnapshotTest` checks the colors at fixed probe points that the script prints. If
 the geometry moves, update those points in the test.
 
@@ -44,5 +48,6 @@ out of the face with an even-odd fill instead of being drawn on top.
 - On a very light wallpaper the cream tile has little edge contrast. The user accepted this when
   choosing R1 over the plum-tile option.
 - There's no Play Store feature graphic (1024×500) yet.
+- The onboarding screen still shows "iDL" as plain text, not the wordmark.
 - The wordmark letters are hand-drawn shapes, not a font. Text that sits next to them (such as the
   tagline) uses the app's normal font.
