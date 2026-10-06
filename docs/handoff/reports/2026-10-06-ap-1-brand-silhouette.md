@@ -95,4 +95,5 @@ Every file below changed because the head is now the brand teardrop and the feat
 ```
 ac030f8 Share the brand teardrop path so the avatar head can match it.
 a07cf58 Match the avatar head to the brand teardrop so every face shares one silhouette.
+821c8b0 Record the AP-1 checkpoint and mark the brand silhouette done.
 ```
