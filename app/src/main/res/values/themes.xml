@@ -3,4 +3,10 @@
         <item name="android:windowBackground">@color/idl_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <!-- Launch theme for MainActivity: the W1 wordmark on the brand background. MainActivity
+         switches to Theme.Idl before drawing. Android 12+ uses values-v31 instead. -->
+    <style name="Theme.Idl.Starting">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
 </resources>

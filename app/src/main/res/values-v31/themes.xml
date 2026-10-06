@@ -1,0 +1,8 @@
+<resources>
+    <!-- Android 12+ system splash screen: the W1 wordmark as the icon, inside the 192 dp safe circle. -->
+    <style name="Theme.Idl.Starting">
+        <item name="android:windowBackground">@color/idl_splash_bg</item>
+        <item name="android:windowSplashScreenBackground">@color/idl_splash_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_wordmark</item>
+    </style>
+</resources>
