@@ -820,7 +820,7 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-49). The most relevant t
   first, on-device ones may come before the real backend (2026-10-05, user; amends D-38)
 - **D-44** Launcher icon R1 (leaning "i" whose dot is the winking teardrop face, cream tile) and
   wordmark W1; art in `docs/art/brand/` (2026-10-05, user)
-- **D-45** The avatar head is the brand teardrop, from `config/teardrop_silhouette.json` (2026-10-05, user)
+- **D-45** The avatar head is the brand teardrop, from `config/teardrop_silhouette.json` (2026-10-05, user). On the 1024 grid: crown y 96, widest 132–892 at y 476, chin bottom y 912. Eye line y 420, mouth y 580. The neck is a separate part behind the chin.
 - **D-46** Teardrop is the only avatar base; other families and legacy bases retire to it (2026-10-06, user)
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)

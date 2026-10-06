@@ -42,7 +42,7 @@ class VectorSliceDeviceTest {
         EmojiSlice.bitmap(registry, cache, recipe, 64)
         assertEquals(once, reads.get())
         val asset = registry.asset("base_teardrop")!!
-        assertNull(cache.get(asset.copy(contentVersion = 2)))
+        assertNull(cache.get(asset.copy(contentVersion = asset.contentVersion + 1)))
         assertEquals(once + 1, reads.get())
     }
 
