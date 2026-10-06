@@ -47,6 +47,11 @@ Expiry, manual-over-automated precedence, and the clock stay in the presence res
 
 ## 4. Identity and expression
 
+> **D-46 (2026-10-06):** `teardrop_face` is the only family and `base_teardrop` the only base. The
+> other rows below are historical. Saved avatars on any other base retire to `base_teardrop`. The
+> avatar program (`docs/avatar/AVATAR_PROGRAM.md` §3) has the current layer bands (34, 36, 38 for
+> the body) and framing (D-47).
+
 A recipe names a **family** and a **base asset**. The family selects which anchors and which items are legal. The base asset is the head (and ears, if that family draws them on the base).
 
 | Family id | Role | Existing base it can sit beside |

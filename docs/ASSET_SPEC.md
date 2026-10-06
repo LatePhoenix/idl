@@ -125,6 +125,10 @@ The validator rejects or fails the pack on:
 
 ## 5. First content set
 
+> **Superseded (2026-10-06)** by the avatar program's content waves (`docs/avatar/AVATAR_PROGRAM.md`
+> AP-15) and its style guide: there's one family (D-46), and no smoking props (use a lollipop or
+> straw for the mouth-prop clip case).
+
 Do not import the full face catalog first. The slice that proves beard-vs-mouth, hair-vs-hat, glasses-vs-eyes, earring-vs-hair, and a pipe stem is:
 
 | Kind | Count | Notes |
