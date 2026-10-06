@@ -536,6 +536,7 @@ blocks merging; feedback becomes a new fix item.
 | --- | --- | --- | --- |
 | 2026-10-06 | AP-1 | Brand head vs the old base and the launcher, at 512 and 48: `docs/handoff/reports/screenshots/ap-1-compare-512.png`, `ap-1-compare-48.png`. Hair and facial hair on the new chin: `ap-1-contact-512.png`, `ap-1-contact-48.png`. | |
 | 2026-10-06 | AP-3 framing | Bust at 512 and head at widget size, before the body is drawn: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `vector/widget/neutral_compact.png`. | |
+| 2026-10-06 | AP-3 body | Shoulders and the default crew tee. Bust: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `contact_512_dark.png`, `contact_48.png`. Head: `contact_head_48.png`, `contact_head_48_dark.png`, `vector/widget/neutral_compact.png`, `vector/widget/neutral_standard.png`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -1100,3 +1101,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-1: the avatar head is the brand teardrop. 234 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-1-brand-silhouette.md` |
 | 2026-10-06 | Cursor | AP-2: each picture loads from its own pack directory (F-31). 235 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-2-pack-dirs.md` |
 | 2026-10-06 | Cursor | AP-3 framing: head and bust viewports, body bands. Body art is the next PR. 241 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-3-framing.md` |
+| 2026-10-06 | Cursor | AP-3 body: neck, shoulders and the default crew tee. 243 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554 (21 instrumented tests). | `docs/handoff/reports/2026-10-06-ap-3-body.md` |

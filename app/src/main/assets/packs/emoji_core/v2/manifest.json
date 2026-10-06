@@ -2,6 +2,15 @@
   "packId": "emoji_core",
   "version": 2,
   "minimumRendererVersion": 2,
+  "defaults": {
+    "base": "base_blob",
+    "palette": "palette_sunny",
+    "scene": "scene_plain",
+    "frame": "frame_squircle",
+    "eyeFamily": "eyefam_round",
+    "mouthFamily": "mouthfam_classic",
+    "top": "top_crew_tee"
+  },
   "assets": [
     {
       "id": "base_teardrop",
@@ -13,7 +22,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "face.primary": "#FFC83D",
         "face.shadow": "#E0A21A",
@@ -104,6 +113,22 @@
         "top": 0.244141,
         "right": 0.707031,
         "bottom": 0.664062
+      }
+    },
+    {
+      "id": "top_crew_tee",
+      "category": "top",
+      "accessibilityLabel": "Crew tee",
+      "render": {
+        "type": "vector",
+        "file": "pictures/top_crew_tee.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "tier": "free",
+      "contentVersion": 1,
+      "colorSlots": {
+        "top.primary": "#2F6FBF"
       }
     },
     {

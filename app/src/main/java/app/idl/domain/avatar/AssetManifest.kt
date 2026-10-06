@@ -168,6 +168,8 @@ data class PackDefaults(
     val frame: String,
     val eyeFamily: String,
     val mouthFamily: String,
+    /** Worn when the avatar has no top of its own. Null means no default shirt. */
+    val top: String? = null,
 )
 
 @Serializable
@@ -232,6 +234,9 @@ class AssetRegistry(
     private val retired: Map<String, String> = manifests.fold(emptyMap()) { acc, m -> acc + m.retired }
 
     val defaults: PackDefaults = requireNotNull(manifests.firstNotNullOfOrNull { it.defaults }) { "no pack declares defaults" }
+
+    /** First pack that names a default top. Later packs can add one without replacing [defaults]. */
+    val defaultTopId: String? = manifests.firstNotNullOfOrNull { it.defaults?.top }
 
     /** `packId@version` list, sorted; part of the render key. */
     val packVersions: List<String> = manifests.map { "${it.packId}@${it.version}" }.sorted()
@@ -394,6 +399,7 @@ class AssetRegistry(
             ref("defaults", d.frame, AssetCategory.FRAME)
             ref("defaults", d.eyeFamily, AssetCategory.EYE_FAMILY)
             ref("defaults", d.mouthFamily, AssetCategory.MOUTH_FAMILY)
+            d.top?.let { ref("defaults", it, AssetCategory.TOP) }
         }
         return issues.sorted()
     }

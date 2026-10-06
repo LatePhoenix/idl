@@ -112,47 +112,107 @@ class VectorSliceSnapshotTest {
             "stubble" to "Stubble",
             "mustache_classic" to "Mustache",
         )
-        listOf(48, 512).forEach { size ->
-            val scale = if (size == 48) 4 else 1
-            val cell = size * scale
-            val gap = 12
-            val header = 28
-            val gutter = 72
-            val width = gutter + facial.size * cell + (facial.size + 1) * gap
-            val height = header + hairs.size * cell + (hairs.size + 1) * gap
-            val sheet = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(sheet)
-            canvas.drawColor(Color.WHITE)
-            val paint = Paint().apply {
-                color = Color.BLACK
-                textSize = 20f
-                isAntiAlias = true
+        // Bust sheets keep the original names. Head framing and a dark ground are the other half
+        // of the AP-3 acceptance (both framings, light and dark).
+        listOf(
+            ContactSheet(48, RenderTarget.PROFILE, dark = false, "contact_48.png"),
+            ContactSheet(48, RenderTarget.PROFILE, dark = true, "contact_48_dark.png"),
+            ContactSheet(48, RenderTarget.COMPACT_WIDGET, dark = false, "contact_head_48.png"),
+            ContactSheet(48, RenderTarget.COMPACT_WIDGET, dark = true, "contact_head_48_dark.png"),
+            ContactSheet(512, RenderTarget.PROFILE, dark = false, "contact_512.png"),
+            ContactSheet(512, RenderTarget.PROFILE, dark = true, "contact_512_dark.png"),
+        ).forEach { spec -> contactSheet(hairs, facial, spec) }
+    }
+
+    private fun contactSheet(
+        hairs: List<Pair<String, String>>,
+        facial: List<Pair<String, String>>,
+        spec: ContactSheet,
+    ) {
+        val scale = if (spec.size == 48) 4 else 1
+        val cell = spec.size * scale
+        val gap = 12
+        val header = 28
+        val gutter = 72
+        val width = gutter + facial.size * cell + (facial.size + 1) * gap
+        val height = header + hairs.size * cell + (hairs.size + 1) * gap
+        val sheet = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(sheet)
+        canvas.drawColor(if (spec.dark) DARK_GROUND else Color.WHITE)
+        val paint = Paint().apply {
+            color = if (spec.dark) LIGHT_LABEL else Color.BLACK
+            textSize = 20f
+            isAntiAlias = true
+        }
+        facial.forEachIndexed { col, (_, label) ->
+            canvas.drawText(label, (gutter + gap + col * (cell + gap)).toFloat(), 20f, paint)
+        }
+        hairs.forEachIndexed { row, (style, label) ->
+            val top = header + gap + row * (cell + gap)
+            canvas.drawText(label, 8f, top + 24f, paint)
+            facial.forEachIndexed { col, (facialId, _) ->
+                val recipe = EmojiSlice.Recipe(
+                    id = "contact",
+                    label = label,
+                    items = mapOf("hair" to listOf(style), "facial_hair" to listOf(facialId)),
+                    presence = VisiblePresence(mood = Mood.HAPPY),
+                )
+                val face = EmojiSlice.bitmap(registry, pictures, recipe, spec.size, target = spec.target)
+                val dest = Rect(
+                    gutter + gap + col * (cell + gap),
+                    top,
+                    gutter + gap + col * (cell + gap) + cell,
+                    top + cell,
+                )
+                canvas.drawBitmap(face, null, dest, Paint().apply { isFilterBitmap = false })
             }
-            facial.forEachIndexed { col, (_, label) ->
-                canvas.drawText(label, (gutter + gap + col * (cell + gap)).toFloat(), 20f, paint)
-            }
-            hairs.forEachIndexed { row, (style, label) ->
-                val top = header + gap + row * (cell + gap)
-                canvas.drawText(label, 8f, top + 24f, paint)
-                facial.forEachIndexed { col, (facialId, _) ->
-                    val recipe = EmojiSlice.Recipe(
-                        id = "contact",
-                        label = label,
-                        items = mapOf("hair" to listOf(style), "facial_hair" to listOf(facialId)),
-                        presence = VisiblePresence(mood = Mood.HAPPY),
-                    )
-                    val face = EmojiSlice.bitmap(registry, pictures, recipe, size)
-                    val dest = Rect(
-                        gutter + gap + col * (cell + gap),
-                        top,
-                        gutter + gap + col * (cell + gap) + cell,
-                        top + cell,
-                    )
-                    canvas.drawBitmap(face, null, dest, Paint().apply { isFilterBitmap = false })
+        }
+        sheet.captureRoboImage("src/test/snapshots/vector/${spec.file}")
+    }
+
+    @Test fun `the crew collar covers three rows under the chin and the head stays readable at 48`() {
+        val bitmap = EmojiSlice.bitmap(
+            registry,
+            pictures,
+            EmojiSlice.recipes.first { it.id == "neutral" },
+            48,
+            target = RenderTarget.COMPACT_WIDGET,
+        )
+        val shirtRows = (0 until 48).count { y ->
+            y > 40 && closer(bitmap.getPixel(24, y), SHIRT, SKIN)
+        }
+        assertTrue("collar rows $shirtRows", shirtRows >= 3)
+
+        var widest = 0
+        for (y in 0 until 48) {
+            var run = 0
+            for (x in 0 until 48) {
+                val pixel = bitmap.getPixel(x, y)
+                val r = Color.red(pixel)
+                val g = Color.green(pixel)
+                val b = Color.blue(pixel)
+                val face = r > 160 && g > 120 && b < 140
+                val outline = r in 70..180 && g < 120 && b < 50
+                if (face || outline) {
+                    run++
+                    if (run > widest) widest = run
+                } else {
+                    run = 0
                 }
             }
-            sheet.captureRoboImage("src/test/snapshots/vector/contact_$size.png")
         }
+        val before = 760f / 1024f * 48f
+        assertTrue("head width $widest is more than 8% under $before", widest >= before * 0.92f)
+    }
+
+    private fun closer(pixel: Int, a: Int, b: Int): Boolean = channelDistance(pixel, a) < channelDistance(pixel, b)
+
+    private fun channelDistance(a: Int, b: Int): Int {
+        fun ch(color: Int, shift: Int) = (color shr shift) and 0xFF
+        val dr = ch(a, 16) - ch(b, 16)
+        val dg = ch(a, 8) - ch(b, 8)
+        val db = ch(a, 0) - ch(b, 0)
+        return dr * dr + dg * dg + db * db
     }
 
     private fun layerIds(recipe: EmojiSlice.Recipe, target: RenderTarget): Set<String> {
@@ -174,6 +234,20 @@ class VectorSliceSnapshotTest {
         val s = size.toFloat()
         val br = s * 0.11f
         return (s - br * 1.35f).toInt() to (s - br * 1.35f).toInt()
+    }
+
+    private data class ContactSheet(
+        val size: Int,
+        val target: RenderTarget,
+        val dark: Boolean,
+        val file: String,
+    )
+
+    companion object {
+        private const val SHIRT = 0xFF2F6FBF.toInt()
+        private const val SKIN = 0xFFFFC83D.toInt()
+        private const val DARK_GROUND = 0xFF17131B.toInt()
+        private const val LIGHT_LABEL = 0xFFEAF1F8.toInt()
     }
 
     private fun luma(color: Int): Int {

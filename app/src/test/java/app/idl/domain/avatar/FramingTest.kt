@@ -41,6 +41,11 @@ class FramingTest {
         }
     }
 
+    @Test fun `a recipe with no top wears the pack default`() {
+        val resolved = AvatarResolver(coreRegistry()).resolve(request())
+        assertTrue(resolved.layers.any { it.assetId == "top_crew_tee" })
+    }
+
     @Test fun `the render key differs when the framing differs`() {
         val resolver = AvatarResolver(coreRegistry())
         val head = resolver.resolve(request(target = RenderTarget.COMPACT_WIDGET, sizePx = 48))

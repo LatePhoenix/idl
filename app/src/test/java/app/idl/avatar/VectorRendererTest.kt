@@ -89,7 +89,13 @@ class VectorRendererTest {
         val bitmap = AvatarRenderer.bitmap(resolved, registry, VectorPictureCache { throw java.io.FileNotFoundException(it) }, 128)
         assertEquals(128, bitmap.width)
         val lines = ShadowLog.getLogs().filter { it.msg.contains("avatar.vector_missing") }
-        assertEquals(listOf("avatar.vector_missing asset=mark_test_dot"), lines.map { it.msg })
+        assertEquals(
+            listOf(
+                "avatar.vector_missing asset=mark_test_dot",
+                "avatar.vector_missing asset=top_crew_tee",
+            ),
+            lines.map { it.msg },
+        )
     }
 
     @Test fun `a test picture draws on top of the procedural avatar`() {
