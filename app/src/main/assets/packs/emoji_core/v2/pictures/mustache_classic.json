@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "mustache_classic",
-  "contentVersion": 1,
+  "contentVersion": 2,
   "viewBox": 1024,
   "parts": [
     {
@@ -10,7 +10,7 @@
       "fill": {
         "slot": "beard.primary"
       },
-      "commands": "M 400 588 C 452 548 488 572 512 608 C 536 572 572 548 624 588 C 578 618 512 632 446 618 Z"
+      "commands": "M 440 548 C 478 522 502 546 512 572 C 522 546 546 522 584 548 C 548 578 512 592 476 578 Z"
     }
   ]
 }

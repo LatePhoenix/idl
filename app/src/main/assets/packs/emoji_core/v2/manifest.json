@@ -13,7 +13,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "face.primary": "#FFC83D",
         "face.shadow": "#E0A21A",
@@ -28,71 +28,71 @@
         },
         "forehead": {
           "x": 0.5,
-          "y": 0.244141
+          "y": 0.253906
         },
         "temple_left": {
           "x": 0.185547,
-          "y": 0.351562
+          "y": 0.410156
         },
         "temple_right": {
           "x": 0.814453,
-          "y": 0.351562
+          "y": 0.410156
         },
         "eye_line": {
           "x": 0.5,
-          "y": 0.419922
+          "y": 0.410156
         },
         "ear_left": {
-          "x": 0.136719,
-          "y": 0.458984
+          "x": 0.144531,
+          "y": 0.464844
         },
         "ear_right": {
-          "x": 0.863281,
-          "y": 0.458984
+          "x": 0.855469,
+          "y": 0.464844
         },
         "nose": {
           "x": 0.5,
-          "y": 0.507812
+          "y": 0.488281
         },
         "upper_lip": {
           "x": 0.5,
-          "y": 0.595703
+          "y": 0.539062
         },
         "mouth": {
           "x": 0.5,
-          "y": 0.625
+          "y": 0.566406
         },
         "jaw_left": {
-          "x": 0.292969,
-          "y": 0.683594
+          "x": 0.283203,
+          "y": 0.742188
         },
         "jaw_right": {
-          "x": 0.707031,
-          "y": 0.683594
+          "x": 0.716797,
+          "y": 0.742188
         },
         "chin": {
           "x": 0.5,
-          "y": 0.771484
+          "y": 0.890625
         },
         "neck": {
           "x": 0.5,
-          "y": 0.908203
+          "y": 0.957031
         },
         "accessory_center": {
           "x": 0.5,
-          "y": 0.419922
+          "y": 0.410156
         },
         "face_center": {
           "x": 0.5,
-          "y": 0.46875
+          "y": 0.492188
         },
         "eyes": {
           "x": 0.5,
-          "y": 0.419922
+          "y": 0.410156
         },
         "prop_hand": {
-          "x": 0.175781,
-          "y": 0.957031
+          "x": 0.332031,
+          "y": 0.966797
         },
         "body": {
           "x": 0.5,
@@ -100,10 +100,10 @@
         }
       },
       "faceSafeZone": {
-        "left": 0.273438,
+        "left": 0.292969,
         "top": 0.244141,
-        "right": 0.726562,
-        "bottom": 0.800781
+        "right": 0.707031,
+        "bottom": 0.664062
       }
     },
     {
@@ -116,7 +116,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "eye.iris": "#3B2A1A"
       },
@@ -134,7 +134,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "eye.iris": "#3B2A1A"
       },
@@ -152,7 +152,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "hair.primary": "#5B3A29"
       },
@@ -170,7 +170,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "mouth": "#6B2E1F"
       },
@@ -188,7 +188,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "mouth": "#6B2E1F"
       },
@@ -226,7 +226,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "hair.primary": "#5B3A29",
         "hair.shadow": "#3E271B",
@@ -246,7 +246,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "hair.primary": "#5B3A29",
         "hair.shadow": "#3E271B",
@@ -266,7 +266,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "beard.primary": "#5B3A29"
       },
@@ -284,7 +284,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "beard.primary": "#5B3A29"
       },
@@ -302,7 +302,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 1,
+      "contentVersion": 2,
       "colorSlots": {
         "beard.primary": "#5B3A29"
       },
@@ -320,7 +320,7 @@
       },
       "collection": "emoji_core",
       "license": "proprietary-idl",
-      "contentVersion": 2,
+      "contentVersion": 3,
       "colorSlots": {
         "glasses.frame": "#2B2B2B",
         "glasses.lens": "#6FA8DC"

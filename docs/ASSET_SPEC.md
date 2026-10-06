@@ -48,6 +48,14 @@ Every vector asset is normalized to a **1024×1024** logical canvas with a requi
 
 `zBand` is one of 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110. Bands at 200 and above are rejected on a part.
 
+### Teardrop geometry (D-45)
+
+`base_teardrop` is the brand mark's teardrop, not a separately drawn head. The 108-unit path and the map onto this grid live in `config/teardrop_silhouette.json`:
+
+x' = 512 + (x − 54) · 760/54, y' = 96 + (y − 26) · 760/54.
+
+`tools/gen_teardrop_base.py` writes the picture from that file. The face part is the mapped path (crown y 96, widest 132–892 at y 476, chin bottom y 912). The outline is the same path offset inward 36 units, filled even-odd. Until the body lands (AP-3), a temporary neck part on band 40 is drawn before the face: apex y 840, 200 wide, so the rounded chin covers its top. Measured spans of the face, for placing features: y 430 → about 135–889, y 600 → about 156–868, y 700 → about 215–809, y 800 → about 313–711, y 870 → about 399–625. The eye line is y 420 and the mouth is y 580.
+
 A missing slot falls back to the recipe override, then a derived shadow or highlight, then the asset's default color, then the neutral `#FF9E9E9E`. It does not fall back to black silence.
 
 ## 2. Manifest entry

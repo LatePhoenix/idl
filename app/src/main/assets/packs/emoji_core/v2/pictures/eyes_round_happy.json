@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "eyes_round_happy",
-  "contentVersion": 2,
+  "contentVersion": 3,
   "viewBox": 1024,
   "parts": [
     {
@@ -10,7 +10,7 @@
       "fill": {
         "slot": "eye.iris"
       },
-      "commands": "M 308 430 C 346 366 414 366 452 430 C 416 408 344 408 308 430 Z M 572 430 C 610 366 678 366 716 430 C 680 408 608 408 572 430 Z"
+      "commands": "M 303 420 C 341 356 409 356 447 420 C 411 398 339 398 303 420 Z M 578 420 C 616 356 684 356 722 420 C 686 398 614 398 578 420 Z"
     }
   ]
 }

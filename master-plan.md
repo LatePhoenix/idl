@@ -533,6 +533,7 @@ blocks merging; feedback becomes a new fix item.
 
 | Date | Item | What to look at | User verdict |
 | --- | --- | --- | --- |
+| 2026-10-06 | AP-1 | Brand head vs the old base and the launcher, at 512 and 48: `docs/handoff/reports/screenshots/ap-1-compare-512.png`, `ap-1-compare-48.png`. Hair and facial hair on the new chin: `ap-1-contact-512.png`, `ap-1-contact-48.png`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -820,7 +821,7 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-49). The most relevant t
   first, on-device ones may come before the real backend (2026-10-05, user; amends D-38)
 - **D-44** Launcher icon R1 (leaning "i" whose dot is the winking teardrop face, cream tile) and
   wordmark W1; art in `docs/art/brand/` (2026-10-05, user)
-- **D-45** The avatar head is the brand teardrop, from `config/teardrop_silhouette.json` (2026-10-05, user)
+- **D-45** The avatar head is the brand teardrop, from `config/teardrop_silhouette.json` (2026-10-05, user). On the 1024 grid: crown y 96, widest 132–892 at y 476, chin bottom y 912. Eye line y 420, mouth y 580. The neck is a separate part behind the chin.
 - **D-46** Teardrop is the only avatar base; other families and legacy bases retire to it (2026-10-06, user)
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
@@ -1094,3 +1095,4 @@ win once Track 0 is done.
 | 2026-10-06 | Claude | Splash screen shows the W1 wordmark: Android 12+ splash icon (`values-v31`) and an Android 8–11 launch theme, light and dark; `MainActivity` switches to `Theme.Idl` before drawing. 227 JVM, lint 0/42, checked on `emulator-5554` (API 37) | `docs/handoff/reports/2026-10-06-splash-wordmark.md`, branch `brand/splash-wordmark` |
 | 2026-10-06 | Claude | Onboarding shows the W1 wordmark instead of "iDL" text: new generated `wordmark.xml` (cropped, light/dark colors), `InlineWordmarkTest`. 230 JVM, lint 0/42, checked on `emulator-5554` (API 37) | `docs/handoff/reports/2026-10-06-onboarding-wordmark.md`, branch `brand/onboarding-wordmark` |
 | 2026-10-06 | User/Claude | Avatar program planned: `docs/avatar/AVATAR_PROGRAM.md` (AP-1…AP-16), `ART_STYLE_GUIDE.md`, `docs/handoff/CURSOR_RUNBOOK.md`; Cursor rules and PR template updated; D-45…D-49 recorded; Q14 and Q15 answered | branch `docs/avatar-program` |
+| 2026-10-06 | Cursor | AP-1: the avatar head is the brand teardrop. 234 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-1-brand-silhouette.md` |
