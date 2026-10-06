@@ -6,11 +6,17 @@ alwaysApply: true
 Follow `AGENTS.md` at the repo root. It holds the invariants, commands, conventions and the
 required checkpoint report.
 
-The current task spec is `docs/handoff/PHASE_1_TASK.md`; follow it exactly and record any
-deviation in the report.
+**Current work: the avatar program.** Implement `docs/avatar/AVATAR_PROGRAM.md` from start to
+finish, one item at a time, following `docs/handoff/CURSOR_RUNBOOK.md` exactly (D-49). The next
+item is the first ⬜ row in the program's §5 status table whose dependencies are all ✅. At the
+start of every session, run the runbook's §1 steps before anything else.
 
-Before every commit, run `scripts/check.sh` and make sure it passes. Never weaken or delete a
-test to make it pass.
+You may open, self-review and merge your own pull requests under runbook §6. Stop only for the
+conditions in runbook §7, and stop the way §7 describes.
 
-Don't add dependencies, change `supabase/migrations/`, or change `contract/privacy_vectors.json`
-by hand unless the task says to.
+Before every commit, run `scripts/check.sh` (or `scripts/check.ps1`) and make sure it passes.
+Never weaken, skip or delete a test to make it pass.
+
+Don't add dependencies, edit merged `supabase/migrations/` files, or change
+`contract/privacy_vectors.json` by hand. Don't reopen a recorded decision in
+`docs/IDL_DECISIONS.md`.

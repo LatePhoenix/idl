@@ -6,7 +6,9 @@
 
 Last full review: **2026-10-05 by Claude** (everything through `origin/main` `7a175a6`, PR #23).
 
-**Next work: see §4.0 "Next up".** The current focus is the Avatar program (§4.1, D-41/D-42).
+**Next work: the avatar program, [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md)
+§5,** run by Cursor on its own under [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md)
+(D-49). §4.0 below points there.
 
 ---
 
@@ -48,7 +50,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `7a175a6` (merge of PR #23, Phase 2 PR C). Start new work from here |
+| `origin/main` | `5e84e57` (merge of PR #30, 2026-10-06). Start new work from an up-to-date `origin/main` |
 | Open PRs | None |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job |
@@ -102,6 +104,10 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` | D-39 emoji-style compositor. Design only; does not replace the rows above |
 | `docs/handoff/PHASE_1_TASK.md` | Avatar Phase 1 spec (done) |
 | `docs/handoff/PHASE_2_TASK.md` | Avatar Phase 2 spec: vector renderer core, D-39 slice (ROADMAP steps 3–5, 8) |
+| `docs/avatar/AVATAR_PROGRAM.md` | **The avatar program (plan of record, 2026-10-06):** vision, architecture, testing, status table AP-1…AP-16, specs |
+| `docs/avatar/ART_STYLE_GUIDE.md` | Binding rules for avatar art |
+| `docs/handoff/CURSOR_RUNBOOK.md` | How Cursor runs the program on its own: session start, branches, checks, PRs, CI, merging, stop conditions (D-49) |
+| `docs/art/brand/` | Launcher icon, wordmark, splash and Play icon sources and generator (D-44) |
 | `supabase/README.md` | Server: security model, local tests, real-project setup |
 | `docs/IDL_IMPLEMENTATION_ROADMAP.md` | **Superseded by this file**; kept for history |
 
@@ -504,20 +510,29 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
-Take the first item that's ready. Update this table when an item finishes or a new one is ready.
+**The avatar program is the work queue.** Take the next item from the status table in
+[`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
+dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
+Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
+the program is done or the user schedules them.
 
-| # | Item | Ready? | Notes |
-| --- | --- | --- | --- |
-| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Done (PR #27) | F-30 closed with it. Next ready item is N.2 |
-| N.2 | **F-31** pack directory per asset | ✅ Ready. The finding has its fix and verify steps | Small. Can run alongside N.1 on its own branch |
-| N.3 | **AV.3 Expression catalog** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.3 | Data and review only, no art. Its output drives AV.5 |
-| N.4 | **Answer Q14 and Q15** (§6) | ⏸ user | Q15 (how much body shows for shirts) is needed before tops (AV.7) |
-| N.5 | **AV.4 Schema 3 saved everywhere** (D-41, Avatar Phase 3 core) | Spec needed (`docs/handoff/AV4_SCHEMA3_PERSIST_TASK.md`; ask Claude) | Room migration, server migration, `presence_view` v2, golden vectors |
-| N.6 | **AV.6 Editor and export** | Spec needed, after AV.4 | The customization screen |
-| N.7 | **I.0 Integration research** (§4.2) | Ask Claude | Produces `docs/INTEGRATIONS_RESEARCH.md`; decides I.1 and I.2 |
-| N.8 | **U.1 Thought bubbles** | Spec needed | Unchanged; slots in when the avatar work allows |
+Mapping from the old queue: N.1 AV.2 ✅ (PR #27) · N.2 F-31 → AP-2 · N.3 AV.3 → AP-5 ·
+N.4 Q14/Q15 answered (D-47, D-48) · N.5 AV.4 → AP-7 · N.6 AV.6 → AP-11 · N.7 I.0 and N.8 U.1 wait.
 
 ### 4.1 Avatar program (D-41, D-42): the bread and butter
+
+> **Superseded as the to-do list on 2026-10-06** by [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md)
+> (AP-1…AP-16). The AV table and specs below stay for history and are cited by the program
+> (AP-5 uses the AV.3 spec). AV.3 → AP-5, AV.4 → AP-7, AV.5 → AP-6 and AP-13, AV.6 → AP-11,
+> AV.7 → AP-15, AV.8 → AP-12, AV.9 → partly AP-9, the rest later.
+
+#### User review queue (asynchronous, D-49)
+
+Cursor adds a row for every visual it ships. The user reviews when convenient. A row never
+blocks merging; feedback becomes a new fix item.
+
+| Date | Item | What to look at | User verdict |
+| --- | --- | --- | --- |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -765,7 +780,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-44). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-49). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -805,6 +820,11 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-44). The most relevant t
   first, on-device ones may come before the real backend (2026-10-05, user; amends D-38)
 - **D-44** Launcher icon R1 (leaning "i" whose dot is the winking teardrop face, cream tile) and
   wordmark W1; art in `docs/art/brand/` (2026-10-05, user)
+- **D-45** The avatar head is the brand teardrop, from `config/teardrop_silhouette.json` (2026-10-05, user)
+- **D-46** Teardrop is the only avatar base; other families and legacy bases retire to it (2026-10-06, user)
+- **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
+- **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
+- **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
 
 ---
 
@@ -832,6 +852,8 @@ Answered 2026-10-04 (feature ideas, §7.1):
 | Q10 Platform account connections? | **Hold off** for now. Reopened for exploration 2026-10-05 | D-38, D-43 |
 | Q12 How does the editor save? | **(a)** schema 3 everywhere, now (2026-10-05) | D-41, AV.4 |
 | Q13 Redraw the hair? | **Yes**, on the new teardrop base (2026-10-05) | D-42, AV.2 |
+| Q14 What is always free? | **The generous baseline** Claude recommended (2026-10-06) | D-48 |
+| Q15 How much body shows, for shirts? | **(c)** bust in the app, head and collar on widgets (2026-10-06) | D-47 |
 
 Open:
 
@@ -839,24 +861,6 @@ Open:
     communicate from that friend? Until decided, it keeps opening the friend profile.
     Ideas to consider: their latest reaction to you, their bubble or note, a "they're
     around" prompt, or a quick-react sheet.
-
-14. **What is always free?** D-42 makes customization the core, and D-30 lets Charge buy
-    cosmetics. Claude recommends a free baseline that's never sold:
-    - every skin color and the color picker
-    - every expression (invariant 6)
-    - at least 10 hairstyles across hair textures
-    - basic facial hair, glasses and tops
-    - plain backgrounds and frames
-
-    Charge then buys extras: themed hats, jewelry, patterns, special backgrounds and effects.
-    Yes, or a different line?
-15. **How much body shows, for shirts?** Tops need something below the neck, but every pixel
-    of body makes the face smaller at 48 px. Options:
-    - (a) collar and shoulder hint only: the face stays large, and tops read as a collar
-    - (b) a head-and-shoulders bust: tops read clearly, and the face is about 20% smaller
-    - (c) both: a bust at large sizes, cropped to the collar at widget size
-
-    Claude recommends (c).
 
 Add new questions here as they come up.
 
@@ -1089,3 +1093,4 @@ win once Track 0 is done.
 | 2026-10-06 | Claude | Play Store icon: `docs/art/brand/playstore-icon-512.png`, rendered from the launcher drawables; `LauncherIconSnapshotTest` fails if it goes stale (`-Pidl.updateGolden=true` refreshes it) | `docs/handoff/reports/2026-10-06-playstore-icon.md`, branch `brand/playstore-icon` |
 | 2026-10-06 | Claude | Splash screen shows the W1 wordmark: Android 12+ splash icon (`values-v31`) and an Android 8–11 launch theme, light and dark; `MainActivity` switches to `Theme.Idl` before drawing. 227 JVM, lint 0/42, checked on `emulator-5554` (API 37) | `docs/handoff/reports/2026-10-06-splash-wordmark.md`, branch `brand/splash-wordmark` |
 | 2026-10-06 | Claude | Onboarding shows the W1 wordmark instead of "iDL" text: new generated `wordmark.xml` (cropped, light/dark colors), `InlineWordmarkTest`. 230 JVM, lint 0/42, checked on `emulator-5554` (API 37) | `docs/handoff/reports/2026-10-06-onboarding-wordmark.md`, branch `brand/onboarding-wordmark` |
+| 2026-10-06 | User/Claude | Avatar program planned: `docs/avatar/AVATAR_PROGRAM.md` (AP-1…AP-16), `ART_STYLE_GUIDE.md`, `docs/handoff/CURSOR_RUNBOOK.md`; Cursor rules and PR template updated; D-45…D-49 recorded; Q14 and Q15 answered | branch `docs/avatar-program` |

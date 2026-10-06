@@ -11,10 +11,13 @@ are already made. **Do not reopen a recorded decision without asking the user.**
 audit findings (F-xx) in priority order, the roadmap, open questions and the work log. Start
 there, follow its §0 "How to use", and update it when you finish an item.
 
-Right now: **take the first ready item in `master-plan.md` §4.0 "Next up".** Track 0 is done.
-Don't start an item marked "spec needed" until its spec is in `docs/handoff/`. Avatar specs are
-`docs/IDL_AVATAR_CREATOR_PLAN.md` (phases) and `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
-(requirements, cited as §n).
+Right now: **the avatar program.** Implement [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md)
+item by item (its §5 status table), following
+[`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md). The runbook covers session
+start, branching, checks, self-review, PRs, CI, merging your own PRs, and when to stop (D-49).
+Art follows [`docs/avatar/ART_STYLE_GUIDE.md`](docs/avatar/ART_STYLE_GUIDE.md). Older avatar
+specs (`docs/IDL_AVATAR_CREATOR_PLAN.md` phases, `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
+requirements cited as §n) are background. Where they differ, the program wins.
 
 Branching: start each item from an up-to-date `origin/main` on its own branch, commit in small
 reviewable steps, and open a PR. Visual or widget changes need a device screenshot or a snapshot
