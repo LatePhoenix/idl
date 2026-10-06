@@ -478,7 +478,7 @@ in one PR.
 - **Verify:** the new goldens plus layer assertions. Required before the widget cutover (ROADMAP step 10).
 - **Done in AV.2.** Compact (48 px) and standard (96 px) goldens are under `app/src/test/snapshots/vector/widget/`. Targets come from `WidgetRenderInputs.targetFor`. The vector identity layers stay; `overlay_blush` drops because it is decoration. PROFILE goldens remain.
 
-#### F-31 · Picture files are found by trying each pack directory · ⬜ P3 (from PR #22)
+#### F-31 · Picture files are found by trying each pack directory · ✅ P3 (from PR #22)
 - `AppContainer.vectorPictures` reads `render.file` by trying every `AssetPacks.SHIPPED` directory
   in order. If two packs ship the same relative file, the first pack wins and the wrong picture
   loads (it then fails validation and the layer is skipped). Safe today, because picture files
@@ -487,6 +487,7 @@ in one PR.
   `<packDir>/<render.file>`. Keep the domain Android-free: the registry stores the path string, and
   `AppContainer` still opens the file.
 - **Verify:** a JVM test with two packs that ship the same relative file name loads each pack's own picture.
+- **Done in AP-2.** `AssetRegistry` records each manifest's directory. `VectorPictureCache` opens `<directory><render.file>`. `PackPictureCacheTest` loads both pictures.
 
 ---
 
@@ -1096,3 +1097,4 @@ win once Track 0 is done.
 | 2026-10-06 | Claude | Onboarding shows the W1 wordmark instead of "iDL" text: new generated `wordmark.xml` (cropped, light/dark colors), `InlineWordmarkTest`. 230 JVM, lint 0/42, checked on `emulator-5554` (API 37) | `docs/handoff/reports/2026-10-06-onboarding-wordmark.md`, branch `brand/onboarding-wordmark` |
 | 2026-10-06 | User/Claude | Avatar program planned: `docs/avatar/AVATAR_PROGRAM.md` (AP-1…AP-16), `ART_STYLE_GUIDE.md`, `docs/handoff/CURSOR_RUNBOOK.md`; Cursor rules and PR template updated; D-45…D-49 recorded; Q14 and Q15 answered | branch `docs/avatar-program` |
 | 2026-10-06 | Cursor | AP-1: the avatar head is the brand teardrop. 234 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-1-brand-silhouette.md` |
+| 2026-10-06 | Cursor | AP-2: each picture loads from its own pack directory (F-31). 235 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-2-pack-dirs.md` |
