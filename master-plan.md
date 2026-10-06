@@ -462,7 +462,7 @@ in one PR.
   `AvatarConfiguration` becomes the persisted format (vector editor, `docs/ROADMAP.md` step 6).
   The editor must show the `NeedsAppUpdate` message instead of saving.
 
-#### F-30 · Vector slice snapshots don't use widget targets · ⬜ P2 (from PR #23)
+#### F-30 · Vector slice snapshots don't use widget targets · ✅ P2 (from PR #23, fixed in AV.2)
 - `EmojiSlice` renders 48, 128 and 512 px with `RenderTarget.PROFILE`. The 48 px goldens
   therefore skip compact-widget simplification (`minSizePx`, `widgetSafe`, badge-versus-prop), so
   nothing yet shows what a small widget would drop from the vector slice.
@@ -470,6 +470,7 @@ in one PR.
   `STANDARD_WIDGET` (96 px), with targets chosen through `WidgetRenderInputs.targetFor`. Assert
   which vector layers survive at each target, and record goldens. Keep the existing PROFILE goldens.
 - **Verify:** the new goldens plus layer assertions. Required before the widget cutover (ROADMAP step 10).
+- **Done in AV.2.** Compact (48 px) and standard (96 px) goldens are under `app/src/test/snapshots/vector/widget/`. Targets come from `WidgetRenderInputs.targetFor`. The vector identity layers stay; `overlay_blush` drops because it is decoration. PROFILE goldens remain.
 
 #### F-31 · Picture files are found by trying each pack directory · ⬜ P3 (from PR #22)
 - `AppContainer.vectorPictures` reads `render.file` by trying every `AssetPacks.SHIPPED` directory
@@ -507,7 +508,7 @@ Take the first item that's ready. Update this table when an item finishes or a n
 
 | # | Item | Ready? | Notes |
 | --- | --- | --- | --- |
-| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.2 | First visible step of D-42. Includes F-30 |
+| N.1 | **AV.2 Teardrop base and hair redraw** (§4.1) | ✅ Done (PR #27) | F-30 closed with it. Next ready item is N.2 |
 | N.2 | **F-31** pack directory per asset | ✅ Ready. The finding has its fix and verify steps | Small. Can run alongside N.1 on its own branch |
 | N.3 | **AV.3 Expression catalog** (§4.1) | ✅ Ready. The task spec is in §4.1 under AV.3 | Data and review only, no art. Its output drives AV.5 |
 | N.4 | **Answer Q14 and Q15** (§6) | ⏸ user | Q15 (how much body shows for shirts) is needed before tops (AV.7) |
@@ -525,7 +526,7 @@ format from Phase 2 stay (D-39). Every item ships original art (`license: propri
 | # | Item | Status | Depends on | Notes |
 | --- | --- | --- | --- | --- |
 | AV.1 | Decisions and design docs: D-41, D-42, D-43; scope file; ROADMAP, ARCHITECTURE and LICENSING notes | ✅ | | Done by Claude, 2026-10-05 |
-| AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ⬜ | | Spec below |
+| AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ✅ | | `emoji_core` v2. Report `docs/handoff/reports/2026-10-05-teardrop-base.md` |
 | AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ⬜ | | Spec below |
 | AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ⬜ | | Spec needed. Contract changes once |
 | AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Each batch: goldens at 48 / 96 / 512 and a contact sheet; free forever (invariant 6) |
@@ -1083,4 +1084,5 @@ win once Track 0 is done.
 | 2026-10-04 | Claude | Audit of PR #23 (Phase 2 PR C): acceptance met; 216 JVM, 21/21 device; follow-ups: compact-target slice snapshots before the widget cutover, and the hair art reads as a hood at small sizes | PR #23 |
 | 2026-10-05 | Claude | Merged PR #23. Phase 2 vector core done (PRs #21–#23). Plan refreshed for handoff: §4.0 Next up, F-30 and F-31 added, F-16 and F-17 closed, F-09 status, Q12 (editor persistence) and Q13 (hair art) opened | `7a175a6` |
 | 2026-10-05 | Claude | Avatar vision recorded: D-41 (schema 3 saved everywhere), D-42 (original teardrop face, every smiley emotion, maximum customization, no Noto), D-43 (integrations exploration). New §4.1 Avatar program with AV.2 and AV.3 specs, §4.2 Integrations, §4.3 account customization; Next up rewritten; Q14 and Q15 opened; scope file adds face-hand | this PR |
+| 2026-10-05 | Cursor | AV.2: teardrop base and hair redraw in `emoji_core` v2. Procedural goldens unchanged. 220 JVM, 21/21 device, lint 0/42. F-30 ✅ | `b49afe0`, PR #27, `docs/handoff/reports/2026-10-05-teardrop-base.md` |
 | 2026-10-05 | Claude | Brand: launcher icon R1 and wordmark W1 chosen (D-44). New adaptive foreground, cut-out monochrome layer, cream background; SVG masters and generator in `docs/art/brand/`; `LauncherIconSnapshotTest` with 4 goldens | `docs/handoff/reports/2026-10-05-launcher-icon.md`, branch `brand/launcher-icon` |

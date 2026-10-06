@@ -6,12 +6,12 @@ package app.idl.domain.avatar
  */
 object AssetPacks {
     /**
-     * `core_proto` stays first so its defaults win. Adding `emoji_core` changes every render key
-     * once, because the pack list is part of the key. Procedural pixels stay the same.
+     * `core_proto` stays first so its defaults win. The pack version is part of the render key,
+     * so moving `emoji_core` to v2 rebuilds caches once. Procedural pixels stay the same.
      */
     val SHIPPED = listOf(
         "packs/core_proto/v1/manifest.json",
-        "packs/emoji_core/v1/manifest.json",
+        "packs/emoji_core/v2/manifest.json",
     )
 
     fun registry(read: (path: String) -> String): AssetRegistry =

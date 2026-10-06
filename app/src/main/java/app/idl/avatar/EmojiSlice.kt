@@ -12,11 +12,11 @@ import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.VisiblePresence
 
 /**
- * The fixed `emoji_core` recipes from the vector-slice spec. Other expressions on
- * `base_round_face` keep the procedural parts; only neutral and happy are overridden.
+ * Fixed `emoji_core` recipes on the teardrop base. Other expressions keep the procedural
+ * parts; only neutral and happy are overridden.
  */
 object EmojiSlice {
-    const val BASE = "base_round_face"
+    const val BASE = "base_teardrop"
     val sizes = listOf(48, 128, 512)
 
     data class Recipe(
@@ -27,17 +27,22 @@ object EmojiSlice {
         val presence: VisiblePresence = VisiblePresence.NONE,
     )
 
-    private val hair = mapOf("hair" to listOf("hair_round_bob"))
-    private val beard = hair + ("facial_hair" to listOf("beard_round_full"))
-    private val glasses = beard + ("face_accessory" to listOf("glasses_round_wire"))
     private val happy = VisiblePresence(mood = Mood.HAPPY)
+    private fun hair(style: String) = mapOf("hair" to listOf(style))
+    private val bob = hair("hair_bob")
+    private val beard = bob + ("facial_hair" to listOf("beard_full"))
+    private val glasses = beard + ("face_accessory" to listOf("glasses_round_wire"))
 
     val recipes = listOf(
         Recipe("neutral", "Bare face, neutral"),
         Recipe("happy", "Happy", presence = happy),
-        Recipe("hair", "Plus hair", items = hair, presence = happy),
-        Recipe("beard", "Plus beard", items = beard, presence = happy),
-        Recipe("glasses", "Plus glasses", items = glasses, presence = happy),
+        Recipe("short", "Short crop", items = hair("hair_short_crop"), presence = happy),
+        Recipe("hair", "Bob", items = bob, presence = happy),
+        Recipe("long", "Long straight", items = hair("hair_long_straight"), presence = happy),
+        Recipe("beard", "Full beard", items = beard, presence = happy),
+        Recipe("stubble", "Stubble", items = hair("hair_short_crop") + ("facial_hair" to listOf("stubble")), presence = happy),
+        Recipe("mustache", "Mustache", items = hair("hair_long_straight") + ("facial_hair" to listOf("mustache_classic")), presence = happy),
+        Recipe("glasses", "Glasses", items = glasses, presence = happy),
         Recipe("scene", "Soft scene", items = glasses, scene = "scene_round_soft", presence = happy),
         Recipe(
             "busy",
@@ -69,10 +74,16 @@ object EmojiSlice {
         unlinkedSlots = if (unlinkShadow) listOf("hair.shadow") else emptyList(),
     )
 
-    fun request(recipe: Recipe, sizePx: Int, hairPrimary: String? = null, unlinkShadow: Boolean = false) = AvatarRenderRequest(
+    fun request(
+        recipe: Recipe,
+        sizePx: Int,
+        hairPrimary: String? = null,
+        unlinkShadow: Boolean = false,
+        target: RenderTarget = RenderTarget.PROFILE,
+    ) = AvatarRenderRequest(
         configuration = configuration(recipe, hairPrimary, unlinkShadow),
         presence = recipe.presence,
-        target = RenderTarget.PROFILE,
+        target = target,
         sizePx = sizePx,
     )
 
@@ -83,8 +94,9 @@ object EmojiSlice {
         sizePx: Int,
         hairPrimary: String? = null,
         unlinkShadow: Boolean = false,
+        target: RenderTarget = RenderTarget.PROFILE,
     ): Bitmap {
-        val resolved = AvatarResolver(registry).resolve(request(recipe, sizePx, hairPrimary, unlinkShadow))
+        val resolved = AvatarResolver(registry).resolve(request(recipe, sizePx, hairPrimary, unlinkShadow, target))
         return AvatarRenderer.bitmap(resolved, registry, pictures, sizePx)
     }
 }
