@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import app.idl.AppContainer
 import app.idl.avatar.EmojiSlice
+import app.idl.domain.avatar.RenderTarget
 import app.idl.ui.components.ChoiceChips
 import app.idl.ui.components.IdlTopBar
 import app.idl.ui.components.SectionTitle
@@ -91,7 +92,10 @@ fun VectorSliceScreen(c: AppContainer, onBack: () -> Unit) {
                 ) {
                     row.bitmaps.forEach { (size, bitmap) ->
                         Column {
-                            Text("${size} px", style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                "$size px · ${if (size == 512) "bust" else "head"}",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
                             val side = with(LocalDensity.current) { bitmap.width.toDp() }
                             Image(
                                 bitmap.asImageBitmap(),
@@ -118,7 +122,12 @@ private fun render(c: AppContainer, hair: String, unlinkShadow: Boolean): Render
     val rows = EmojiSlice.recipes.map { recipe ->
         val bitmaps = EmojiSlice.sizes.map { size ->
             val started = if (size == 512) SystemClock.elapsedRealtimeNanos() else 0L
-            val bitmap = EmojiSlice.bitmap(registry, pictures, recipe, size, hair, unlinkShadow)
+            val target = when (size) {
+                48 -> RenderTarget.COMPACT_WIDGET
+                128 -> RenderTarget.LARGE_WIDGET
+                else -> RenderTarget.PROFILE
+            }
+            val bitmap = EmojiSlice.bitmap(registry, pictures, recipe, size, hair, unlinkShadow, target)
             if (size == 512) renderMs = (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000
             size to bitmap
         }

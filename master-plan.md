@@ -535,6 +535,7 @@ blocks merging; feedback becomes a new fix item.
 | Date | Item | What to look at | User verdict |
 | --- | --- | --- | --- |
 | 2026-10-06 | AP-1 | Brand head vs the old base and the launcher, at 512 and 48: `docs/handoff/reports/screenshots/ap-1-compare-512.png`, `ap-1-compare-48.png`. Hair and facial hair on the new chin: `ap-1-contact-512.png`, `ap-1-contact-48.png`. | |
+| 2026-10-06 | AP-3 framing | Bust at 512 and head at widget size, before the body is drawn: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `vector/widget/neutral_compact.png`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -1098,3 +1099,4 @@ win once Track 0 is done.
 | 2026-10-06 | User/Claude | Avatar program planned: `docs/avatar/AVATAR_PROGRAM.md` (AP-1…AP-16), `ART_STYLE_GUIDE.md`, `docs/handoff/CURSOR_RUNBOOK.md`; Cursor rules and PR template updated; D-45…D-49 recorded; Q14 and Q15 answered | branch `docs/avatar-program` |
 | 2026-10-06 | Cursor | AP-1: the avatar head is the brand teardrop. 234 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-1-brand-silhouette.md` |
 | 2026-10-06 | Cursor | AP-2: each picture loads from its own pack directory (F-31). 235 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-2-pack-dirs.md` |
+| 2026-10-06 | Cursor | AP-3 framing: head and bust viewports, body bands. Body art is the next PR. 241 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-3-framing.md` |

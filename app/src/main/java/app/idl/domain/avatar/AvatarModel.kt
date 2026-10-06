@@ -209,17 +209,33 @@ enum class MotionPreference {
     object Serializer : WireEnumSerializer<MotionPreference>("MotionPreference", entries, SUBTLE)
 }
 
+/**
+ * How much of the character the output square shows (D-47).
+ * [originX], [originY] and [size] are in character space. The renderer maps that viewport onto
+ * the output square.
+ */
+enum class Framing(val originX: Float, val originY: Float, val size: Float) {
+    HEAD(-40f, 0f, 1104f),
+    BUST(-128f, 32f, 1280f);
+
+    /** Character-space point to output pixels. */
+    fun toOutput(x: Float, y: Float, sizePx: Float): Pair<Float, Float> {
+        val scale = sizePx / size
+        return (x - originX) * scale to (y - originY) * scale
+    }
+}
+
 /** Where a render is shown (§12.4); each target has its own simplification policy. */
 @Serializable(with = RenderTarget.Serializer::class)
-enum class RenderTarget(val defaultSizePx: Int) {
-    COMPACT_WIDGET(48),
-    FRIEND_TILE(64),
-    STANDARD_WIDGET(96),
-    LARGE_WIDGET(128),
-    CIRCLE_WIDGET(48),
-    NOTIFICATION(64),
-    PROFILE(256),
-    SHARE_CARD(512);
+enum class RenderTarget(val defaultSizePx: Int, val framing: Framing) {
+    COMPACT_WIDGET(48, Framing.HEAD),
+    FRIEND_TILE(64, Framing.HEAD),
+    STANDARD_WIDGET(96, Framing.HEAD),
+    LARGE_WIDGET(128, Framing.HEAD),
+    CIRCLE_WIDGET(48, Framing.HEAD),
+    NOTIFICATION(64, Framing.HEAD),
+    PROFILE(256, Framing.BUST),
+    SHARE_CARD(512, Framing.BUST);
 
     object Serializer : WireEnumSerializer<RenderTarget>("RenderTarget", entries, PROFILE)
 }
