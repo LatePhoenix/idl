@@ -52,4 +52,5 @@ A registry built by appending a manifest onto `coreRegistry().manifests` does no
 
 ```
 39ba1b7 Load each picture from its own pack directory so a shared file name cannot cross packs.
+f11e176 Record the AP-2 checkpoint and mark the pack-directory fix done.
 ```
