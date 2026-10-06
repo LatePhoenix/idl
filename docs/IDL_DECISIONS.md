@@ -251,6 +251,50 @@ survive Android 13+ tinting. Trade-off accepted: the cream tile has little edge 
 light wallpapers (a plum tile was offered and declined). Chosen over Gemini output, after two
 rounds of concepts drawn by Claude.
 
+**D-45 · The avatar head is the brand teardrop (user, 2026-10-05).** The avatar base silhouette
+is the teardrop from the launcher icon and wordmark (D-44), stored once in
+`config/teardrop_silhouette.json`. `docs/art/brand/gen_brand.py` and the avatar pack both read
+it, and a test fails if the avatar outline drifts from it by more than 2 units on the 1024 grid.
+The neck is a separate body part drawn behind the rounded chin.
+
+**D-46 · Teardrop is the only avatar base (user, 2026-10-06; amends D-29 and `docs/ARCHITECTURE.md` §4).**
+There are no other head families: the cat, monkey, robot, skull, fantasy and special families are
+dropped, and so are the procedural blob, bot, ghost, critter and orb bases in the creator.
+Customization happens on top of the one shape (colors, hair, facial hair, eyewear, headwear,
+jewelry, clothes, props, backgrounds, frames). Saved avatars with the old base ids are retired to
+`base_teardrop` (invariant 5 still holds: they load and render, with a different head). There
+are no real users yet, only demo data. Costume heads and masks may come back later as
+accessories, never as another base.
+
+**D-47 · Bust in the app, head and collar on widgets (user, 2026-10-06; answers Q15 = c).** The
+avatar has a body (neck, shoulders, torso) so clothes can be worn under the head. Each render
+target picks a framing: widgets (`COMPACT_WIDGET`, `CIRCLE_WIDGET`, `FRIEND_TILE`,
+`STANDARD_WIDGET`, `LARGE_WIDGET`, `NOTIFICATION`) use **head framing**, which crops to the head
+plus the collar so the face stays large. `PROFILE`, `SHARE_CARD`, the editor and export use
+**bust framing** (head and shoulders, face about 20% smaller). The geometry is in
+`docs/avatar/AVATAR_PROGRAM.md` §3.3.
+
+**D-48 · A generous free baseline (user, 2026-10-06; answers Q14).** These are free forever and
+are never sold for Charge:
+- every expression (invariant 6)
+- every color, including skin, hair, highlight, eye and clothing colors and the custom color picker
+- at least 12 hairstyles across hair textures (straight, wavy, curly, coily, locs or braids, short, long, bald)
+- basic facial hair, glasses, shirts and tops, and plain backgrounds and frames
+- the core semantic props (coffee, controller, VR headset, blanket, book, phone)
+
+Charge buys extras only: themed headwear, jewelry, patterned and special clothes, special
+backgrounds and frames, seasonal collections. A pack test enforces the baseline. Until the
+server ledger exists (C.3, F-04), premium items can be previewed but not saved, except through
+a debug-only unlock.
+
+**D-49 · Cursor runs the avatar program autonomously (user, 2026-10-06).** Cursor implements
+`docs/avatar/AVATAR_PROGRAM.md` from start to finish following `docs/handoff/CURSOR_RUNBOOK.md`.
+It merges its own pull request when `scripts/check.sh` passes, CI is green, its self-review
+checklist is complete and every review comment is resolved. It stops only for the conditions
+the runbook lists (a needed decision, a new dependency, a failure it can't fix). Art review by
+the user is asynchronous: contact sheets go in each PR and in the master-plan review queue, and
+they don't block merging.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

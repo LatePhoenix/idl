@@ -1,0 +1,23 @@
+---
+description: Avatar art, packs and rendering rules
+globs: app/src/main/assets/packs/**,art/**,tools/**,app/src/main/java/app/idl/avatar/**,app/src/main/java/app/idl/domain/avatar/**,config/**,docs/avatar/**
+alwaysApply: false
+---
+
+- One head only: `base_teardrop`, generated from `config/teardrop_silhouette.json` (D-45, D-46).
+  Never draw or add another base or head family.
+- Original art only (D-42). No Noto, Twemoji, OpenMoji or other third-party emoji art, and no
+  tracing of it. `license: proprietary-idl`.
+- Follow `docs/avatar/ART_STYLE_GUIDE.md`. It covers geometry, minimum stroke widths, slots,
+  category rules, inclusivity and banned content.
+- After AP-4, every picture has an SVG source in `art/<pack>/` and is built by
+  `python tools/asset_pipeline.py build <pack>`. Never hand-edit a generated picture JSON or a
+  generated drawable. Edit the source and rebuild.
+- Every fill and stroke uses a color slot. There are no hard-coded colors in parts.
+- Expression and its overlays are mood data: never let them render when the viewer can't see
+  mood (invariant 2). Identity items never change with mood.
+- Removing or renaming an asset id needs a `retired` mapping (invariant 5). A pixel change
+  bumps `contentVersion`.
+- Every free-baseline rule in D-48 is enforced by the guard test (AP-10). Never mark an
+  expression, color or core semantic prop `PREMIUM`.
+- Look at every contact sheet and changed golden before committing. 48 px legibility comes first.
