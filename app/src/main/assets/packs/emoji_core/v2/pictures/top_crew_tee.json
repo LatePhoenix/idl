@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "top_crew_tee",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "shirt",
+      "zBand": 36,
+      "fill": {
+        "slot": "top.primary"
+      },
+      "commands": "M 404 948 L 404 1024 C 404 1120 20 1180 -80 1220 L -80 1480 L 1104 1480 L 1104 1220 C 1004 1180 620 1120 620 1024 L 620 948 Z"
+    }
+  ]
+}

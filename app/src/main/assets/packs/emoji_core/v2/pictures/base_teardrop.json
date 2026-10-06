@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "id": "base_teardrop",
-  "contentVersion": 2,
+  "contentVersion": 3,
   "viewBox": 1024,
   "parts": [
     {
-      "id": "neck",
-      "zBand": 40,
+      "id": "body",
+      "zBand": 34,
       "fill": {
         "slot": "face.primary"
       },
-      "commands": "M 412 1040 L 412 940 C 412 884.8 456.8 840 512 840 C 567.2 840 612 884.8 612 940 L 612 1040 Z"
+      "commands": "M 392 840 L 392 1000 C 392 1100 -40 1160 -160 1200 L -160 1536 L 1184 1536 L 1184 1200 C 1064 1160 632 1100 632 1000 L 632 840 Z"
     },
     {
       "id": "face",

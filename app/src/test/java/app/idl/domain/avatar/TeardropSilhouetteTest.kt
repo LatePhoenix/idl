@@ -15,7 +15,7 @@ import kotlin.math.min
 
 /**
  * The avatar face is the brand teardrop (D-45), not a hand-copied outline.
- * AP-1: deviation stays within 2 units, and the temporary neck sits inside the chin.
+ * AP-1: deviation stays within 2 units. AP-3: the body neck sits inside the chin.
  */
 class TeardropSilhouetteTest {
     private val json = Json { ignoreUnknownKeys = true }
@@ -41,36 +41,35 @@ class TeardropSilhouetteTest {
         assertTrue("inner ring farther than 44 (${distances.max()})", distances.max() <= 44.0)
     }
 
-    @Test fun `temporary neck starts inside the chin and stays at most 240 wide`() {
+    @Test fun `body neck starts inside the chin and the shoulders run to the body region`() {
         val picture = picture()
-        val neckIndex = picture.parts.indexOfFirst { it.id == "neck" }
+        assertTrue(picture.parts.none { it.id == "neck" })
+        val bodyIndex = picture.parts.indexOfFirst { it.id == "body" }
         val faceIndex = picture.parts.indexOfFirst { it.id == "face" }
-        assertTrue(neckIndex >= 0 && faceIndex > neckIndex)
-        assertEquals(40, picture.parts[neckIndex].zBand)
+        assertTrue(bodyIndex >= 0 && faceIndex > bodyIndex)
+        assertEquals(34, picture.parts[bodyIndex].zBand)
 
-        val neck = polyline(PathData.parse(picture.parts[neckIndex].commands), 30)
+        val body = polyline(PathData.parse(picture.parts[bodyIndex].commands), 30)
         val face = polyline(PathData.parse(picture.parts[faceIndex].commands), 40)
-        val neckTop = neck.minOf { it.second }
+        val neckTop = body.minOf { it.second }
         val chin = face.maxOf { it.second }
         assertTrue("neck top $neckTop should start at or above y 860", neckTop <= 860.0)
         assertTrue("neck top is only ${chin - neckTop} inside the chin", chin - neckTop >= 20.0)
+        assertTrue("body should reach the torso", body.maxOf { it.second } >= 1500.0)
 
         var y = neckTop
-        val neckBottom = neck.maxOf { it.second }
-        while (y <= neckBottom) {
-            val span = spanAt(neck, y)
+        while (y <= 1000.0) {
+            val span = spanAt(body, y)
             if (span != null) {
                 val width = span.second - span.first
                 assertTrue("neck width $width at y $y", width <= 240.0)
             }
             y += 10.0
         }
-
-        val atTop = spanAt(neck, neckTop + 20.0)
-        val faceAtTop = spanAt(face, neckTop + 20.0)
-        assertTrue(atTop != null && faceAtTop != null)
-        assertTrue(atTop!!.first - faceAtTop!!.first >= 20.0)
-        assertTrue(faceAtTop.second - atTop.second >= 20.0)
+        val shoulders = spanAt(body, 1200.0)
+        assertTrue(shoulders != null)
+        assertTrue("shoulder left ${shoulders!!.first}", shoulders.first <= -100.0)
+        assertTrue("shoulder right ${shoulders.second}", shoulders.second >= 1100.0)
     }
 
     private fun picture(): VectorPicture {

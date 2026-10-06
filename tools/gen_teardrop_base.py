@@ -14,7 +14,8 @@ from teardrop_geometry import (
     ellipse_commands,
     mapped_segments,
     nearest_distance,
-    neck_commands,
+    body_commands,
+    shirt_commands,
     offset_inward,
     outside_points,
     parse_commands,
@@ -86,14 +87,18 @@ def base_picture(silhouette):
             ],
         }
     }
-    # Neck first so the face covers it. The chin overlaps the neck until AP-3 adds the body.
+    # Body first so the chin covers the top of the neck.
     parts = [
-        part("neck", 40, slot("face.primary"), neck_commands()),
+        part("body", 34, slot("face.primary"), body_commands()),
         part("face", 40, radial, face),
         part("shade", 40, slot("face.shadow"), shade_commands()),
         part("outline", 40, slot("outline"), f"{face} {inner}", fill_rule="evenodd"),
     ]
-    return picture("base_teardrop", 2, parts)
+    return picture("base_teardrop", 3, parts)
+
+
+def crew_tee():
+    return picture("top_crew_tee", 1, [part("shirt", 36, slot("top.primary"), shirt_commands())])
 
 
 def eyes_neutral():
@@ -251,7 +256,7 @@ def main():
         raise SystemExit(f"chin bottom {chin} is not about 912")
 
     base = base_picture(silhouette)
-    shade = base["parts"][2]["commands"]
+    shade = next(part["commands"] for part in base["parts"] if part["id"] == "shade")
     require_inside("shade", shade, silhouette)
     shade_clearance = min(nearest_distance(p, silhouette) for p in sample(parse_commands(shade), 40))
     if shade_clearance < 48:
@@ -300,6 +305,7 @@ def main():
         "beard_full.json": beard_pic,
         "mustache_classic.json": mustache_pic,
         "stubble.json": stubble(silhouette),
+        "top_crew_tee.json": crew_tee(),
     }
     for name, data in files.items():
         dump(PICTURES / name, data)

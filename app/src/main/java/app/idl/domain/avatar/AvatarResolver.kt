@@ -254,6 +254,7 @@ class AvatarResolver(private val registry: AssetRegistry) {
             addId(raw, setOf(AssetCategory.REACTION_OVERLAY), LayerPriority.DECORATION, order = index)
         }
         // Worn items. Hair and facial hair are identity, so they use SIGNATURE and lose to a status.
+        // A pack default top is worn when the recipe doesn't choose one, so a vector avatar isn't shirtless.
         for (categoryWire in config.itemIds.keys.sorted()) {
             val category = AssetCategory.entries.firstOrNull { it.wire == categoryWire }
             val ids = config.itemIds.getValue(categoryWire)
@@ -273,6 +274,9 @@ class AvatarResolver(private val registry: AssetRegistry) {
                     else -> add(asset, LayerPriority.SIGNATURE)
                 }
             }
+        }
+        if (candidates.none { it.asset.category == AssetCategory.TOP }) {
+            registry.defaultTopId?.let { id -> registry.asset(id)?.let { add(it, LayerPriority.SIGNATURE) } }
         }
 
         // Steps 4–8.

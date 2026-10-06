@@ -155,6 +155,51 @@ class VectorSliceSnapshotTest {
         }
     }
 
+    @Test fun `the crew collar covers three rows under the chin and the head stays readable at 48`() {
+        val bitmap = EmojiSlice.bitmap(
+            registry,
+            pictures,
+            EmojiSlice.recipes.first { it.id == "neutral" },
+            48,
+            target = RenderTarget.COMPACT_WIDGET,
+        )
+        val shirtRows = (0 until 48).count { y ->
+            y > 40 && closer(bitmap.getPixel(24, y), SHIRT, SKIN)
+        }
+        assertTrue("collar rows $shirtRows", shirtRows >= 3)
+
+        var widest = 0
+        for (y in 0 until 48) {
+            var run = 0
+            for (x in 0 until 48) {
+                val pixel = bitmap.getPixel(x, y)
+                val r = Color.red(pixel)
+                val g = Color.green(pixel)
+                val b = Color.blue(pixel)
+                val face = r > 160 && g > 120 && b < 140
+                val outline = r in 70..180 && g < 120 && b < 50
+                if (face || outline) {
+                    run++
+                    if (run > widest) widest = run
+                } else {
+                    run = 0
+                }
+            }
+        }
+        val before = 760f / 1024f * 48f
+        assertTrue("head width $widest is more than 8% under $before", widest >= before * 0.92f)
+    }
+
+    private fun closer(pixel: Int, a: Int, b: Int): Boolean = channelDistance(pixel, a) < channelDistance(pixel, b)
+
+    private fun channelDistance(a: Int, b: Int): Int {
+        fun ch(color: Int, shift: Int) = (color shr shift) and 0xFF
+        val dr = ch(a, 16) - ch(b, 16)
+        val dg = ch(a, 8) - ch(b, 8)
+        val db = ch(a, 0) - ch(b, 0)
+        return dr * dr + dg * dg + db * db
+    }
+
     private fun layerIds(recipe: EmojiSlice.Recipe, target: RenderTarget): Set<String> {
         val resolved = AvatarResolver(registry).resolve(EmojiSlice.request(recipe, target.defaultSizePx, target = target))
         return resolved.layers.map { it.assetId }.toSet()
@@ -174,6 +219,11 @@ class VectorSliceSnapshotTest {
         val s = size.toFloat()
         val br = s * 0.11f
         return (s - br * 1.35f).toInt() to (s - br * 1.35f).toInt()
+    }
+
+    companion object {
+        private const val SHIRT = 0xFF2F6FBF.toInt()
+        private const val SKIN = 0xFFFFC83D.toInt()
     }
 
     private fun luma(color: Int): Int {

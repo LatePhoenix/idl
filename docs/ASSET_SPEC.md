@@ -54,7 +54,7 @@ Every vector asset is normalized to a **1024×1024** logical canvas with a requi
 
 x' = 512 + (x − 54) · 760/54, y' = 96 + (y − 26) · 760/54.
 
-`tools/gen_teardrop_base.py` writes the picture from that file. The face part is the mapped path (crown y 96, widest 132–892 at y 476, chin bottom y 912). The outline is the same path offset inward 36 units, filled even-odd. Until the body lands (AP-3), a temporary neck part on band 40 is drawn before the face: apex y 840, 200 wide, so the rounded chin covers its top. Measured spans of the face, for placing features: y 430 → about 135–889, y 600 → about 156–868, y 700 → about 215–809, y 800 → about 313–711, y 870 → about 399–625. The eye line is y 420 and the mouth is y 580.
+`tools/gen_teardrop_base.py` writes the picture from that file. The face part is the mapped path (crown y 96, widest 132–892 at y 476, chin bottom y 912). The outline is the same path offset inward 36 units, filled even-odd. The body is a band 34 part drawn before the face: a 240-wide neck from y 840 to y 1000, shoulders out to about x −160..1184 by y 1200, then straight to y 1536. The chin covers the top of the neck. `top_crew_tee` is the default shirt, with the crew collar from y 948. Measured spans of the face, for placing features: y 430 → about 135–889, y 600 → about 156–868, y 700 → about 215–809, y 800 → about 313–711, y 870 → about 399–625. The eye line is y 420 and the mouth is y 580.
 
 A missing slot falls back to the recipe override, then a derived shadow or highlight, then the asset's default color, then the neutral `#FF9E9E9E`. It does not fall back to black silence.
 

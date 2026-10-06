@@ -215,17 +215,29 @@ def ellipse_commands(cx, cy, rx, ry):
     )
 
 
-def neck_commands():
-    """Temporary neck on band 40 until AP-3. Apex y 840, width 200, flat to the canvas edge."""
-    # Semicircle of radius 100 centred at (512, 940), then straight sides to y 1040.
-    r = 100
-    k = r * KAPPA
-    left, right, apex, cy = 412, 612, 840, 940
+def body_commands():
+    """Neck and shoulders for base_teardrop, band 34.
+
+    The neck is 240 wide from y 840 (behind the chin) to y 1000. Shoulders curve out to
+    about x -160..1184 by y 1200, then run straight to y 1536.
+    """
     return (
-        f"M {left} 1040 L {left} {cy} "
-        f"C {left} {fmt(cy - k)} {fmt(512 - k)} {apex} 512 {apex} "
-        f"C {fmt(512 + k)} {apex} {right} {fmt(cy - k)} {right} {cy} "
-        f"L {right} 1040 Z"
+        "M 392 840 L 392 1000 "
+        "C 392 1100 -40 1160 -160 1200 "
+        "L -160 1536 L 1184 1536 L 1184 1200 "
+        "C 1064 1160 632 1100 632 1000 "
+        "L 632 840 Z"
+    )
+
+
+def shirt_commands():
+    """Crew tee. The collar band is y 948..1024 so it covers three pixels at 48 px head framing."""
+    return (
+        "M 404 948 L 404 1024 "
+        "C 404 1120 20 1180 -80 1220 "
+        "L -80 1480 L 1104 1480 L 1104 1220 "
+        "C 1004 1180 620 1120 620 1024 "
+        "L 620 948 Z"
     )
 
 
