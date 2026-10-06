@@ -11,7 +11,11 @@ import app.idl.domain.avatar.VectorPictureValidator
  * One parsed picture per `assetId@contentVersion`. The [Path] objects are built once and never
  * mutated; callers transform with [android.graphics.Canvas.concat].
  */
-class VectorPictureCache(private val read: (String) -> String) {
+class VectorPictureCache(
+    /** Owning pack directory for an asset, with a trailing slash. Null keeps [AssetRender.file] as the path. */
+    private val packDirectory: (AssetDef) -> String? = { null },
+    private val read: (String) -> String,
+) {
     data class PicturePaths(
         val picture: VectorPicture,
         val parts: List<Path>,
@@ -34,8 +38,9 @@ class VectorPictureCache(private val read: (String) -> String) {
 
     private fun load(asset: AssetDef): PicturePaths? {
         val file = asset.render.file ?: return null
+        val path = packDirectory(asset)?.plus(file) ?: file
         val json = try {
-            read(file)
+            read(path)
         } catch (_: Exception) {
             return null
         }

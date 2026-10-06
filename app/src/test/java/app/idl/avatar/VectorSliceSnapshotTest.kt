@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import app.idl.domain.Mood
-import app.idl.domain.avatar.AssetPacks
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.CompositeOrder
 import app.idl.domain.avatar.DrawOp
@@ -32,12 +31,10 @@ import java.io.File
 @Config(sdk = [35], application = android.app.Application::class)
 class VectorSliceSnapshotTest {
     private val registry = coreRegistry()
-    private val pictures = VectorPictureCache { file ->
-        val prefixes = AssetPacks.SHIPPED.map { it.substringBeforeLast("manifest.json") }
-        prefixes.firstNotNullOf { prefix ->
-            val packed = File(repoRoot(), "app/src/main/assets/$prefix$file")
-            if (packed.isFile) packed.readText() else null
-        }
+    private val pictures = VectorPictureCache(
+        packDirectory = { asset -> registry.packDirectory(asset.id) },
+    ) { path ->
+        File(repoRoot(), "app/src/main/assets/$path").readText()
     }
 
     @Test fun `section 8 recipes snapshot at 48 128 and 512`() {

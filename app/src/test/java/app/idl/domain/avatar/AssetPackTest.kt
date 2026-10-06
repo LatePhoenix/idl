@@ -189,7 +189,9 @@ class AssetPackTest {
                 if (asset.render.type != "vector") continue
                 val file = asset.render.file
                 assertFalse(asset.id, file.isNullOrBlank())
-                val pictureFile = File(root, "app/src/main/assets/packs/${manifest.packId}/v${manifest.version}/$file")
+                val directory = registry.packDirectory(asset.id)
+                assertFalse(asset.id, directory.isNullOrBlank())
+                val pictureFile = File(root, "app/src/main/assets/$directory$file")
                 assertTrue(pictureFile.path, pictureFile.isFile)
                 val picture = VectorPicture.parse(pictureFile.readText())
                 val issues = VectorPictureValidator.validate(picture, asset)
