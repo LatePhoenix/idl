@@ -537,6 +537,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-1 | Brand head vs the old base and the launcher, at 512 and 48: `docs/handoff/reports/screenshots/ap-1-compare-512.png`, `ap-1-compare-48.png`. Hair and facial hair on the new chin: `ap-1-contact-512.png`, `ap-1-contact-48.png`. | |
 | 2026-10-06 | AP-3 framing | Bust at 512 and head at widget size, before the body is drawn: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `vector/widget/neutral_compact.png`. | |
 | 2026-10-06 | AP-3 body | Shoulders and the default crew tee. Bust: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `contact_512_dark.png`, `contact_48.png`. Head: `contact_head_48.png`, `contact_head_48_dark.png`, `vector/widget/neutral_compact.png`, `vector/widget/neutral_standard.png`. | |
+| 2026-10-06 | AP-4 sheets | Category contact sheets, bust and head, light and dark: `app/src/test/snapshots/packs/emoji_core/hair_512.png`, `facial_hair_512.png`, `face_eye_512.png`, `face_mouth_512.png`, `hair_48.png`, `hair_48_dark.png`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -1104,3 +1105,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-3 body: neck, shoulders and the default crew tee. 243 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554 (21 instrumented tests). | `docs/handoff/reports/2026-10-06-ap-3-body.md` |
 | 2026-10-06 | Cursor | AP-4 picture format v2: strokes, tags and mask syntax. Masks are applied in AP-8. 246 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554. | `docs/handoff/reports/2026-10-06-ap-4-picture-v2.md` |
 | 2026-10-06 | Cursor | AP-4 pipeline: SVG sources for emoji_core and `tools/asset_pipeline.py check`. 8 pipeline tests. 246 JVM, 0 failed, 1 skipped. Lint 0/42. Contact sheets are the next PR. | `docs/handoff/reports/2026-10-06-ap-4-pipeline.md` |
+| 2026-10-06 | Cursor | AP-4 contact sheets: every emoji_core vector category at 48, 96, and 512, light and dark. 247 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-4-sheets.md` |

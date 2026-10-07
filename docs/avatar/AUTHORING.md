@@ -17,7 +17,7 @@ app/src/main/assets/packs/<packId>/vN/pictures/<assetId>.json
 2. Add the asset to that pack's `manifest.json`: category, label, `render.file`, license, tier, `contentVersion`, and `colorSlots` for every slot the picture uses.
 3. Run `python tools/asset_pipeline.py build <packId>`.
 4. Run `python tools/asset_pipeline.py check`.
-5. Look at the category contact sheet (AP-4's `PackContactSheetTest`, once that pull request has landed) at 48, 96, and 512 px, on a light ground and a dark ground.
+5. Look at `app/src/test/snapshots/packs/<packId>/<category>_{48,96,512}.png` and the `_dark` twins. 48 and 96 are head framing. 512 is bust. `PackContactSheetTest` records them.
 
 No Kotlin change is required to add a picture. The manifest entry is JSON.
 
