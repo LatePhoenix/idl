@@ -91,7 +91,9 @@ class TeardropCompareSnapshotTest {
         canvas.drawColor(context.getColor(R.color.idl_launcher_bg))
         val unit = size / 72f
         canvas.translate(-18 * unit, -18 * unit)
-        val foreground = checkNotNull(context.getDrawable(R.drawable.ic_launcher_foreground))
+        // mutate() copies the constant state. Without it, an earlier test's draw of this
+        // drawable leaves a cached bitmap, and the 48 px row no longer matches on CI.
+        val foreground = checkNotNull(context.getDrawable(R.drawable.ic_launcher_foreground)).mutate()
         foreground.setBounds(0, 0, (108 * unit).toInt(), (108 * unit).toInt())
         foreground.draw(canvas)
         return bitmap
