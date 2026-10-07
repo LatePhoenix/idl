@@ -307,7 +307,7 @@ row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exac
 | AP-9 | Color system: OKLCH, links, palettes | AP-4 | | | ✅ |
 | ST-1 | Art Studio S1: kits, drafts, lint, PNG renders, agent guide | | | | ✅ |
 | AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | ✅ |
-| AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | 🔨 |
+| AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ✅ |
 | ST-2 | Art Studio S2: real resolver, try-on, legibility parity (F-33) | ST-1 | | | ⬜ |
 | ST-3 | Art Studio S3: promote and retire | ST-2 | | | ⬜ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
