@@ -343,6 +343,40 @@ class ImportArtApplyTest(unittest.TestCase):
         self.assertEqual(usage, 2)
         self.assertEqual(self.asset("glasses_round_thick")["id"], "glasses_round_thick")
 
+    def test_pack_id_must_be_snake_case(self):
+        drop = self.copy_drop("glasses_round_thick")
+        meta_path = drop / "meta.json"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["pack"] = "../escape"
+        meta_path.write_text(json.dumps(meta), encoding="utf-8")
+        with self.assertRaises(import_art.DropRejected) as caught:
+            import_art.import_drop(drop, paths=self.paths)
+        self.assertIn("snake case", str(caught.exception))
+        self.assertFalse((self.tmp / "escape").exists())
+        self.assertTrue(drop.is_dir())
+
+    def test_build_failure_restores_the_pack(self):
+        drop = self.copy_drop("glasses_round_thick")
+        manifest_before = self.manifest_path().read_bytes()
+        picture = self.paths.packs / "emoji_core" / "v2" / "pictures" / "glasses_round_thick.json"
+
+        def boom(*_args, **_kwargs):
+            picture.write_text("partial", encoding="utf-8")
+            raise import_art.pipeline.PipelineError("boom")
+
+        original = import_art.pipeline.build_pack
+        import_art.pipeline.build_pack = boom
+        try:
+            with self.assertRaises(import_art.pipeline.PipelineError):
+                import_art.import_drop(drop, paths=self.paths)
+        finally:
+            import_art.pipeline.build_pack = original
+        self.assertFalse((self.paths.art / "emoji_core" / "glasses_round_thick.svg").exists())
+        self.assertFalse(picture.exists())
+        self.assertEqual(self.manifest_path().read_bytes(), manifest_before)
+        self.assertFalse(self.paths.catalog_json.exists())
+        self.assertTrue(drop.is_dir())
+
     def test_shadow_hex_matches_oklch_port(self):
         # Same constants as OklchTest `hat primary derives the importer shadow and highlight`.
         self.assertEqual(import_art.derive_hex("#3A6EA5", "shadow"), "#104B82")

@@ -42,6 +42,8 @@ Omitted `*.shadow` and `*.highlight` slots are filled from the primary with the 
 ## Deviations
 
 - The importer calls `build_pack` and `gen_asset_catalog.build` / `write` in process so tests can pass a temp root. There is no `--root` flag.
+- The pack id must be lowercase snake case, so a path cannot escape the art and pack directories.
+- If the picture build, catalog write, or archive move fails, the svg, provenance, manifest, pictures, and catalog are restored to what they were before the import.
 - `AssetDef` has no provenance field and `IdlJson` ignores unknown keys, so provenance is a sidecar, not a manifest field.
 - Derived colors are uppercase `#RRGGBB`. Highlight is added only when the SVG uses that slot.
 

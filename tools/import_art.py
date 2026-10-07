@@ -702,6 +702,8 @@ def import_drop(directory: Path, pack: str | None = None, paths: RepoPaths | Non
     asset_id = directory.name
     meta = json.loads((directory / "meta.json").read_text(encoding="utf-8"))
     pack_id = pack or str(meta["pack"])
+    if not SNAKE.match(pack_id):
+        raise DropRejected([ImportError(f"pack {pack_id!r} must be lowercase snake case")])
     svg_text = (directory / f"{asset_id}.svg").read_text(encoding="utf-8")
     picture = pipeline.parse_svg(svg_text, f"{asset_id}.svg")
     version = int(picture["contentVersion"])
@@ -713,17 +715,63 @@ def import_drop(directory: Path, pack: str | None = None, paths: RepoPaths | Non
 
     slots = _fill_color_slots(meta["colorSlots"], _picture_slots(picture))
     entry = _manifest_entry(meta, pack_id, asset_id, version, slots)
-    _write_asset(paths, pack_id, asset_id, svg_text, entry, meta, version)
-    pipeline.build_pack(pack_id, paths.packs, art_root=paths.art, version_pack=paths.packs / pack_id)
-    gen_asset_catalog.write(
-        gen_asset_catalog.build(paths.packs),
-        json_path=paths.catalog_json,
-        sql_path=paths.catalog_sql,
-    )
-    archive = paths.incoming / ".imported" / f"{asset_id}-v{version}"
-    archive.parent.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(directory), str(archive))
+    journal = _Journal()
+    art_dir = paths.art / pack_id
+    journal.file(art_dir / f"{asset_id}.svg")
+    journal.file(art_dir / f"{asset_id}.provenance.json")
+    manifest_path = _manifest_path(paths, pack_id)
+    journal.file(manifest_path)
+    journal.file(paths.catalog_json)
+    journal.file(paths.catalog_sql)
+    journal.json_dir(pipeline.pictures_dir(manifest_path.parent))
+    try:
+        _write_asset(paths, pack_id, asset_id, svg_text, entry, meta, version)
+        pipeline.build_pack(pack_id, paths.packs, art_root=paths.art, version_pack=paths.packs / pack_id)
+        gen_asset_catalog.write(
+            gen_asset_catalog.build(paths.packs),
+            json_path=paths.catalog_json,
+            sql_path=paths.catalog_sql,
+        )
+        archive = paths.incoming / ".imported" / f"{asset_id}-v{version}"
+        archive.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(directory), str(archive))
+    except Exception:
+        journal.restore()
+        raise
     return _summary(asset_id, version, slots, picture, meta)
+
+
+class _Journal:
+    """Copies of files an import will replace, restored if a later step fails."""
+
+    def __init__(self) -> None:
+        self._files: list[tuple[Path, bytes | None]] = []
+        self._json_dirs: list[tuple[Path, dict[str, bytes]]] = []
+
+    def file(self, path: Path) -> None:
+        self._files.append((path, path.read_bytes() if path.is_file() else None))
+
+    def json_dir(self, path: Path) -> None:
+        saved: dict[str, bytes] = {}
+        if path.is_dir():
+            for child in path.glob("*.json"):
+                saved[child.name] = child.read_bytes()
+        self._json_dirs.append((path, saved))
+
+    def restore(self) -> None:
+        for path, data in self._files:
+            if data is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_bytes(data)
+        for path, saved in self._json_dirs:
+            if not path.is_dir():
+                continue
+            for child in path.glob("*.json"):
+                if child.name not in saved:
+                    child.unlink()
+            for name, data in saved.items():
+                (path / name).write_bytes(data)
 
 
 def _shipped_version(paths: RepoPaths, pack_id: str, asset_id: str) -> int | None:
