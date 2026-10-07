@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="hair_bob"
+     data-content-version="2">
+  <path data-part="back" data-z="20" data-slot="hair.shadow" d="M 512 34 C 590 34 630 78 600 118 C 575 148 449 148 424 118 C 394 78 434 34 512 34 Z M 905 420 C 965 540 980 660 910 760 C 860 810 740 800 680 750 C 750 680 810 540 860 440 Z M 119 420 C 59 540 44 660 114 760 C 164 810 284 800 344 750 C 274 680 214 540 164 440 Z"/>
+  <path data-part="bangs" data-z="70" data-slot="hair.primary" d="M 300 312 C 320 188 400 150 468 214 C 498 246 486 288 444 312 C 380 328 322 324 300 312 Z M 724 312 C 704 188 624 150 556 214 C 526 246 538 288 580 312 C 644 328 702 324 724 312 Z"/>
+  <path data-part="highlight" data-z="80" data-slot="hair.highlight" d="M 548 196 C 600 230 655 268 700 292 C 668 308 600 286 542 230 Z"/>
+</svg>

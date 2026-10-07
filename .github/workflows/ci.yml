@@ -16,6 +16,8 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
+      - name: Picture pipeline
+        run: python3 -m unittest discover -s tools/tests -q && python3 tools/asset_pipeline.py check
       - name: Unit tests with snapshot verify, lint, debug build
         run: ./gradlew verifyRoborazziDebug lintDebug assembleDebug
       - name: Upload snapshot diffs

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="beard_full"
+     data-content-version="2">
+  <path data-clip-path="mouth_hole" d="M 632 590 C 632 631.4 578.3 665 512 665 C 445.7 665 392 631.4 392 590 C 392 548.6 445.7 515 512 515 C 578.3 515 632 548.6 632 590 Z"/>
+  <path data-part="beard" data-z="60" data-slot="beard.primary" data-clip="mouth_hole" data-clip-mode="difference" d="M 360 640 C 310 740 360 840 460 900 C 495 928 529 928 564 900 C 664 840 714 740 664 640 C 600 710 512 748 424 710 C 390 680 372 658 360 640 Z"/>
+</svg>

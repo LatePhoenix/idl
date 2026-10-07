@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="hair_short_crop"
+     data-content-version="1">
+  <path data-part="back" data-z="20" data-slot="hair.shadow" d="M 512 34 C 590 34 630 78 600 118 C 575 148 449 148 424 118 C 394 78 434 34 512 34 Z M 170 390 C 120 410 108 490 150 540 C 188 512 214 450 170 390 Z M 854 390 C 904 410 916 490 874 540 C 836 512 810 450 854 390 Z"/>
+  <path data-part="bangs" data-z="70" data-slot="hair.primary" d="M 300 286 C 320 188 400 150 468 214 C 498 246 486 262 444 286 C 380 302 322 298 300 286 Z M 724 286 C 704 188 624 150 556 214 C 526 246 538 262 580 286 C 644 302 702 298 724 286 Z"/>
+  <path data-part="highlight" data-z="80" data-slot="hair.highlight" d="M 548 196 C 600 230 655 268 700 262 C 668 278 600 286 542 230 Z"/>
+</svg>
