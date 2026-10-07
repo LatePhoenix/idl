@@ -1,1 +1,1 @@
-Bold and flat: 44-unit outlines, flat face fill, no face gradient, bold hair rim.
+Bold and flat: 44-unit outlines on base, hair, beanie, glasses and tee; flat face; no gradient.

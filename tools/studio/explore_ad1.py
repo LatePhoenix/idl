@@ -95,11 +95,20 @@ SLOTS = {
     },
     "glasses_round_wire": {
         "category": "face_accessory",
-        "colorSlots": {"glasses.frame": "#2B2B2B", "glasses.lens": "#6FA8DC"},
+        "colorSlots": {
+            "glasses.frame": "#2B2B2B",
+            "glasses.lens": "#6FA8DC",
+            "outline": "#7A4E00",
+            "face.highlight": "#FFB59A",
+        },
     },
     "top_crew_tee": {
         "category": "top",
-        "colorSlots": {"top.primary": "#3A7A6A"},
+        "colorSlots": {
+            "top.primary": "#3A7A6A",
+            "outline": "#7A4E00",
+            "face.highlight": "#FFB59A",
+        },
     },
     "eyes_round_neutral": {"category": "face_eye", "colorSlots": {"eye.iris": "#3B2212"}},
     "eyes_round_happy": {"category": "face_eye", "colorSlots": {"eye.iris": "#3B2212"}},
@@ -323,11 +332,11 @@ def hair_svg(asset_id: str, geom: dict, *, bold_outline: bool = False, cel: bool
         )
     )
     if bold_outline:
-        # Dark silhouette rim on the outer hair mass for 48 px read.
+        # Direction B: 44-unit outline on the outer hair mass (matches base outline_w).
         try:
-            rim = paths.offset(paths.union(back_d, paths.union(top_d, side_d)), 8)
-            shell = paths.subtract(rim, paths.union(back_d, paths.union(top_d, side_d)))
-            parts.insert(0, _path_el("rim", 18, "outline", shell, tags="hair_back"))
+            mass = paths.union(back_d, paths.union(top_d, side_d))
+            ring = _outline_ring(mass, 44)
+            parts.insert(0, _path_el("rim", 18, "outline", ring, tags="hair_back", fill_rule="evenodd"))
         except Exception:
             pass
     return _svg(asset_id, 2, parts)
@@ -378,16 +387,17 @@ def base_svg(asset_id: str, face_d: str, body_d: str, *, flat: bool = False, out
         _path_el("outline", 40, "outline", ring, fill_rule="evenodd")
     )
     if sticker:
-        # Thick light sticker border outside the dark outline.
+        # Thick light sticker border around the head+body silhouette (hair/accessories
+        # add their own sticker rings in generate_direction so the composed look reads).
         try:
-            outer = paths.offset(face_d, 56)
-            mid = paths.offset(face_d, outline_w / 2 + 4)
+            sil = paths.union(face_d, body_d)
+            outer = paths.offset(sil, 56)
+            mid = paths.offset(sil, outline_w / 2 + 4)
             sticker_ring = f"{outer} {mid}"
             parts.append(
                 _path_el("sticker", 39, "face.highlight", sticker_ring, fill_rule="evenodd")
             )
-            # Darker outer lip for wallpaper contrast.
-            dark_outer = paths.offset(face_d, 64)
+            dark_outer = paths.offset(sil, 64)
             dark_ring = f"{dark_outer} {outer}"
             parts.insert(
                 0,
@@ -398,6 +408,65 @@ def base_svg(asset_id: str, face_d: str, body_d: str, *, flat: bool = False, out
     return _svg(asset_id, 1, parts, defs=defs)
 
 
+def _visible_path_ds(svg: str) -> list[str]:
+    """Fill path `d` values, skipping publish masks and fully transparent parts."""
+    out: list[str] = []
+    for match in re.finditer(r"<path\b([^>]*)\sd=\"([^\"]+)\"", svg):
+        attrs, d = match.group(1), match.group(2)
+        if "data-publish-mask=" in attrs:
+            continue
+        op = re.search(r'data-opacity="([^"]+)"', attrs)
+        if op and float(op.group(1)) == 0:
+            continue
+        out.append(d)
+    return out
+
+
+def _union_ds(ds: list[str]) -> str | None:
+    if not ds:
+        return None
+    try:
+        return paths.union(*ds) if len(ds) > 1 else ds[0]
+    except Exception:
+        return ds[0]
+
+
+def add_item_outline(svg: str, width: float = 44, *, z: int = 35) -> str:
+    """Insert a dark evenodd outline ring from the item's visible silhouette."""
+    sil = _union_ds(_visible_path_ds(svg))
+    if not sil:
+        return svg
+    try:
+        ring = _outline_ring(sil, width)
+    except Exception:
+        return svg
+    el = _path_el("outline", z, "outline", ring, fill_rule="evenodd")
+    if "</svg>" not in svg:
+        return svg
+    return svg.replace("</svg>", f"{el}\n</svg>", 1)
+
+
+def add_sticker_border(svg: str, silhouette: str | None = None, *, outline_w: float = 44) -> str:
+    """Light sticker band + dark outer lip around a silhouette (asset or given path)."""
+    sil = silhouette or _union_ds(_visible_path_ds(svg))
+    if not sil:
+        return svg
+    try:
+        outer = paths.offset(sil, 56)
+        mid = paths.offset(sil, outline_w / 2 + 4)
+        sticker_ring = f"{outer} {mid}"
+        dark_outer = paths.offset(sil, 64)
+        dark_ring = f"{dark_outer} {outer}"
+    except Exception:
+        return svg
+    light = _path_el("sticker", 39, "face.highlight", sticker_ring, fill_rule="evenodd")
+    dark = _path_el("sticker_dark", 38, "outline", dark_ring, fill_rule="evenodd")
+    if "</svg>" not in svg:
+        return svg
+    # Dark lip first so the light band sits on top.
+    return svg.replace("</svg>", f"{dark}\n{light}\n</svg>", 1)
+
+
 def style_accessory(svg: str, *, bold: bool = False, soft: bool = False) -> str:
     if soft:
         try:
@@ -405,11 +474,8 @@ def style_accessory(svg: str, *, bold: bool = False, soft: bool = False) -> str:
         except Exception:
             return svg
     if bold:
-        # Thicken frame rings slightly by growing evenodd shapes.
-        try:
-            return _transform_all_paths(svg, lambda d: paths.offset(d, 2))
-        except Exception:
-            return svg
+        # Direction B: full 44-unit outline on the item silhouette, not a 2-unit grow.
+        return add_item_outline(svg, 44)
     return svg
 
 
@@ -464,6 +530,14 @@ def generate_direction(letter: str) -> None:
     write(letter, "hair_short_crop", hair_svg("hair_short_crop", HAIR_SHORT, bold_outline=letter == "B", cel=cel, soft=soft or chunky))
     write(letter, "hair_long_straight", hair_svg("hair_long_straight", HAIR_LONG, bold_outline=letter == "B", cel=cel, soft=soft or chunky))
     write(letter, "hair_short_curly", hair_svg("hair_short_curly", HAIR_CURLY, bold_outline=letter == "B", cel=cel, soft=soft or chunky))
+    if sticker:
+        for hair_name in ("hair_short_crop", "hair_long_straight", "hair_short_curly"):
+            hair_path = out / f"{hair_name}.svg"
+            hair_path.write_text(
+                add_sticker_border(hair_path.read_text(encoding="utf-8"), outline_w=outline_w),
+                encoding="utf-8",
+                newline="\n",
+            )
 
     beanie = (ACCEPT / "hat_beanie_slouch.svg").read_text(encoding="utf-8")
     glasses = _read_shipped("glasses_round_wire")
@@ -471,9 +545,15 @@ def generate_direction(letter: str) -> None:
     if soft:
         beanie = style_accessory(beanie, soft=True)
         glasses = style_accessory(glasses, soft=True)
+        tee = style_accessory(tee, soft=True)
     if letter == "B":
         beanie = style_accessory(beanie, bold=True)
         glasses = style_accessory(glasses, bold=True)
+        tee = style_accessory(tee, bold=True)
+    if sticker:
+        beanie = add_sticker_border(beanie, outline_w=outline_w)
+        glasses = add_sticker_border(glasses, outline_w=outline_w)
+        tee = add_sticker_border(tee, outline_w=outline_w)
     write(letter, "hat_beanie_slouch", _set_id(beanie, "hat_beanie_slouch"))
     write(letter, "glasses_round_wire", _set_id(glasses, "glasses_round_wire"))
     write(letter, "top_crew_tee", _set_id(tee, "top_crew_tee"))
@@ -500,10 +580,10 @@ def generate_direction(letter: str) -> None:
         write(letter, name, _set_id(text, name))
 
     note = {
-        "B": "Bold and flat: 44-unit outlines, flat face fill, no face gradient, bold hair rim.",
+        "B": "Bold and flat: 44-unit outlines on base, hair, beanie, glasses and tee; flat face; no gradient.",
         "C": "Big-eye soft: eyes ~1.28× and lowered, smaller mouth, softer hair puff.",
         "D": "Cel-shaded: two-tone shade on head/hair plus upper-left rim light.",
-        "E": "Sticker: thick light sticker border + dark outer lip for wallpaper contrast.",
+        "E": "Sticker: light border + dark lip on head+body, hair and accessories (composed silhouette).",
         "F": "Readable volume (proposal): 40-unit outlines, chunky hair clumps with a clear "
              "centre part and dual highlight strands sized for 48 px, slightly larger eyes.",
         "G": "Rounder circular head — labelled as reopening D-45/D-46. Same accessory set.",
