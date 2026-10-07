@@ -1,4 +1,4 @@
-# Cursor task: Art Studio S1–S3
+# Cursor task: Art Studio S1–S3 and the art-direction rows
 
 **Written by:** Claude, 2026-10-07 · **Design:** [`docs/avatar/ART_STUDIO.md`](../avatar/ART_STUDIO.md) (D-50)
 **Process:** [`CURSOR_RUNBOOK.md`](CURSOR_RUNBOOK.md) applies unchanged (branches, checks, PRs,
@@ -6,7 +6,8 @@ merging your own green PRs, stop conditions). Claude audits when you're done.
 
 The Art Studio is a private, operator-only tool for making and managing avatar art. It's never
 shipped and never runs on a server. The user decided on 2026-10-07 that **Cursor builds S1–S3**
-(this amends D-50, which said Claude would). S0, the read-only viewer, is on `main` (PRs #45, #47).
+(this amends D-50, which said Claude would). S0, the read-only viewer, is on `main` (PRs #45, #47). The status table in
+`AVATAR_PROGRAM.md` §5 orders these rows among the program's (ST-1, AD-1, AP-10, ST-2, ST-3, AP-11, AP-12, AD-2, AD-3, …).
 AP-9 then extended its renderer with OKLCH colors and slot links.
 
 Read first: `ART_STUDIO.md` §2–§5 and §10, `docs/avatar/ART_STYLE_GUIDE.md`, `docs/avatar/AUTHORING.md`,
@@ -128,13 +129,65 @@ Branch `tools/studio-s3`.
 2. Editing a shipped item bumps `contentVersion` in the SVG and manifest together.
 3. `retire <old> --to <new>` writes the `retired` mapping and a migration test case. It refuses a removal
    without a mapping.
-4. **Art PRs are merged by the user, not by Cursor**, until about 20 Studio items have shipped (D-50).
-   Tooling PRs (ST-1..ST-3 themselves) follow D-49 as usual.
+4. Tooling PRs (ST-1..ST-3) follow D-49 as usual. Art PRs: the user merges the first one after AD-2 (the
+   pilot). After that, Cursor merges its own green art PRs (D-50 as amended 2026-10-07).
 
 **Acceptance:** one command takes an accepted draft to a green PR with no hand edits. Show it with the
-ST-1 beanie (premium, collection `winter`) and leave that PR for the user.
+ST-1 beanie (premium, collection `winter`), then close that PR unmerged. It's a demonstration in the
+current style, and AD-2 decides the style.
+
+## AD-1 · Style exploration sheets (after ST-1)
+
+Branch `art/ad-1-style-exploration`. The user is unhappy with the avatar's look (Q17) and wants to
+compare directions before more art is made. Give them pictures, not descriptions.
+
+1. Use ST-1's renderer and geometry helpers. Work in a **sandbox**: `tools/studio/explore/<direction>/*.svg`.
+   These files are never in a pack and the app never loads them. Don't touch `art/` or any manifest.
+2. Make **at least six directions**, each a coherent set drawn in that style:
+   - neutral, happy, sad and surprised expressions
+   - three hairstyles: short, long and curly
+   - a beanie, round glasses and a tee
+
+   The directions:
+   - **A Current:** the shipped art, as the baseline.
+   - **B Bold and flat:** 40–48 unit outlines on every item, flat fills, no face gradient.
+   - **C Big-eye soft:** larger eyes, a lower eye line, a smaller mouth, softer shapes.
+   - **D Cel-shaded:** two-tone shading on the head and hair, a rim light.
+   - **E Sticker:** a thick light sticker border around the whole silhouette plus a dark outline, so it reads on any wallpaper.
+   - **F Your proposal:** explain why.
+
+   **Hair is the user's biggest complaint:** in every direction, the hair must read as hair at 48 px
+   (volume, a hairline, a part, strands), not as flat blobs.
+3. **Head shape:** directions A–F keep the teardrop silhouette (D-45, D-46). Add one extra set **G** with a
+   different head (for example a rounder teardrop or a circle), clearly labelled "reopens D-45/D-46".
+4. For each direction, render one Studio sheet: head framing at 48 px (4×) and 96 px, bust at 512, on light
+   and dark wallpapers. Also make one `overview.png` with every direction side by side at 96 px and 48 px.
+5. Commit the sheets and sources to `docs/art/exploration/v3/` with a `README.md`: one paragraph per direction
+   with its strengths and weaknesses at 48 px, and your recommendation. Add a row to the master-plan review
+   queue, and put options A–G into Q17. Docs only, so merge it under D-49 and **continue with the next row**.
+   Don't wait for the user's answer.
+
+## AD-2 · 👤 The user picks the art direction
+
+Not Cursor's row. The user answers Q17 (and Q16) in `master-plan.md` §6, for example "C, with E's
+border, and fix the brows with option (a)". When every remaining row depends on AD-2, stop under
+runbook §7 and tell the user what to decide, pointing at `docs/art/exploration/v3/README.md`.
+
+## AD-3 · Apply the art direction
+
+Branch `art/ad-3-<direction>`. Once Q17 is answered:
+
+1. Record it as a new `D-` entry in `docs/IDL_DECISIONS.md` and update `ART_STYLE_GUIDE.md` to match:
+   line weights, shading, proportions and the hair rules. If the user picked a new head (G), that reopens
+   D-45 and D-46; record the user's words.
+2. Update the kits (`tools/studio/kits/*.json`) and the lint numbers to the new guide.
+3. Restyle every shipped picture in the new direction with the Studio. **Keep every asset id**, bump
+   `contentVersion`, and re-record the goldens so saved avatars never break (invariant 5). A head change
+   also needs the guides re-derived and every fitted item checked by lint and try-on.
+4. This is the **pilot art PR**: the user merges it (D-50 as amended). Then AP-13 and AP-15 follow, made with
+   the Studio, and Cursor merges those art PRs itself.
 
 ## Out of scope here
 
-S4 (expression editing, parametric families), S5 (store tools) and S6 (chat panel). AP-13 and AP-15 stay
-🎨 and wait for the user's art direction.
+S4 (expression editing, parametric families), S5 (store tools) and S6 (chat panel) wait until the program
+is done or the user asks.

@@ -395,4 +395,4 @@ Q-S5 waits for S5. Q-S6 uses the recommendation as its default.
 | Q-S3 | Tool-only Python dependencies (path booleans and smoothing, e.g. `skia-pathops`; a rasterizer for server-side renders, e.g. `resvg`) in an isolated `tools/studio/requirements.txt`. The app and `asset_pipeline.py` stay dependency-free | **Decided:** approved, tool-only, each one listed in `requirements.txt` |
 | Q-S4 | Move AP-13 and AP-15 onto the Studio (§11)? | **Decided:** yes. They're 🎨 rows in the status table |
 | Q-S5 | Price bands per category and rarity | Set at S5, after C.3 pricing exists |
-| Q-S6 | May the Studio merge its own green, art-only PRs (like D-49), or does the operator merge every art PR? | **Default:** the operator merges art PRs until about 20 Studio items have shipped, then revisit |
+| Q-S6 | May the Studio merge its own green, art-only PRs (like D-49), or does the operator merge every art PR? | **Decided 2026-10-07:** the user merges the first art PR after AD-2 (the pilot); then Cursor merges its own green art PRs under D-49 |
