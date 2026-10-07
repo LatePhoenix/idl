@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "eyes_round_closed",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "eyes_0",
+      "zBand": 50,
+      "fill": {
+        "slot": "eye.primary"
+      },
+      "commands": "M 297 428 C 347.7 392 402.3 392 453 428 C 410.1 405.7 339.9 405.7 297 428 Z M 572 428 C 622.7 392 677.3 392 728 428 C 685.1 405.7 614.9 405.7 572 428 Z"
+    }
+  ]
+}

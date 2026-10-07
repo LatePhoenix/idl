@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "brows_round_raised",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "brows",
+      "zBand": 50,
+      "fill": {
+        "slot": "hair.primary"
+      },
+      "commands": "M 297 292 C 347.7 264 402.3 264 453 292 C 410.1 274.6 339.9 274.6 297 292 Z M 572 292 C 622.7 264 677.3 264 728 292 C 685.1 274.6 614.9 274.6 572 292 Z"
+    }
+  ]
+}

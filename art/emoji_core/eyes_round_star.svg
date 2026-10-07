@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="eyes_round_star"
+     data-content-version="1">
+  <path data-part="eyes_0" data-z="50" data-slot="eye.primary" d="M 375 362 L 391 404 L 433 420 L 391 436 L 375 478 L 359 436 L 317 420 L 359 404 Z M 650 362 L 666 404 L 708 420 L 666 436 L 650 478 L 634 436 L 592 420 L 634 404 Z"/>
+</svg>

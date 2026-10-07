@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_teardrops",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "tears",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.tears"
+      },
+      "commands": "M 390 490 C 420 570 420 640 390 680 C 360 640 360 570 390 490 Z M 634 490 C 664 570 664 640 634 680 C 604 640 604 570 634 490 Z"
+    }
+  ]
+}

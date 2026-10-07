@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_zzz_marks",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "z_large",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.zzz"
+      },
+      "commands": "M 690 150 L 810 150 L 810 168 L 726 168 L 810 222 L 810 240 L 690 240 L 690 222 L 774 222 L 690 168 Z"
+    },
+    {
+      "id": "z_small",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.zzz"
+      },
+      "commands": "M 820 250 L 910 250 L 910 264 L 848 264 L 910 306 L 910 320 L 820 320 L 820 306 L 882 306 L 820 264 Z"
+    }
+  ]
+}

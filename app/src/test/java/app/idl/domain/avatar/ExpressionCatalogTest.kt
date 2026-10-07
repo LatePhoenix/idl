@@ -65,4 +65,22 @@ class ExpressionCatalogTest {
         assertFalse(hidden.has("eyes_smile"))
         assertFalse(hidden.layers.any { it.assetId == "overlay_hearts" })
     }
+
+    @Test fun `every mood resolves to its priority face when the pack has drawn it`() {
+        val resolver = AvatarResolver(coreRegistry(), catalog)
+        val teardrop = config(base = "base_teardrop")
+        enumValues<Mood>().forEach { mood ->
+            val resolved = resolver.resolve(request(teardrop, VisiblePresence(mood = mood)))
+            assertEquals(mood.name, catalog.priorityId(mood), resolved.expressionId)
+        }
+    }
+
+    @Test fun `a hidden mood on the teardrop keeps neutral eyes and mouth and drops overlays`() {
+        val resolver = AvatarResolver(coreRegistry(), catalog)
+        val hidden = resolver.resolve(request(config(base = "base_teardrop"), VisiblePresence.NONE))
+        assertEquals("neutral_face", hidden.expressionId)
+        assertTrue(hidden.has("eyes_round_neutral"))
+        assertTrue(hidden.has("mouth_round_neutral"))
+        assertFalse(hidden.layers.any { it.assetId.startsWith("overlay_") })
+    }
 }

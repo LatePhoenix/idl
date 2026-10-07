@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_open",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 440 640 C 440 592.5 472.2 554 512 554 C 551.8 554 584 592.5 584 640 C 584 687.5 551.8 726 512 726 C 472.2 726 440 687.5 440 640 Z"
+    }
+  ]
+}

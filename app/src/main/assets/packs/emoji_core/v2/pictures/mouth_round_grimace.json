@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_grimace",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 390 590 C 430 650 470 540 512 620 C 554 700 594 540 634 590 C 600 670 424 670 390 590 Z"
+    }
+  ]
+}

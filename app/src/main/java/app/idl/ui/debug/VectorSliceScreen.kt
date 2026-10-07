@@ -127,7 +127,7 @@ private fun render(c: AppContainer, hair: String, unlinkShadow: Boolean): Render
                 128 -> RenderTarget.LARGE_WIDGET
                 else -> RenderTarget.PROFILE
             }
-            val bitmap = EmojiSlice.bitmap(registry, pictures, recipe, size, hair, unlinkShadow, target)
+            val bitmap = EmojiSlice.bitmap(registry, pictures, recipe, size, hair, unlinkShadow, target, c.expressionCatalog)
             if (size == 512) renderMs = (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000
             size to bitmap
         }

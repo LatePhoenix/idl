@@ -5,6 +5,7 @@ import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.Mood
 import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.ExpressionCatalog
 import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.avatar.AvatarRenderRequest
 import app.idl.domain.avatar.AvatarResolver
@@ -12,8 +13,8 @@ import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.VisiblePresence
 
 /**
- * Fixed `emoji_core` recipes on the teardrop base. Other expressions keep the procedural
- * parts; only neutral and happy are overridden.
+ * Fixed `emoji_core` recipes on the teardrop base. Pass [catalog] to resolve mood faces.
+ * Without it, only the neutral and happy teardrop overrides apply.
  */
 object EmojiSlice {
     const val BASE = "base_teardrop"
@@ -95,8 +96,9 @@ object EmojiSlice {
         hairPrimary: String? = null,
         unlinkShadow: Boolean = false,
         target: RenderTarget = RenderTarget.PROFILE,
+        catalog: ExpressionCatalog = ExpressionCatalog.EMPTY,
     ): Bitmap {
-        val resolved = AvatarResolver(registry).resolve(request(recipe, sizePx, hairPrimary, unlinkShadow, target))
+        val resolved = AvatarResolver(registry, catalog).resolve(request(recipe, sizePx, hairPrimary, unlinkShadow, target))
         return AvatarRenderer.bitmap(resolved, registry, pictures, sizePx)
     }
 }

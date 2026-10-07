@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_sweat_drop"
+     data-content-version="1">
+  <path data-part="sweat" data-z="110" data-slot="overlay.sweat" d="M 760 220 C 800 300 800 370 760 410 C 720 370 720 300 760 220 Z"/>
+</svg>

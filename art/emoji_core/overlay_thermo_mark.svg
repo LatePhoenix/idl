@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_thermo_mark"
+     data-content-version="1">
+  <path data-part="stem" data-z="110" data-slot="overlay.thermo" d="M 774 180 L 806 180 L 806 390 L 774 390 Z"/>
+  <path data-part="bulb" data-z="110" data-slot="overlay.thermo" d="M 754 420 C 754 400.1 770.1 384 790 384 C 809.9 384 826 400.1 826 420 C 826 439.9 809.9 456 790 456 C 770.1 456 754 439.9 754 420 Z"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_monocle_lens"
+     data-content-version="1">
+  <path data-part="rim" data-z="110" data-slot="glasses.frame" data-fill-rule="evenodd" d="M 580 420 C 580 381.3 611.3 350 650 350 C 688.7 350 720 381.3 720 420 C 720 458.7 688.7 490 650 490 C 611.3 490 580 458.7 580 420 Z M 602 420 C 602 393.5 623.5 372 650 372 C 676.5 372 698 393.5 698 420 C 698 446.5 676.5 468 650 468 C 623.5 468 602 446.5 602 420 Z"/>
+  <path data-part="chain" data-z="110" data-slot="glasses.frame" d="M 640 486 L 660 486 L 676 548 L 656 548 Z"/>
+</svg>

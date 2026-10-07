@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="eyes_round_bags"
+     data-content-version="1">
+  <path data-part="eyes_0" data-z="50" data-slot="eye.primary" d="M 345 412 C 345 394.3 358.4 380 375 380 C 391.6 380 405 394.3 405 412 C 405 429.7 391.6 444 375 444 C 358.4 444 345 429.7 345 412 Z M 620 412 C 620 394.3 633.4 380 650 380 C 666.6 380 680 394.3 680 412 C 680 429.7 666.6 444 650 444 C 633.4 444 620 429.7 620 412 Z"/>
+  <path data-part="eyes_1" data-z="50" data-slot="eye.primary" d="M 327 454 C 358.2 490 391.8 490 423 454 C 396.6 476.3 353.4 476.3 327 454 Z M 602 454 C 633.2 490 666.8 490 698 454 C 671.6 476.3 628.4 476.3 602 454 Z"/>
+</svg>

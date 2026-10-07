@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_zzz_marks"
+     data-content-version="1">
+  <path data-part="z_large" data-z="110" data-slot="overlay.zzz" d="M 690 150 L 810 150 L 810 168 L 726 168 L 810 222 L 810 240 L 690 240 L 690 222 L 774 222 L 690 168 Z"/>
+  <path data-part="z_small" data-z="110" data-slot="overlay.zzz" d="M 820 250 L 910 250 L 910 264 L 848 264 L 910 306 L 910 320 L 820 320 L 820 306 L 882 306 L 820 264 Z"/>
+</svg>

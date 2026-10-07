@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_tongue",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 422 600 C 422 574.6 462.3 554 512 554 C 561.7 554 602 574.6 602 600 C 602 625.4 561.7 646 512 646 C 462.3 646 422 625.4 422 600 Z"
+    },
+    {
+      "id": "tongue",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 456 620 C 468 760 556 760 568 620 C 540 710 484 710 456 620 Z"
+    }
+  ]
+}

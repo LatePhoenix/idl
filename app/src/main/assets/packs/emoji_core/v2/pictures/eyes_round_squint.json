@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "eyes_round_squint",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "eyes_0",
+      "zBand": 50,
+      "fill": {
+        "slot": "eye.primary"
+      },
+      "commands": "M 303 424 C 349.8 402 400.2 402 447 424 C 407.4 410.4 342.6 410.4 303 424 Z M 578 424 C 624.8 402 675.2 402 722 424 C 682.4 410.4 617.6 410.4 578 424 Z"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_heart_marks"
+     data-content-version="1">
+  <path data-part="hearts" data-z="110" data-slot="overlay.hearts" d="M 250 250 C 250 210 310 200 320 240 C 330 200 390 210 390 250 C 390 310 320 360 320 360 C 320 360 250 310 250 250 Z M 680 200 C 680 164 732 156 742 192 C 752 156 804 164 804 200 C 804 252 742 296 742 296 C 742 296 680 252 680 200 Z"/>
+</svg>

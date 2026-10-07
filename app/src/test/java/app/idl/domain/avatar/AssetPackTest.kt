@@ -91,9 +91,21 @@ class AssetPackTest {
         assertEquals("eyes_scan", focused.partsFor("base_bot").eyes)
         assertEquals("eyes_narrow", focused.partsFor("base_blob").eyes)
         val tuples = registry.allExpressions.map { expr ->
-            listOf(expr.eyes, expr.brows, expr.mouth) + expr.overlays + expr.extras
+            val parts = expr.partsFor("base_teardrop")
+            (listOf(parts.eyes, parts.brows, parts.mouth) + expr.overlays + expr.extras) to expr.id
         }
-        assertEquals(registry.allExpressions.size, tuples.toSet().size)
+        val mirrors = tuples.groupBy({ it.first }, { it.second })
+            .filterValues { it.size > 1 }
+            .map { it.value.sorted() }
+            .sortedBy { it.first() }
+        // Catalog faces reuse the legacy neutral and happy drawings so those goldens stay put.
+        assertEquals(
+            listOf(
+                listOf("happy", "smiling_face_with_smiling_eyes"),
+                listOf("neutral", "neutral_face"),
+            ),
+            mirrors,
+        )
         assertEquals("overlay_sleep_zs", registry.expression("sleepy")!!.overlays.single())
         assertEquals(listOf("overlay_thermometer", "overlay_bandage"), registry.expression("sick")!!.extras)
         assertEquals(listOf("overlay_blush"), registry.expression("happy")!!.extras)
