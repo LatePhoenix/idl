@@ -5,12 +5,13 @@ anti-aliasing at 48 px is close to the device. PackContactSheetTest goldens stay
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 import numpy as np
 import skia
 
-from . import paths
+from . import paths, repo
 
 FRAMING = {"head": (-40.0, 0.0, 1104.0), "bust": (-128.0, 32.0, 1280.0)}
 CATEGORY_Z = {
@@ -27,6 +28,8 @@ def parse_hex(raw):
     if not isinstance(raw, str):
         return None
     h = raw.lstrip("#")
+    if any(c not in "0123456789abcdefABCDEF" for c in h):
+        return None
     try:
         if len(h) == 6:
             return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)
@@ -37,33 +40,112 @@ def parse_hex(raw):
     return None
 
 
-def _mix(c, toward, t):
-    ch = lambda a, b: max(0, min(255, int(a * (1 - t) + b * t)))  # noqa: E731 (matches Kotlin toInt)
-    return (ch(c[0], toward[0]), ch(c[1], toward[1]), ch(c[2], toward[2]), 255)
+def pack_slot_links() -> dict[str, str]:
+    """Merge pack defaults.slotLinks across packs (same merge as AssetManifest / web UI)."""
+    links: dict[str, str] = {}
+    for pack in repo.load_packs():
+        links.update((pack.manifest.get("defaults") or {}).get("slotLinks") or {})
+    return links
 
 
-def resolve_colors(assets, overrides=None, unlinked=()):
+def _srgb_to_linear(c: float) -> float:
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _linear_to_srgb(c: float) -> int:
+    clipped = max(0.0, min(1.0, c))
+    encoded = 12.92 * clipped if clipped <= 0.0031308 else 1.055 * clipped ** (1 / 2.4) - 0.055
+    return max(0, min(255, int(encoded * 255)))
+
+
+def _from_argb(c: tuple[int, int, int, int]) -> tuple[float, float, float]:
+    r, g, b = _srgb_to_linear(c[0] / 255), _srgb_to_linear(c[1] / 255), _srgb_to_linear(c[2] / 255)
+    l_ = math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+    m_ = math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+    s_ = math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+    a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+    b_lab = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    chroma = math.sqrt(a * a + b_lab * b_lab)
+    hue = math.degrees(math.atan2(b_lab, a))
+    if hue < 0:
+        hue += 360
+    return L, chroma, hue
+
+
+def _to_opaque(ok: tuple[float, float, float]) -> tuple[int, int, int, int]:
+    L, chroma, hue = ok
+    h_rad = math.radians(hue)
+    a = chroma * math.cos(h_rad)
+    b_lab = chroma * math.sin(h_rad)
+    l_ = L + 0.3963377774 * a + 0.2158037573 * b_lab
+    m_ = L - 0.1055613458 * a - 0.0638541728 * b_lab
+    s_ = L - 0.0894841775 * a - 1.2914855480 * b_lab
+    l, m, s = l_ ** 3, m_ ** 3, s_ ** 3
+    return (
+        _linear_to_srgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+        _linear_to_srgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+        _linear_to_srgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
+        255,
+    )
+
+
+def derive_shadow(primary: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    L, chroma, hue = _from_argb(primary)
+    return _to_opaque((max(0.0, min(1.0, L - 0.12)), chroma * 1.05, hue))
+
+
+def derive_highlight(primary: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    L, chroma, hue = _from_argb(primary)
+    return _to_opaque((max(0.0, min(1.0, L + 0.10)), chroma * 0.9, hue))
+
+
+def resolve_colors(assets, overrides=None, unlinked=(), slot_links=None):
+    """ColorSlots.resolve (AP-9): overrides, pack slot links, OKLCH shadow/highlight, defaults."""
     overrides = overrides or {}
-    declared = {}
+    unlinked = set(unlinked)
+    slot_links = slot_links if slot_links is not None else pack_slot_links()
+    declared: dict[str, str] = {}
     for asset in assets:
         if not asset.get("picture"):
             continue
         for slot, hex_ in (asset.get("colorSlots") or {}).items():
             declared.setdefault(slot, hex_)
-    colors = {}
-    for slot in sorted(declared):
-        colors[slot] = parse_hex(overrides.get(slot)) or _derived(slot, overrides, unlinked) or parse_hex(declared[slot]) or NEUTRAL
-    return colors
+    slots = sorted(set(declared) | set(overrides) | set(slot_links))
+    memo: dict[str, tuple[int, int, int, int]] = {}
+    visiting: set[str] = set()
 
+    def resolve_one(slot: str) -> tuple[int, int, int, int]:
+        if slot in memo:
+            return memo[slot]
+        if slot in visiting:
+            return NEUTRAL
+        visiting.add(slot)
+        try:
+            override = parse_hex(overrides.get(slot))
+            if override is not None:
+                memo[slot] = override
+                return override
+            if slot not in unlinked:
+                source = slot_links.get(slot)
+                if source:
+                    memo[slot] = resolve_one(source)
+                    return memo[slot]
+                suffix = ".shadow" if slot.endswith(".shadow") else ".highlight" if slot.endswith(".highlight") else None
+                if suffix:
+                    primary_slot = slot[: -len(suffix)] + ".primary"
+                    if parse_hex(overrides.get(primary_slot)) is not None:
+                        primary = resolve_one(primary_slot)
+                        memo[slot] = derive_shadow(primary) if suffix == ".shadow" else derive_highlight(primary)
+                        return memo[slot]
+            memo[slot] = parse_hex(declared.get(slot)) or NEUTRAL
+            return memo[slot]
+        finally:
+            visiting.discard(slot)
 
-def _derived(slot, overrides, unlinked):
-    suffix = ".shadow" if slot.endswith(".shadow") else ".highlight" if slot.endswith(".highlight") else None
-    if suffix is None or slot in unlinked:
-        return None
-    primary = parse_hex(overrides.get(slot[: -len(suffix)] + ".primary"))
-    if primary is None:
-        return None
-    return _mix(primary, (0, 0, 0), 0.25) if suffix == ".shadow" else _mix(primary, (255, 255, 255), 0.30)
+    for slot in slots:
+        resolve_one(slot)
+    return memo
 
 
 def draw_ops(assets):
@@ -88,8 +170,9 @@ def _path(d, rule="nonzero"):
     return path
 
 
-def draw_avatar(canvas: skia.Canvas, size: float, assets, *, framing="head", frame="squircle", overrides=None, unlinked=()):
-    colors = resolve_colors(assets, overrides, unlinked)
+def draw_avatar(canvas: skia.Canvas, size: float, assets, *, framing="head", frame="squircle",
+                overrides=None, unlinked=(), slot_links=None):
+    colors = resolve_colors(assets, overrides, unlinked, slot_links)
     ops = draw_ops(assets)
     masks = {}
     for band, _, asset_id, index, asset, part in sorted(ops, key=lambda o: (o[0], o[2], o[3])):
@@ -131,7 +214,7 @@ def draw_avatar(canvas: skia.Canvas, size: float, assets, *, framing="head", fra
                 op = skia.ClipOp.kDifference if sub["mode"] == "difference" else skia.ClipOp.kIntersect
                 canvas.clipPath(mask[1], op, True)
         path = _path(part["commands"], part.get("fillRule", "nonzero"))
-        opacity = part.get("opacity", 1.0)
+        opacity = float(part.get("opacity", 1.0))
         fill = part["fill"]
         paint = skia.Paint(AntiAlias=True)
         if fill.get("slot"):
@@ -181,12 +264,14 @@ def _apply_transform(canvas, t):
     canvas.translate(t.get("translateX", 0), t.get("translateY", 0))
 
 
-def render(assets, size=96, *, framing="head", frame="squircle", wall=None, overrides=None) -> np.ndarray:
+def render(assets, size=96, *, framing="head", frame="squircle", wall=None, overrides=None,
+           unlinked=(), slot_links=None) -> np.ndarray:
     """RGBA pixels (size, size, 4). `wall` paints a wallpaper behind the frame."""
     surface = skia.Surface(size, size)
     canvas = surface.getCanvas()
     canvas.clear(skia.Color(*WALLS[wall]) if wall else skia.ColorTRANSPARENT)
-    draw_avatar(canvas, size, assets, framing=framing, frame=frame, overrides=overrides)
+    draw_avatar(canvas, size, assets, framing=framing, frame=frame, overrides=overrides,
+                unlinked=unlinked, slot_links=slot_links)
     return surface.makeImageSnapshot().toarray(colorType=skia.kRGBA_8888_ColorType)
 
 
@@ -239,3 +324,64 @@ def sheet(rows: list[tuple[str, list[Cell]]], *, title: str = "") -> skia.Image:
 
 def save_png(image: skia.Image, path) -> None:
     image.save(str(path), skia.kPNG)
+
+
+def sheet_size(rows: list[tuple[str, list[Cell]]], *, title: str = "") -> tuple[int, int]:
+    """Pixel size of a sheet built from the same layout as `sheet`."""
+    pad, label_h, row_title_h = 12, 18, 22
+    title_h = 30 if title else 0
+    widths = [sum(c.size * c.zoom + pad for c in cells) + pad for _, cells in rows]
+    heights = [row_title_h + max(c.size * c.zoom for c in cells) + label_h + pad for _, cells in rows]
+    return max(widths + [320]), title_h + sum(heights) + pad
+
+
+EXPRESSIONS_SHEET = ("neutral_face", "star_struck", "crying_face", "sleeping_face")
+SKIN_TONES = (
+    ("light", {"face.primary": "#F3E0C8"}),
+    ("deep", {"face.primary": "#4A2810"}),
+)
+
+
+def standard_sheet(library, focus_id: str, *, with_items: list[str] | None = None,
+                   expression: str = "neutral_face") -> skia.Image:
+    """ST-1 standard render sheet: head 48(4×)/96/192 light+dark, bust 256, kit try-ons,
+    two skins, four expressions at 96."""
+    from . import kits  # local: avoid cycle at import for non-skia callers
+
+    focus = library.get(focus_id)
+    items = list(with_items or [])
+    if focus_id not in items:
+        items = [focus_id] + items
+    base_look = library.look(items, expression)
+    rows: list[tuple[str, list[Cell]]] = []
+
+    for wall in ("light", "dark"):
+        cells = [
+            Cell(base_look, "48 (4×)", size=48, zoom=4, wall=wall),
+            Cell(base_look, "96", size=96, wall=wall),
+            Cell(base_look, "192", size=192, wall=wall),
+        ]
+        rows.append((f"Head · {wall}", cells))
+    rows.append(("Bust 256", [Cell(base_look, "bust", size=256, framing="bust", wall="light")]))
+
+    try:
+        kit = kits.load(focus["category"])
+        for i, set_ids in enumerate(kit.get("tryOn") or []):
+            worn = library.look([focus_id, *set_ids], expression)
+            rows.append((f"Try-on {i + 1}: {', '.join(set_ids)}",
+                         [Cell(worn, "128", size=128, wall="light")]))
+    except ValueError:
+        pass
+
+    skin_cells = [
+        Cell(library.look(items, expression), label, size=96, wall="light", overrides=dict(ov))
+        for label, ov in SKIN_TONES
+    ]
+    rows.append(("Skin tones", skin_cells))
+
+    expr_cells = [
+        Cell(library.look(items, expr), expr.replace("_", " "), size=96, wall="light")
+        for expr in EXPRESSIONS_SHEET
+    ]
+    rows.append(("Expressions", expr_cells))
+    return sheet(rows, title=focus_id)
