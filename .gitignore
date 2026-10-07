@@ -9,3 +9,5 @@ build/
 .cxx
 .kotlin/
 google-services.json
+__pycache__/
+*.pyc
