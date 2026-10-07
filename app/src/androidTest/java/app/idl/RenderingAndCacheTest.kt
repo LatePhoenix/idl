@@ -270,7 +270,7 @@ class WidgetRenderPathTest {
         val vr = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "vr" }.toState(now)), now)
         val moView = checkNotNull(
             PrivacyFilter.viewFor(
-                "me", "u_mo", moSaved, vr, PrivacyRules.DEFAULT,
+                "me", "u_mo", app.idl.domain.avatar.LegacyAvatarMigration.migrate(moSaved, registry), vr, PrivacyRules.DEFAULT,
                 Relationship(isFriend = true, isCloseFriend = false), false,
             ),
         )
@@ -283,7 +283,7 @@ class WidgetRenderPathTest {
         val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
         val ariView = checkNotNull(
             PrivacyFilter.viewFor(
-                "me", "u_ari", ariSaved, sleepy, PrivacyRules.DEFAULT,
+                "me", "u_ari", app.idl.domain.avatar.LegacyAvatarMigration.migrate(ariSaved, registry), sleepy, PrivacyRules.DEFAULT,
                 Relationship(isFriend = true, isCloseFriend = true), false,
             ),
         )

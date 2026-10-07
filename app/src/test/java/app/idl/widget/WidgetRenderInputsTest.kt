@@ -8,6 +8,7 @@ import app.idl.domain.FaceAccessory
 import app.idl.domain.PresenceResolver
 import app.idl.domain.PresenceView
 import app.idl.domain.QuickState
+import app.idl.domain.wire
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.DropReason
 import app.idl.domain.avatar.LegacyAvatarMigration
@@ -54,18 +55,23 @@ class WidgetRenderInputsTest {
 
     @Test fun `a friend widget resolves the resting avatar and passes status as presence`() {
         val resting = AvatarConfig(faceAccessory = FaceAccessory.GLASSES)
+        val identity = LegacyAvatarMigration.migrate(resting, registry)
         val resolvedPresence = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "vr" }.toState(now)), now)
-        val composed = AvatarComposer.compose(resting, resolvedPresence)
         val view = PresenceView(
             userId = "ari",
-            avatar = composed,
-            restingAvatar = resting,
+            identity = identity,
             mood = resolvedPresence.mood,
             availability = resolvedPresence.availability,
             activityType = resolvedPresence.activity?.type,
+            visual = app.idl.domain.PresenceVisual(
+                expressionId = resolvedPresence.mood?.let {
+                    (resolvedPresence.visual.expression ?: AvatarComposer.expressionFor(it, resolvedPresence.availability))?.wire
+                },
+                headAccessoryAssetId = "head_vr_headset",
+            ),
         )
-        // Sanitizing the composed avatar is the bug: glasses and the headset are both "saved".
-        assertNull(LegacyAvatarMigration.migrate(composed, registry).signatureHeadAccessoryAssetId)
+        // Identity keeps signature glasses; the headset arrives only via presence visual.
+        assertNull(identity.signatureHeadAccessoryAssetId)
 
         val model = WidgetModel(title = "Ari", friendView = view, deepLink = "idl://friend/ari")
         val inputs = WidgetRenderInputs.from(model, registry, RenderTarget.STANDARD_WIDGET)!!

@@ -113,7 +113,12 @@ class WireFormatTest {
     }
 
     @Test fun `presence view round trips`() {
-        val v = PresenceView("u_ari", AvatarConfig(baseForm = BaseForm.FOX), mood = Mood.HAPPY, expiresAt = T0)
+        val v = PresenceView(
+            "u_ari",
+            app.idl.domain.avatar.AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"),
+            mood = Mood.HAPPY,
+            expiresAt = T0,
+        )
         val json = IdlJson.encodeToString(PresenceView.serializer(), v)
         assertTrue(json.contains("\"mood\":\"happy\""))
         assertEquals(v, IdlJson.decodeFromString(PresenceView.serializer(), json))

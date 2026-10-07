@@ -4,7 +4,7 @@ import app.idl.IdlClock
 import app.idl.IdlLog
 import app.idl.data.push.MockPushSource
 import app.idl.data.push.PushEvent
-import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.Friend
 import app.idl.domain.FriendStatus
 import app.idl.domain.IdlJson
@@ -35,7 +35,10 @@ import java.time.Duration
 @Serializable
 data class FakeWorld(
     val me: Me? = null,
-    val myAvatar: AvatarConfig = AvatarConfig(),
+    val myAvatar: AvatarConfiguration = AvatarConfiguration(
+        baseAssetId = "base_teardrop",
+        paletteAssetId = "palette_sunny",
+    ),
     val myStates: List<PresenceState> = emptyList(),
     val myRules: PrivacyRules = PrivacyRules.DEFAULT,
     val users: Map<String, DemoUser> = emptyMap(),
@@ -132,7 +135,7 @@ class FakeIdlBackend(
         return PrivacyFilter.viewFor(
             viewerId = me.userId,
             ownerId = id,
-            baseAvatar = u.avatar,
+            identity = u.recipe,
             presence = PresenceResolver.resolve(u.states, now),
             rules = u.rules,
             rel = rel,
@@ -159,9 +162,9 @@ class FakeIdlBackend(
 
     override suspend fun me(): Me = read { it.requireMe() }
 
-    override suspend fun getAvatar(): AvatarConfig = read { it.myAvatar }
+    override suspend fun getAvatar(): AvatarConfiguration = read { it.myAvatar }
 
-    override suspend fun putAvatar(config: AvatarConfig): AvatarConfig = call(write = true) { w ->
+    override suspend fun putAvatar(config: AvatarConfiguration): AvatarConfiguration = call(write = true) { w ->
         w.requireMe()
         w.copy(myAvatar = config) to config
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import app.idl.AppContainer
 import app.idl.avatar.AvatarImage
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.FriendStatus
 import app.idl.ui.components.IdlTopBar
 import app.idl.ui.components.SectionTitle
@@ -61,7 +62,7 @@ fun WidgetsScreen(c: AppContainer, onBack: () -> Unit) {
             if (accepted.isEmpty()) Text("Add a friend first.", style = MaterialTheme.typography.bodySmall)
             accepted.forEach { card ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                    AvatarImage(card.view?.avatar ?: AvatarConfig(), card.friend.displayName, size = 44.dp)
+                    AvatarImage(card.view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"), card.friend.displayName, size = 44.dp)
                     Spacer(Modifier.width(12.dp))
                     Text(card.friend.displayName, Modifier.weight(1f))
                     OutlinedButton(onClick = { if (!canPin || !WidgetPinning.pinFriend(context, card.friend.userId)) hint = manual }) { Text("Pin") }

@@ -50,14 +50,24 @@ class ExpiryTest {
     }
 
     @Test fun `cached friend view reverts to resting avatar once expired`() {
-        val resting = AvatarConfig(baseForm = BaseForm.CAT)
+        val identity = app.idl.domain.avatar.AvatarConfiguration(
+            baseAssetId = "base_teardrop",
+            paletteAssetId = "palette_sunny",
+            restingExpressionId = "neutral",
+        )
         val live = PresenceView(
-            userId = "u", avatar = resting.copy(expression = Expression.SLEEPY, handProp = Prop.TEA), restingAvatar = resting,
-            mood = Mood.SLEEPY, availability = Availability.TEXT_ONLY, note = "nap", expiresAt = T0.plus(hours(1)),
+            userId = "u",
+            identity = identity,
+            mood = Mood.SLEEPY,
+            availability = Availability.TEXT_ONLY,
+            note = "nap",
+            visual = PresenceVisual(expressionId = "sleepy", propAssetId = "prop_tea"),
+            expiresAt = T0.plus(hours(1)),
         )
         assertEquals(live, live.expiredAt(T0))
         val expired = live.expiredAt(T0.plus(hours(1)))
-        assertEquals(resting, expired.avatar)
+        assertEquals(identity, expired.identity)
+        assertNull(expired.visual)
         assertFalse(expired.hasStatus)
         assertNull(expired.note)
     }

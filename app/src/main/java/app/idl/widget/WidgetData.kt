@@ -27,7 +27,7 @@ data class WidgetModel(
     val restingAvatar: AvatarConfig? = null,
     /** Schema 3 identity when the cache already stores one. Status is not part of this. */
     val restingConfiguration: AvatarConfiguration? = null,
-    /** Friend widget: the filtered view. Identity is [PresenceView.restingAvatar]. */
+    /** Friend widget: the filtered view. Identity is [PresenceView.identity]. */
     val friendView: PresenceView? = null,
     /** Self widget: owner presence, resolved at read time. */
     val selfPresence: ResolvedPresence? = null,
@@ -109,7 +109,7 @@ object WidgetData {
         val stale = fetchedAt != null && lastFailed && Duration.between(fetchedAt, now) > STALE_AFTER
         return WidgetModel(
             title = friend.displayName,
-            restingAvatar = view?.restingAvatar,
+            restingConfiguration = view?.identity,
             friendView = view,
             availability = view?.availability,
             activity = view?.activityType,

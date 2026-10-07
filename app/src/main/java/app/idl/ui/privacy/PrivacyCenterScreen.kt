@@ -50,6 +50,8 @@ import app.idl.domain.PrivacyFilter
 import app.idl.domain.PrivacyRules
 import app.idl.domain.Relationship
 import app.idl.domain.VisibilityCategory
+import app.idl.domain.avatar.AvatarConfiguration
+import app.idl.domain.avatar.LegacyAvatarMigration
 import app.idl.ui.components.ChoiceChips
 import app.idl.ui.components.IdlTopBar
 import app.idl.ui.components.SectionTitle
@@ -130,7 +132,7 @@ fun PrivacyCenterScreen(c: AppContainer, onBack: () -> Unit, vm: PrivacyViewMode
                 val view = PrivacyFilter.viewFor(
                     viewerId = previewFriend.userId,
                     ownerId = me?.userId ?: "",
-                    baseAvatar = avatar ?: AvatarConfig(),
+                    identity = LegacyAvatarMigration.migrate(avatar ?: AvatarConfig(), c.assetRegistry),
                     presence = PresenceResolver.resolve(states, now),
                     rules = rules,
                     rel = Relationship(isFriend = true, isCloseFriend = previewFriend.isCloseFriend),
@@ -138,7 +140,7 @@ fun PrivacyCenterScreen(c: AppContainer, onBack: () -> Unit, vm: PrivacyViewMode
                 )
                 Card(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        AvatarImage(view?.avatar ?: AvatarConfig(), "What ${previewFriend.displayName} sees", size = 88.dp, badges = AvatarBadges(view?.availability, view?.activityType))
+                        AvatarImage(view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"), "What ${previewFriend.displayName} sees", size = 88.dp, badges = AvatarBadges(view?.availability, view?.activityType))
                         Spacer(Modifier.width(12.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text("${previewFriend.displayName} sees:", style = MaterialTheme.typography.titleSmall)

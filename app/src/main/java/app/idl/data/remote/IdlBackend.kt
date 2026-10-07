@@ -1,6 +1,6 @@
 package app.idl.data.remote
 
-import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.Friend
 import app.idl.domain.Invite
 import app.idl.domain.Me
@@ -43,8 +43,8 @@ interface IdlBackend {
     suspend fun register(displayName: String, username: String): Me
     suspend fun me(): Me
 
-    suspend fun getAvatar(): AvatarConfig
-    suspend fun putAvatar(config: AvatarConfig): AvatarConfig
+    suspend fun getAvatar(): AvatarConfiguration
+    suspend fun putAvatar(config: AvatarConfiguration): AvatarConfiguration
 
     suspend fun putPresence(state: PresenceState): PresenceState
     suspend fun clearPresence()

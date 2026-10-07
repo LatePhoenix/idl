@@ -1,5 +1,7 @@
 package app.idl.domain
 
+import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.coreRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -8,10 +10,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PrivacyFilterTest {
+    private val registry = coreRegistry()
     private val base = AvatarConfig(
         baseForm = BaseForm.FOX, expression = Expression.NEUTRAL,
         headAccessory = HeadAccessory.CROWN, faceAccessory = FaceAccessory.GLASSES,
     )
+    private val identity = LegacyAvatarMigration.migrate(base, registry)
     private val presence = PresenceResolver.resolve(
         listOf(
             state(
@@ -31,7 +35,7 @@ class PrivacyFilterTest {
         invisible: Boolean = false,
         p: ResolvedPresence = presence,
         viewer: String = "viewer",
-    ) = PrivacyFilter.viewFor(viewer, "owner", base, p, rules, rel, invisible)
+    ) = PrivacyFilter.viewFor(viewer, "owner", identity, p, rules, rel, invisible)
 
     @Test fun `non-friends and blocked users get nothing at all`() {
         assertNull(view(Relationship(isFriend = false)))
@@ -54,15 +58,16 @@ class PrivacyFilterTest {
 
     @Test fun `derived-leak rule - hidden mood never shows through the expression`() {
         val v = view(friend)!!
-        assertEquals(base.expression, v.avatar.expression)
+        assertEquals(identity.restingExpressionId, v.identity.restingExpressionId)
+        assertNull(v.visual?.expressionId)
         // Non-mood visuals (props) are part of avatar appearance and still show.
-        assertEquals(Prop.TEA, v.avatar.handProp)
+        assertEquals("prop_tea", v.visual?.propAssetId)
     }
 
     @Test fun `default close friend sees mood, intent, activity category and note`() {
         val v = view(close)!!
         assertEquals(Mood.SLEEPY, v.mood)
-        assertEquals(Expression.SLEEPY, v.avatar.expression)
+        assertEquals("sleepy", v.visual?.expressionId)
         assertEquals(StatusIntent.ASK_LATER, v.intent)
         assertEquals(ActivityType.VR, v.activityType)
         assertEquals("napping", v.note)
@@ -109,9 +114,11 @@ class PrivacyFilterTest {
     @Test fun `hidden avatar shows only the minimal base`() {
         val rules = PrivacyRules.DEFAULT.with(AudienceRule(VisibilityCategory.AVATAR, Audience.NOBODY))
         val v = view(close, rules)!!
-        assertEquals(base.minimal(), v.avatar)
-        assertEquals(HeadAccessory.NONE, v.avatar.headAccessory)
-        assertEquals(Prop.NONE, v.avatar.handProp)
+        assertEquals("base_teardrop", v.identity.baseAssetId)
+        assertEquals(identity.paletteAssetId, v.identity.paletteAssetId)
+        assertNull(v.identity.signatureHeadAccessoryAssetId)
+        assertNull(v.identity.defaultPropAssetId)
+        assertNull(v.visual)
     }
 
     @Test fun `invisible looks identical to having no status`() {
@@ -121,7 +128,7 @@ class PrivacyFilterTest {
         assertFalse(invisible!!.hasStatus)
         assertNull(invisible.updatedAt)
         assertNull(invisible.expiresAt)
-        assertEquals(base, invisible.avatar)
+        assertEquals(identity, invisible.identity)
     }
 
     @Test fun `owner sees everything even while invisible`() {

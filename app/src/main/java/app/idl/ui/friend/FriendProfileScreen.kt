@@ -47,6 +47,7 @@ import app.idl.avatar.AvatarBadges
 import app.idl.avatar.AvatarImage
 import app.idl.data.repo.idlError
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.Expiry
 import app.idl.domain.FriendStatus
 import app.idl.domain.ReactionTemplate
@@ -139,7 +140,7 @@ fun FriendProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AvatarImage(
-                view?.avatar ?: AvatarConfig(),
+                view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"),
                 contentDescription = "$name's iDL",
                 size = 180.dp,
                 badges = AvatarBadges(view?.availability, view?.activityType),

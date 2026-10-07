@@ -23,6 +23,7 @@ import app.idl.domain.ResolvedPresence
 import app.idl.domain.Scene
 import app.idl.domain.VisualOverride
 import app.idl.domain.avatar.AvatarResolver
+import app.idl.domain.avatar.LegacyAvatarMigration
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.ResolvedAvatar
 import app.idl.domain.avatar.WallpaperContrastMode
@@ -102,7 +103,7 @@ class WidgetSnapshotTest {
         val vr = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "vr" }.toState(now)), now)
         val view = checkNotNull(
             PrivacyFilter.viewFor(
-                "me", "u_mo", saved, vr, PrivacyRules.DEFAULT,
+                "me", "u_mo", LegacyAvatarMigration.migrate(saved, registry), vr, PrivacyRules.DEFAULT,
                 Relationship(isFriend = true, isCloseFriend = false), false,
             ),
         )
@@ -192,7 +193,7 @@ class WidgetSnapshotTest {
         val sleepy = PresenceResolver.resolve(listOf(QuickState.ALL.first { it.id == "sleepy" }.toState(now)), now)
         val view = checkNotNull(
             PrivacyFilter.viewFor(
-                "me", "u_ari", saved, sleepy, PrivacyRules.DEFAULT,
+                "me", "u_ari", LegacyAvatarMigration.migrate(saved, registry), sleepy, PrivacyRules.DEFAULT,
                 Relationship(isFriend = true, isCloseFriend = true), false,
             ),
         )

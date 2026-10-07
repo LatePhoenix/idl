@@ -45,6 +45,7 @@ import app.idl.avatar.AvatarImage
 import app.idl.data.remote.DemoData
 import app.idl.data.repo.idlError
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.FriendStatus
 import app.idl.domain.Invite
 import app.idl.ui.components.IdlTopBar
@@ -96,7 +97,7 @@ fun AddFriendScreen(c: AppContainer, onBack: () -> Unit, vm: AddFriendViewModel 
                 incoming.forEach { card ->
                     Card(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            AvatarImage(card.view?.avatar ?: AvatarConfig(), card.friend.displayName, size = 48.dp)
+                            AvatarImage(card.view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"), card.friend.displayName, size = 48.dp)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(card.friend.displayName, style = MaterialTheme.typography.titleMedium)

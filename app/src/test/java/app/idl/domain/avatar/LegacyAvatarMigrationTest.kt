@@ -138,21 +138,21 @@ class LegacyAvatarMigrationTest {
     }
 
     @Test fun `a presence view copies only status visuals and hides expression without mood`() {
-        val resting = AvatarConfig()
-        val avatar = resting.copy(
-            expression = Expression.SLEEPY,
-            handProp = Prop.TEA,
-            scene = Scene.FOREST,
-            headAccessory = HeadAccessory.BEANIE,
-            bodyAccessory = BodyAccessory.BLANKET,
+        val identity = AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny")
+        val visual = app.idl.domain.PresenceVisual(
+            expressionId = "sleepy",
+            propAssetId = "prop_tea",
+            sceneAssetId = "scene_forest",
+            headAccessoryAssetId = "head_beanie",
+            bodyAccessoryAssetId = "body_blanket",
         )
         val view = PresenceView(
             userId = "u",
-            avatar = avatar,
-            restingAvatar = resting,
+            identity = identity,
             mood = Mood.SLEEPY,
             availability = Availability.TEXT_ONLY,
             activityType = ActivityType.VR,
+            visual = visual,
         )
         val visible = LegacyAvatarMigration.presence(view)
         assertEquals(Mood.SLEEPY, visible.mood)
@@ -164,7 +164,9 @@ class LegacyAvatarMigrationTest {
         assertEquals("head_beanie", visible.headAccessoryAssetId)
         assertEquals("body_blanket", visible.bodyAccessoryAssetId)
 
-        val same = LegacyAvatarMigration.presence(view.copy(avatar = resting, mood = null, availability = null, activityType = null))
+        val same = LegacyAvatarMigration.presence(
+            view.copy(mood = null, availability = null, activityType = null, visual = null),
+        )
         assertNull(same.expressionId)
         assertNull(same.propAssetId)
         assertNull(same.sceneAssetId)

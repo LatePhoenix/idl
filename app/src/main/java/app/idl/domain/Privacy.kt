@@ -1,5 +1,7 @@
 package app.idl.domain
 
+import app.idl.domain.avatar.AvatarConfiguration
+import app.idl.domain.avatar.LegacyAvatarMigration
 import kotlinx.serialization.Serializable
 import java.time.Instant
 
@@ -62,15 +64,30 @@ data class Relationship(
 )
 
 /**
- * What one viewer is allowed to see of one owner. Absent (null) fields are not visible.
- * [avatar] is always the fully composed avatar to render.
+ * Status visuals the viewer may draw on top of [PresenceView.identity].
+ * [expressionId] is present only when mood is visible (F-19).
+ */
+@Serializable
+data class PresenceVisual(
+    val expressionId: String? = null,
+    val propAssetId: String? = null,
+    val headAccessoryAssetId: String? = null,
+    val bodyAccessoryAssetId: String? = null,
+    val sceneAssetId: String? = null,
+) {
+    val isEmpty: Boolean
+        get() = expressionId == null && propAssetId == null && headAccessoryAssetId == null &&
+            bodyAccessoryAssetId == null && sceneAssetId == null
+}
+
+/**
+ * What one viewer is allowed to see of one owner. Absent fields are not visible.
+ * The client composes the face from [identity] plus [visual] (D-24).
  */
 @Serializable
 data class PresenceView(
     val userId: String,
-    val avatar: AvatarConfig,
-    /** What to show once the status expires (no status-driven expression or props). */
-    val restingAvatar: AvatarConfig = avatar,
+    val identity: AvatarConfiguration,
     val mood: Mood? = null,
     val availability: Availability? = null,
     val intent: StatusIntent? = null,
@@ -79,6 +96,7 @@ data class PresenceView(
     val joinable: Boolean? = null,
     val joinUrl: String? = null,
     val note: String? = null,
+    val visual: PresenceVisual? = null,
     @Serializable(with = InstantSerializer::class) val updatedAt: Instant? = null,
     /** Always present when any status field is, so caches can expire state offline. */
     @Serializable(with = InstantSerializer::class) val expiresAt: Instant? = null,
@@ -91,7 +109,7 @@ data class PresenceView(
 
     /** The same view with any status that has expired by [now] removed. */
     fun expiredAt(now: Instant): PresenceView =
-        if (isExpired(now)) PresenceView(userId, avatar = restingAvatar, restingAvatar = restingAvatar) else this
+        if (isExpired(now)) PresenceView(userId, identity = identity) else this
 }
 
 /**
@@ -138,17 +156,17 @@ object PrivacyFilter {
     fun viewFor(
         viewerId: String,
         ownerId: String,
-        baseAvatar: AvatarConfig,
+        identity: AvatarConfiguration,
         presence: ResolvedPresence,
         rules: PrivacyRules,
         rel: Relationship,
         ownerInvisible: Boolean,
     ): PresenceView? {
         if (viewerId == ownerId) {
+            val visual = visualFor(presence, moodVisible = true)
             return PresenceView(
                 userId = ownerId,
-                avatar = AvatarComposer.compose(baseAvatar, presence),
-                restingAvatar = baseAvatar,
+                identity = identity,
                 mood = presence.mood,
                 availability = presence.availability,
                 intent = presence.intent,
@@ -157,6 +175,7 @@ object PrivacyFilter {
                 joinable = presence.activity?.joinable,
                 joinUrl = presence.activity?.joinUrl,
                 note = presence.note,
+                visual = visual,
                 updatedAt = presence.updatedAt,
                 expiresAt = presence.expiresAt,
             )
@@ -165,28 +184,22 @@ object PrivacyFilter {
 
         fun can(c: VisibilityCategory) = allows(c, rules, rel, viewerId)
         val avatarVisible = can(VisibilityCategory.AVATAR)
-        val restingAvatar = if (avatarVisible) baseAvatar else baseAvatar.minimal()
+        val shown = if (avatarVisible) identity else minimalIdentity(identity)
 
         // Invisible and "no status" must look identical to the viewer.
         if (ownerInvisible || presence.isEmpty) {
-            return PresenceView(userId = ownerId, avatar = restingAvatar, restingAvatar = restingAvatar)
+            return PresenceView(userId = ownerId, identity = shown)
         }
 
         val moodVisible = can(VisibilityCategory.MOOD)
-        val avatar = when {
-            !avatarVisible -> restingAvatar
-            // Derived-leak rule: an expression must not reveal a hidden mood.
-            !moodVisible -> AvatarComposer.compose(baseAvatar, presence).copy(expression = baseAvatar.expression)
-            else -> AvatarComposer.compose(baseAvatar, presence)
-        }
         val activity = presence.activity
         val categoryVisible = activity != null && can(VisibilityCategory.ACTIVITY_CATEGORY)
         val joinVisible = categoryVisible && can(VisibilityCategory.JOINABLE)
+        val visual = if (avatarVisible) visualFor(presence, moodVisible) else null
 
         val view = PresenceView(
             userId = ownerId,
-            avatar = avatar,
-            restingAvatar = restingAvatar,
+            identity = shown,
             mood = presence.mood.takeIf { moodVisible },
             availability = presence.availability.takeIf { can(VisibilityCategory.AVAILABILITY) },
             intent = presence.intent.takeIf { can(VisibilityCategory.INTENT) },
@@ -195,8 +208,35 @@ object PrivacyFilter {
             joinable = activity?.joinable.takeIf { joinVisible },
             joinUrl = activity?.joinUrl.takeIf { joinVisible },
             note = presence.note.takeIf { can(VisibilityCategory.STATUS_NOTE) },
+            visual = visual,
             updatedAt = presence.updatedAt.takeIf { can(VisibilityCategory.LAST_UPDATED) },
         )
-        return if (view.hasStatus || avatar != restingAvatar) view.copy(expiresAt = presence.expiresAt) else view
+        return if (view.hasStatus || view.visual != null) view.copy(expiresAt = presence.expiresAt) else view
+    }
+
+    private fun minimalIdentity(identity: AvatarConfiguration) = AvatarConfiguration(
+        baseAssetId = "base_teardrop",
+        paletteAssetId = identity.paletteAssetId.ifBlank { "palette_sunny" },
+        packId = identity.packId.ifBlank { AvatarConfiguration.DEFAULT_PACK_ID },
+        packVersion = identity.packVersion,
+        familyId = "teardrop_face",
+        restingExpressionId = "neutral",
+    )
+
+    private fun visualFor(presence: ResolvedPresence, moodVisible: Boolean): PresenceVisual? {
+        val visual = presence.visual
+        val expressionId = if (moodVisible) {
+            (visual.expression ?: AvatarComposer.expressionFor(presence.mood, presence.availability))?.wire
+        } else {
+            null
+        }
+        val mapped = PresenceVisual(
+            expressionId = expressionId,
+            propAssetId = visual.props.firstOrNull()?.let(LegacyAvatarMigration::propAssetId),
+            headAccessoryAssetId = visual.headAccessory?.let(LegacyAvatarMigration::headAssetId),
+            bodyAccessoryAssetId = visual.bodyAccessory?.let(LegacyAvatarMigration::bodyAssetId),
+            sceneAssetId = visual.scene?.let(LegacyAvatarMigration::sceneAssetId),
+        )
+        return mapped.takeUnless { it.isEmpty }
     }
 }

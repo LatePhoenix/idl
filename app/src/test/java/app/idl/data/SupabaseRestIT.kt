@@ -8,16 +8,14 @@ import app.idl.data.remote.supabase.TokenProvider
 import app.idl.domain.Audience
 import app.idl.domain.AudienceRule
 import app.idl.domain.Availability
-import app.idl.domain.AvatarConfig
-import app.idl.domain.BaseForm
 import app.idl.domain.Expiry
-import app.idl.domain.Expression
 import app.idl.domain.FriendStatus
 import app.idl.domain.Mood
 import app.idl.domain.PrivacyRules
 import app.idl.domain.QuickState
 import app.idl.domain.ReactionTemplate
 import app.idl.domain.VisibilityCategory
+import app.idl.domain.avatar.AvatarConfiguration
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -101,7 +99,12 @@ class SupabaseRestIT {
         expectError(IdlError.Invalid("username", "That username is taken")) { user().second.register("X", "mo_$suffix") }
 
         // Avatar round trip in the shared wire format.
-        val fox = AvatarConfig(baseForm = BaseForm.FOX, expression = Expression.HAPPY)
+        val fox = AvatarConfiguration(
+            baseAssetId = "base_teardrop",
+            paletteAssetId = "palette_sunny",
+            restingExpressionId = "happy",
+            familyId = "teardrop_face",
+        )
         assertEquals(fox, ari.putAvatar(fox))
         assertEquals(fox, ari.getAvatar())
 
@@ -119,7 +122,7 @@ class SupabaseRestIT {
         val view = ari.friendPresence(moId)
         assertEquals(Mood.SLEEPY, view.mood)
         assertEquals(Availability.TEXT_ONLY, view.availability)
-        assertEquals(Expression.SLEEPY, view.avatar.expression)
+        assertEquals("sleepy", view.visual?.expressionId)
         assertNull(view.note)
         assertTrue(view.expiresAt!!.isAfter(now.plus(Expiry.DEFAULT)))
         assertEquals(listOf(view), ari.friendPresence())

@@ -52,18 +52,17 @@ object LegacyAvatarMigration {
 
     /** Copies only fields the viewer was sent. Expression is set only when mood is visible. */
     fun presence(view: PresenceView): VisiblePresence {
-        val avatar = view.avatar
-        val resting = view.restingAvatar
+        val visual = view.visual
         return VisiblePresence(
             mood = view.mood,
             availability = view.availability,
             intent = view.intent,
             activityType = view.activityType?.takeIf { it != ActivityType.NONE },
-            expressionId = if (view.mood != null) avatar.expression.wire else null,
-            propAssetId = if (avatar.handProp != resting.handProp) propId(avatar.handProp) else null,
-            headAccessoryAssetId = if (avatar.headAccessory != resting.headAccessory) headId(avatar.headAccessory) else null,
-            bodyAccessoryAssetId = if (avatar.bodyAccessory != resting.bodyAccessory) bodyId(avatar.bodyAccessory) else null,
-            sceneAssetId = if (avatar.scene != resting.scene) sceneId(avatar.scene) else null,
+            expressionId = visual?.expressionId.takeIf { view.mood != null },
+            propAssetId = visual?.propAssetId,
+            headAccessoryAssetId = visual?.headAccessoryAssetId,
+            bodyAccessoryAssetId = visual?.bodyAccessoryAssetId,
+            sceneAssetId = visual?.sceneAssetId,
         )
     }
 
@@ -84,6 +83,11 @@ object LegacyAvatarMigration {
             sceneAssetId = visual.scene?.let { sceneId(it) },
         )
     }
+
+    fun headAssetId(accessory: HeadAccessory): String? = headId(accessory)
+    fun bodyAssetId(accessory: BodyAccessory): String? = bodyId(accessory)
+    fun propAssetId(prop: Prop): String? = propId(prop)
+    fun sceneAssetId(scene: Scene): String = sceneId(scene)
 
     private fun headId(accessory: HeadAccessory): String? = when (accessory) {
         HeadAccessory.NONE -> null

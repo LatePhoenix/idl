@@ -113,7 +113,7 @@ class SessionRepository(
             val me = backend.me()
             dao.upsertSession(SessionEntity(userId = me.userId, username = me.username, displayName = me.displayName, invisible = me.invisible))
             runCatching { backend.getAvatar() }.getOrNull()?.let { config ->
-                val encoded = IdlJson.encodeToString(AvatarConfig.serializer(), config)
+                val encoded = IdlJson.encodeToString(AvatarConfiguration.serializer(), config)
                 val stored = registry?.let { StoredAvatar.rewrite(encoded, it()) } ?: encoded
                 dao.upsertAvatar(AvatarEntity(me.userId, stored))
             }
@@ -186,10 +186,12 @@ class AvatarRepository(
             return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
         }
         val ready = (write as AvatarWrite.Ready).configuration
-        // Cached as schema 3 so the builder works offline. The server still takes the v1 shape until AP-7's server PR.
         dao.upsertAvatar(AvatarEntity(userId, IdlJson.encodeToString(AvatarConfiguration.serializer(), ready)))
         widgets.selfChanged()
-        return attempt { backend.putAvatar(config) }
+        return attempt {
+            backend.putAvatar(ready)
+            config
+        }
     }
 }
 
