@@ -3,18 +3,16 @@ package app.idl.domain.avatar
 import app.idl.domain.Expression
 import app.idl.domain.Mood
 import app.idl.domain.wire
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
 class ExpressionCatalogTest {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val catalog = ExpressionCatalog.parse(
+        File(repoRoot(), "config/expression_catalog.json").readText(),
+    )
 
     @Test fun `the generator matches the checked-in catalog`() {
         val root = repoRoot()
@@ -29,28 +27,42 @@ class ExpressionCatalogTest {
     }
 
     @Test fun `every mood has one priority-1 expression and every expression alias resolves`() {
-        val root = json.parseToJsonElement(File(repoRoot(), "config/expression_catalog.json").readText()).jsonObject
-        val expressions = root.getValue("expressions").jsonArray.map { it.jsonObject }
-        val ids = expressions.map { it.getValue("expressionId").jsonPrimitive.content }.toSet()
+        val ids = catalog.expressions.map { it.expressionId }.toSet()
         enumValues<Mood>().forEach { mood ->
-            val matches = expressions.filter { row ->
-                row.getValue("priority").jsonPrimitive.content == "1" && row.mood() == mood.wire
-            }
-            assertEquals(mood.wire, 1, matches.size)
+            val id = catalog.priorityId(mood)
+            assertTrue(mood.name, id != null && id in ids)
+            assertEquals(id, catalog.expressions.single { it.priority == 1 && it.mood == mood.wire }.expressionId)
         }
-        val aliases = root.getValue("aliases").jsonObject
         enumValues<Expression>().forEach { expression ->
-            val target = aliases.getValue(expression.wire).jsonPrimitive.content
+            val target = expression.catalogId(catalog)
             assertTrue("$target missing for ${expression.wire}", target in ids)
         }
-        expressions.forEach { row ->
-            val hand = row.getValue("subgroup").jsonPrimitive.content == "face-hand"
-            assertEquals(row.getValue("expressionId").jsonPrimitive.content, hand, row.getValue("handOverlay").jsonPrimitive.content.toBoolean())
+        catalog.expressions.forEach { row ->
+            assertEquals(row.expressionId, row.subgroup == "face-hand", row.handOverlay)
         }
     }
 
-    private fun kotlinx.serialization.json.JsonObject.mood(): String? {
-        val value = getValue("mood")
-        return if (value is JsonNull) null else value.jsonPrimitive.content
+    @Test fun `a visible mood uses the catalog face and a hidden mood stays neutral`() {
+        val happy = checkNotNull(catalog.priorityId(Mood.HAPPY))
+        val registry = sandbox(
+            extra = listOf(
+                piece("eyes_smile", AssetCategory.FACE_EYE),
+                piece("mouth_smile", AssetCategory.FACE_MOUTH),
+            ),
+            expressions = listOf(
+                ExpressionDef("neutral", "Neutral", eyes = "eye_open", mouth = "mouth_line"),
+                ExpressionDef(happy, "Happy", eyes = "eyes_smile", mouth = "mouth_smile", overlays = listOf("overlay_hearts")),
+            ),
+        )
+        val resolver = AvatarResolver(registry, catalog)
+        val config = AvatarConfiguration(baseAssetId = "base_a", paletteAssetId = "pal_a")
+        val shown = resolver.resolve(request(config, VisiblePresence(mood = Mood.HAPPY)))
+        assertEquals(happy, shown.expressionId)
+        assertTrue(shown.has("eyes_smile"))
+        assertTrue(shown.has("mouth_smile"))
+        val hidden = resolver.resolve(request(config, VisiblePresence.NONE))
+        assertEquals("neutral", hidden.expressionId)
+        assertFalse(hidden.has("eyes_smile"))
+        assertFalse(hidden.layers.any { it.assetId == "overlay_hearts" })
     }
 }

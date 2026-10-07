@@ -78,7 +78,10 @@ data class ResolvedAvatar(
  * Master plan §11.2, without drawing. Presence fields that are null are not consulted, so a
  * hidden mood cannot change the expression or pull in a `mood:*` override (decision D-24).
  */
-class AvatarResolver(private val registry: AssetRegistry) {
+class AvatarResolver(
+    private val registry: AssetRegistry,
+    private val catalog: ExpressionCatalog = ExpressionCatalog.EMPTY,
+) {
     private val engine = CompatibilityEngine(registry)
 
     fun resolve(request: AvatarRenderRequest): ResolvedAvatar {
@@ -213,7 +216,13 @@ class AvatarResolver(private val registry: AssetRegistry) {
         val expressionId = firstExpression(buildList {
             add(presence.expressionId)
             keys.forEach { add(override(it)?.expressionId) }
-            if (presence.mood != null) add(registry.semantic(SemanticKey.mood(presence.mood))?.expressionId)
+            if (presence.mood != null) {
+                // The catalog face wins when the pack has drawn it. Otherwise the pack semantic stays.
+                catalog.priorityId(presence.mood)?.let { id ->
+                    if (registry.expression(id) != null) add(id)
+                }
+                add(registry.semantic(SemanticKey.mood(presence.mood))?.expressionId)
+            }
             if (presence.availability != null) add(registry.semantic(SemanticKey.availability(presence.availability))?.expressionId)
             add(config.restingExpressionId)
             add("neutral")
@@ -380,7 +389,13 @@ class AvatarResolver(private val registry: AssetRegistry) {
     private fun firstExpression(options: List<String?>, dropped: MutableList<DroppedAsset>): String {
         for (raw in options) {
             if (raw.isNullOrBlank()) continue
-            if (registry.expression(raw) != null) return raw
+            val canonical = catalog.canonical(raw)
+            val chosen = when {
+                registry.expression(canonical) != null -> canonical
+                registry.expression(raw) != null -> raw
+                else -> null
+            }
+            if (chosen != null) return chosen
             if (dropped.none { it.assetId == raw && it.reason == DropReason.UNKNOWN_ASSET }) {
                 dropped += DroppedAsset(raw, DropReason.UNKNOWN_ASSET)
             }

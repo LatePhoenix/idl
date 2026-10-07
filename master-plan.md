@@ -1108,3 +1108,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-4 pipeline: SVG sources for emoji_core and `tools/asset_pipeline.py check`. 8 pipeline tests. 246 JVM, 0 failed, 1 skipped. Lint 0/42. Contact sheets are the next PR. | `docs/handoff/reports/2026-10-06-ap-4-pipeline.md` |
 | 2026-10-06 | Cursor | AP-4 contact sheets: every emoji_core vector category at 48, 96, and 512, light and dark. 247 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-4-sheets.md` |
 | 2026-10-06 | Cursor | AP-5 expression catalog: 110 faces, 15 priority-1 moods, shape counts for AP-6 and AP-13. 249 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-5-expression-catalog.md` |
+| 2026-10-06 | Cursor | AP-6 system: a visible mood uses the catalog face when the pack defines it. Hidden mood stays neutral. Art is the next PR. 250 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-6-expression-system.md` |
