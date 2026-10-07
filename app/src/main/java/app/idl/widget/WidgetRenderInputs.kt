@@ -79,8 +79,10 @@ data class WidgetRenderInputs(
                 model.selfPresence != null -> LegacyAvatarMigration.presence(model.selfPresence)
                 else -> VisiblePresence.NONE
             }
+            val configuration = model.restingConfiguration
+                ?: LegacyAvatarMigration.migrate(resting, registry).migrateRecipe(registry.baseFamilies)
             return WidgetRenderInputs(
-                configuration = LegacyAvatarMigration.migrate(resting, registry).migrateRecipe(registry.baseFamilies),
+                configuration = configuration,
                 presence = presence,
                 target = target,
             )

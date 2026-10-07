@@ -1,6 +1,5 @@
 package app.idl.ui.avatar
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,8 +38,9 @@ import app.idl.AppContainer
 import app.idl.avatar.AvatarImage
 import app.idl.domain.AvatarConfig
 import app.idl.domain.AvatarPalette
-import app.idl.domain.BaseForm
 import app.idl.domain.BodyAccessory
+import app.idl.domain.avatar.AvatarWrite
+import app.idl.domain.avatar.LoadedAvatar
 import app.idl.domain.Expression
 import app.idl.domain.FaceAccessory
 import app.idl.domain.FaceStyle
@@ -58,21 +58,35 @@ import kotlinx.coroutines.launch
 
 class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() {
     val config = MutableStateFlow(AvatarConfig())
+    val notice = MutableStateFlow<String?>(null)
     private var userId: String? = null
+    private var blocked = false
 
     init {
         viewModelScope.launch {
             val me = c.session.me.filterNotNull().first()
             userId = me.userId
-            // Seed a new user's avatar deterministically from their username, so it's never blank.
-            config.value = c.avatars.avatar(me.userId).first() ?: starterFor(me.username)
+            when (val loaded = c.avatars.loadForEdit(me.userId)) {
+                LoadedAvatar.Missing -> config.value = starterFor(me.username)
+                LoadedAvatar.NeedsAppUpdate -> {
+                    blocked = true
+                    notice.value = AvatarWrite.NeedsAppUpdate.message.replaceFirstChar { it.uppercase() }
+                }
+                is LoadedAvatar.Editable -> config.value = loaded.config
+            }
         }
     }
 
     fun update(cfg: AvatarConfig) { config.value = cfg }
 
     fun save(then: () -> Unit) = viewModelScope.launch {
-        userId?.let { c.avatars.save(it, config.value) }
+        val id = userId ?: return@launch
+        if (blocked) return@launch
+        val saved = c.avatars.save(id, config.value)
+        if (saved.exceptionOrNull()?.message == AvatarWrite.NeedsAppUpdate.message) {
+            notice.value = AvatarWrite.NeedsAppUpdate.message.replaceFirstChar { it.uppercase() }
+            return@launch
+        }
         then()
     }
 
@@ -80,7 +94,6 @@ class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() {
         fun starterFor(seed: String): AvatarConfig {
             val h = seed.hashCode() and 0x7FFFFFFF
             return AvatarConfig(
-                baseForm = BaseForm.entries[h % BaseForm.entries.size],
                 bodyColor = AvatarPalette.body[h % AvatarPalette.body.size],
                 themeColor = AvatarPalette.theme[h % AvatarPalette.theme.size],
                 expression = Expression.HAPPY,
@@ -97,6 +110,7 @@ fun AvatarStudioScreen(
     vm: AvatarStudioViewModel = viewModel { AvatarStudioViewModel(c) },
 ) {
     val cfg by vm.config.collectAsState()
+    val notice by vm.notice.collectAsState()
     Scaffold(topBar = { IdlTopBar(if (firstRun) "Build your iDL" else "Avatar Studio", onBack = if (firstRun) null else onDone) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize()) {
             Box(Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.Center) {
@@ -108,23 +122,7 @@ fun AvatarStudioScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
             ) {
-                SectionTitle("Base")
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    BaseForm.entries.forEach { b ->
-                        val selected = cfg.baseForm == b
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .border(if (selected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else BorderStroke(0.dp, Color.Transparent), MaterialTheme.shapes.medium)
-                                .clickable { vm.update(cfg.copy(baseForm = b)) }
-                                .padding(6.dp)
-                                .semantics(mergeDescendants = true) { role = Role.RadioButton; this.selected = selected; contentDescription = b.label },
-                        ) {
-                            AvatarImage(cfg.copy(baseForm = b, headAccessory = HeadAccessory.NONE, handProp = Prop.NONE, scene = Scene.PLAIN_GRADIENT), "", size = 56.dp)
-                            Text(b.label, style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
-                }
+                notice?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
                 SectionTitle("Color")
                 Swatches(AvatarPalette.body, cfg.bodyColor) { vm.update(cfg.copy(bodyColor = it)) }
                 SectionTitle("Resting expression")
@@ -146,7 +144,7 @@ fun AvatarStudioScreen(
                 SectionTitle("Frame")
                 ChoiceChips(FrameStyle.entries, cfg.frameStyle, { it.label }, { it?.let { f -> vm.update(cfg.copy(frameStyle = f)) } }, allowNone = false)
             }
-            Button(onClick = { vm.save(onDone) }, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            Button(onClick = { vm.save(onDone) }, enabled = notice == null, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(if (firstRun) "This is me" else "Save")
             }
         }

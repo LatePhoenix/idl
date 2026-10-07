@@ -203,7 +203,7 @@ class SelfWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
         c.economy.evaluate()
-        suspend fun load(size: DpSize) = render(context, WidgetData.self(c.dao, c.clock), size)
+        suspend fun load(size: DpSize) = render(context, WidgetData.self(c.dao, c.clock, c.assetRegistry), size)
         val initial = load(SMALL)
         provideContent {
             val size = LocalSize.current

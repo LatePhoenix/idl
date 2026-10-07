@@ -87,8 +87,8 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val economy = EconomyRepository(dao, clock, scope, widgets)
     val scheduler = WorkSyncScheduler(app)
 
-    val session = SessionRepository(db, dao, backend, auth, widgets, renders)
-    val avatars = AvatarRepository(dao, backend, widgets)
+    val session = SessionRepository(db, dao, backend, auth, widgets, renders, registry = { assetRegistry })
+    val avatars = AvatarRepository(dao, backend, widgets, registry = { assetRegistry })
     val presence = PresenceRepository(dao, backend, clock, widgets, scheduler, renders)
     val friends = FriendsRepository(dao, backend, presence, widgets, renders)
     val reactions = ReactionRepository(dao, backend, clock)

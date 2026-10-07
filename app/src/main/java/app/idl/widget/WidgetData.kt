@@ -5,6 +5,9 @@ import app.idl.data.local.IdlDao
 import app.idl.data.repo.decodeAvatar
 import app.idl.data.repo.decodeState
 import app.idl.data.repo.decodeView
+import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.AvatarConfiguration
+import app.idl.domain.avatar.StoredAvatar
 import app.idl.domain.ActivityType
 import app.idl.domain.Availability
 import app.idl.domain.AvatarConfig
@@ -22,6 +25,8 @@ data class WidgetModel(
     val title: String,
     /** Saved identity. Status visuals are not stored here. */
     val restingAvatar: AvatarConfig? = null,
+    /** Schema 3 identity when the cache already stores one. Status is not part of this. */
+    val restingConfiguration: AvatarConfiguration? = null,
     /** Friend widget: the filtered view. Identity is [PresenceView.restingAvatar]. */
     val friendView: PresenceView? = null,
     /** Self widget: owner presence, resolved at read time. */
@@ -57,14 +62,21 @@ object WidgetData {
     /** Cache older than this is flagged as stale *if* the last sync attempt failed. */
     val STALE_AFTER: Duration = Duration.ofHours(2)
 
-    suspend fun self(dao: IdlDao, clock: IdlClock): WidgetModel {
+    suspend fun self(dao: IdlDao, clock: IdlClock, registry: AssetRegistry? = null): WidgetModel {
         val session = dao.sessionNow() ?: return WidgetModel("iDL", subtitle = "Tap to set up", deepLink = "idl://home")
         val now = clock.now()
-        val base = dao.avatarNow(session.userId)?.json?.let(::decodeAvatar) ?: AvatarConfig()
+        val stored = dao.avatarNow(session.userId)?.json
+        val recipe = if (stored != null && registry != null) StoredAvatar.read(stored, registry) else null
+        val base = when {
+            recipe != null && registry != null -> StoredAvatar.toStudioConfig(recipe, registry)
+            stored != null && stored.contains("\"baseForm\"") -> decodeAvatar(stored)
+            else -> AvatarConfig()
+        }
         val resolved = PresenceResolver.resolve(dao.ownPresenceNow().map { decodeState(it.json) }, now)
         return WidgetModel(
             title = "You",
             restingAvatar = base,
+            restingConfiguration = recipe,
             selfPresence = resolved,
             availability = resolved.availability,
             activity = resolved.activity?.type,
