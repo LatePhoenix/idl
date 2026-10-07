@@ -18,6 +18,11 @@ for arg in "$@"; do
   esac
 done
 
+echo "== Picture pipeline"
+if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
+"$PY" -m unittest discover -s tools/tests -q
+"$PY" tools/asset_pipeline.py check
+
 echo "== Gradle: unit tests, snapshot verify, lint, debug build"
 ./gradlew verifyRoborazziDebug lintDebug assembleDebug --console=plain -q
 

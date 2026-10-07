@@ -28,6 +28,10 @@ function Invoke-Native {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
+Write-Output "== Picture pipeline"
+Invoke-Native { python -m unittest discover -s tools/tests -q }
+Invoke-Native { python tools/asset_pipeline.py check }
+
 Write-Output "== Gradle: unit tests, snapshot verify, lint, debug build"
 Invoke-Native { .\gradlew.bat verifyRoborazziDebug lintDebug assembleDebug --console=plain -q }
 

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="scene_round_soft"
+     data-content-version="1">
+  <defs>
+    <linearGradient id="grad_bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1024">
+      <stop offset="0.0" data-slot="accessory.primary"/>
+      <stop offset="1.0" data-slot="accessory.secondary"/>
+    </linearGradient>
+  </defs>
+  <path data-part="bg" data-z="0" data-gradient="grad_bg" d="M 0 0 L 1024 0 L 1024 1024 L 0 1024 Z"/>
+</svg>

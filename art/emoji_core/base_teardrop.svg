@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="base_teardrop"
+     data-content-version="3">
+  <defs>
+    <radialGradient id="grad_face" gradientUnits="userSpaceOnUse" cx="390" cy="270" r="680">
+      <stop offset="0.0" data-slot="face.highlight"/>
+      <stop offset="1.0" data-slot="face.primary"/>
+    </radialGradient>
+  </defs>
+  <path data-part="body" data-z="34" data-slot="face.primary" d="M 392 840 L 392 1000 C 392 1100 -40 1160 -160 1200 L -160 1536 L 1184 1536 L 1184 1200 C 1064 1160 632 1100 632 1000 L 632 840 Z"/>
+  <path data-part="face" data-z="40" data-gradient="grad_face" d="M 512 96 C 737.2 96 892 264.9 892 476 C 892 659 751.3 771.6 624.6 870.1 Q 512 954.5 399.4 870.1 C 272.7 771.6 132 659 132 476 C 132 264.9 286.8 96 512 96 Z"/>
+  <path data-part="shade" data-z="40" data-slot="face.shadow" d="M 662 760 C 662 784.3 634.2 804 600 804 C 565.8 804 538 784.3 538 760 C 538 735.7 565.8 716 600 716 C 634.2 716 662 735.7 662 760 Z"/>
+  <path data-part="outline" data-z="40" data-slot="outline" data-fill-rule="evenodd" d="M 512 96 C 737.2 96 892 264.9 892 476 C 892 659 751.3 771.6 624.6 870.1 Q 512 954.5 399.4 870.1 C 272.7 771.6 132 659 132 476 C 132 264.9 286.8 96 512 96 Z M 512 132 C 721.3 132 856 278.9 856 476 C 856 641.7 729 743.3 602.7 841.5 Q 512 909.5 421.3 841.5 C 295 743.3 168 641.7 168 476 C 168 278.9 302.7 132 512 132 Z"/>
+</svg>
