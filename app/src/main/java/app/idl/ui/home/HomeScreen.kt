@@ -49,6 +49,7 @@ import app.idl.avatar.AvatarImage
 import app.idl.data.repo.FriendCard
 import app.idl.domain.AvatarComposer
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.Expiry
 import app.idl.domain.FriendStatus
 import app.idl.domain.Me
@@ -264,7 +265,7 @@ private fun FriendTile(card: FriendCard, now: Instant, onClick: () -> Unit) {
             .semantics(mergeDescendants = true) { contentDescription = "${card.friend.displayName}, $status" },
     ) {
         AvatarImage(
-            view?.avatar ?: AvatarConfig(),
+            view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"),
             contentDescription = "",
             size = 88.dp,
             badges = AvatarBadges(view?.availability, view?.activityType),

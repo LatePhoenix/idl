@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import app.idl.avatar.AvatarImage
 import app.idl.container
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.FriendStatus
 import app.idl.ui.theme.IdlTheme
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ class SoloFriendWidgetConfigActivity : ComponentActivity() {
                                         .padding(8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    AvatarImage(card.view?.avatar ?: AvatarConfig(), card.friend.displayName, size = 48.dp)
+                                    AvatarImage(card.view?.identity ?: AvatarConfiguration(baseAssetId = "base_teardrop", paletteAssetId = "palette_sunny"), card.friend.displayName, size = 48.dp)
                                     Spacer(Modifier.width(12.dp))
                                     Text(card.friend.displayName, style = MaterialTheme.typography.titleMedium)
                                 }

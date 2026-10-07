@@ -73,14 +73,15 @@ data class WidgetRenderInputs(
         }
 
         fun from(model: WidgetModel, registry: AssetRegistry, target: RenderTarget): WidgetRenderInputs? {
-            val resting: AvatarConfig = model.friendView?.restingAvatar ?: model.restingAvatar ?: return null
             val presence = when {
                 model.friendView != null -> LegacyAvatarMigration.presence(model.friendView)
                 model.selfPresence != null -> LegacyAvatarMigration.presence(model.selfPresence)
                 else -> VisiblePresence.NONE
             }
-            val configuration = model.restingConfiguration
-                ?: LegacyAvatarMigration.migrate(resting, registry).migrateRecipe(registry.baseFamilies)
+            val configuration = model.friendView?.identity
+                ?: model.restingConfiguration
+                ?: model.restingAvatar?.let { LegacyAvatarMigration.migrate(it, registry).migrateRecipe(registry.baseFamilies) }
+                ?: return null
             return WidgetRenderInputs(
                 configuration = configuration,
                 presence = presence,

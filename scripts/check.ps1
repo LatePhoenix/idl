@@ -31,6 +31,7 @@ function Invoke-Native {
 Write-Output "== Picture pipeline"
 Invoke-Native { python -m unittest discover -s tools/tests -q }
 Invoke-Native { python tools/asset_pipeline.py check }
+Invoke-Native { python tools/gen_asset_catalog.py check }
 
 Write-Output "== Gradle: unit tests, snapshot verify, lint, debug build"
 Invoke-Native { .\gradlew.bat verifyRoborazziDebug lintDebug assembleDebug --console=plain -q }
@@ -62,18 +63,19 @@ if ($Sql) {
         Write-Error "Docker is not running: start Docker Desktop, then rerun with -Sql."
         exit 1
     }
-    $bash = Get-Command bash -ErrorAction SilentlyContinue
+    $gitBash = "C:\Program Files\Git\bin\bash.exe"
+    $bash = if (Test-Path $gitBash) { $gitBash } else { (Get-Command bash -ErrorAction SilentlyContinue)?.Source }
     if (-not $bash) {
-        Write-Error "bash is not on PATH. SQL checks stay in scripts/check.sh."
+        Write-Error "bash is not on PATH. Install Git for Windows, or run scripts/check.sh."
         exit 1
     }
     Write-Output "== Supabase SQL suite + PostgREST"
-    Invoke-Native { bash supabase/tests/run.sh --rest }
+    Invoke-Native { & $bash supabase/tests/run.sh --rest }
     try {
         Write-Output "== Kotlin client against PostgREST"
         Invoke-Native { .\gradlew.bat testDebugUnitTest --tests '*SupabaseRestIT*' -Pidl.postgrestUrl=http://localhost:54330 --console=plain -q }
     } finally {
-        bash supabase/tests/run.sh --down *> $null
+        & $bash supabase/tests/run.sh --down *> $null
     }
 }
 

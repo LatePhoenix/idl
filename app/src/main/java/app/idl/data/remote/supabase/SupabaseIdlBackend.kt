@@ -3,7 +3,7 @@ package app.idl.data.remote.supabase
 import app.idl.data.remote.IdlBackend
 import app.idl.data.remote.IdlError
 import app.idl.data.remote.IdlException
-import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.Friend
 import app.idl.domain.IdlJson
 import app.idl.domain.Invite
@@ -103,10 +103,10 @@ class SupabaseIdlBackend(
 
     override suspend fun me(): Me = rpc("me", Me.serializer())
 
-    override suspend fun getAvatar(): AvatarConfig = rpc("get_avatar", AvatarConfig.serializer())
+    override suspend fun getAvatar(): AvatarConfiguration = rpc("get_avatar", AvatarConfiguration.serializer())
 
-    override suspend fun putAvatar(config: AvatarConfig): AvatarConfig =
-        rpc("put_avatar", AvatarConfig.serializer(), buildJsonObject { put("p_config", json(config, AvatarConfig.serializer())) })
+    override suspend fun putAvatar(config: AvatarConfiguration): AvatarConfiguration =
+        rpc("put_avatar", AvatarConfiguration.serializer(), buildJsonObject { put("p_config", json(config, AvatarConfiguration.serializer())) })
 
     // --- Presence ----------------------------------------------------------------------------
 

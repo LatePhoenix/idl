@@ -153,8 +153,8 @@ set role authenticated;
 create temp table mo_view as select public.friend_presence_one('00000000-0000-4000-8000-000000000002') as v;
 select test.assert((select v ->> 'availability' from mo_view) = 'busy', 'friend sees availability');
 select test.assert((select not (v ?| array['mood', 'note', 'activityType', 'intent']) from mo_view), 'non-close friend sees no mood/note/activity');
-select test.assert((select v #>> '{avatar,expression}' from mo_view) = 'neutral', 'hidden mood does not leak through expression');
-select test.assert((select v #>> '{avatar,handProp}' from mo_view) = 'keyboard', 'avatar props are visible');
+select test.assert((select not (v ? 'mood') and (v #>> '{visual,expressionId}') is null from mo_view), 'hidden mood does not leak through expression');
+select test.assert((select v #>> '{visual,propAssetId}' from mo_view) = 'prop_keyboard', 'avatar props are visible');
 select test.assert((select v ? 'expiresAt' from mo_view), 'expiry travels with status');
 select test.assert(jsonb_array_length(public.friend_presence()) = 2, 'friend_presence lists accepted friends only');
 reset role;
@@ -172,7 +172,7 @@ reset role;
 select test.login('00000000-0000-4000-8000-000000000001');
 set role authenticated;
 select test.assert(public.friend_presence_one('00000000-0000-4000-8000-000000000002') ->> 'note' = 'deadline day', 'close friend sees note');
-select test.assert(public.friend_presence_one('00000000-0000-4000-8000-000000000002') #>> '{avatar,expression}' = 'anxious', 'close friend sees mood expression');
+select test.assert(public.friend_presence_one('00000000-0000-4000-8000-000000000002') #>> '{visual,expressionId}' = 'anxious', 'close friend sees mood expression');
 reset role;
 
 -- Mo restricts notes to nobody, then goes invisible.
@@ -198,7 +198,7 @@ reset role;
 select test.login('00000000-0000-4000-8000-000000000001');
 set role authenticated;
 select test.assert(
-  public.friend_presence_one('00000000-0000-4000-8000-000000000002') - 'avatar' - 'restingAvatar'
+  public.friend_presence_one('00000000-0000-4000-8000-000000000002') - 'identity'
     = jsonb_build_object('userId', '00000000-0000-4000-8000-000000000002'),
   'invisible friend shows no status at all');
 reset role;
@@ -270,6 +270,31 @@ reset role;
 select test.login('00000000-0000-4000-8000-000000000001');
 set role authenticated;
 select test.assert(jsonb_array_length(public.friend_presence()) = 0, 'removal revokes access');
+reset role;
+
+-- ---- Schema 3 put_avatar catalog checks -----------------------------------------------------
+select test.login('00000000-0000-4000-8000-000000000001');
+set role authenticated;
+select test.assert(
+  public.put_avatar('{"baseAssetId":"base_teardrop","paletteAssetId":"palette_sunny","schemaVersion":3,
+    "restingExpressionId":"happy","familyId":"teardrop_face"}'::jsonb) ->> 'baseAssetId' = 'base_teardrop',
+  'put_avatar accepts free schema 3');
+select test.assert(public.get_avatar() ->> 'paletteAssetId' = 'palette_sunny', 'get_avatar returns stored recipe');
+do $$ begin
+  perform public.put_avatar('{"baseAssetId":"base_blob","paletteAssetId":"palette_sunny","schemaVersion":3}'::jsonb);
+  raise exception 'retired base must be rejected';
+exception when sqlstate 'PT400' then null;
+end $$;
+do $$ begin
+  perform public.put_avatar('{"baseAssetId":"base_teardrop","paletteAssetId":"palette_nope","schemaVersion":3}'::jsonb);
+  raise exception 'unknown palette must be rejected';
+exception when sqlstate 'PT400' then null;
+end $$;
+do $$ begin
+  perform public.put_avatar('{"baseForm":"fox","expression":"happy"}'::jsonb);
+  raise exception 'v1 avatar must be rejected by put_avatar';
+exception when sqlstate 'PT400' then null;
+end $$;
 reset role;
 
 select 'behavior: all assertions passed' as result;

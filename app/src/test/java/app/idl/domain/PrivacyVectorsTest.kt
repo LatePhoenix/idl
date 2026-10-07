@@ -1,5 +1,7 @@
 package app.idl.domain
 
+import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.coreRegistry
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
@@ -49,6 +51,7 @@ class PrivacyVectorsTest {
     private val viewer = "00000000-0000-4000-8000-0000000000bb"
     private val circleA = "00000000-0000-4000-8000-00000000c001"
     private val circleB = "00000000-0000-4000-8000-00000000c002"
+    private val registry = coreRegistry()
     private val fox = AvatarConfig(
         baseForm = BaseForm.FOX, bodyColor = AvatarPalette.body[10], themeColor = AvatarPalette.theme[2],
         expression = Expression.HAPPY, headAccessory = HeadAccessory.CROWN, faceAccessory = FaceAccessory.GLASSES,
@@ -77,10 +80,10 @@ class PrivacyVectorsTest {
         now: Instant = T0.plus(Duration.ofMinutes(30)),
     ): Case {
         val viewerId = if (self) owner else viewer
-        val base = avatar ?: AvatarConfig()
+        val identity = LegacyAvatarMigration.migrate(avatar ?: AvatarConfig(), registry)
         val relationship = Relationship(r.isFriend, r.isCloseFriend, r.blocked, r.circleIds)
         val expected = PrivacyFilter.viewFor(
-            viewerId, owner, base, PresenceResolver.resolve(states, now), rules, relationship, invisible,
+            viewerId, owner, identity, PresenceResolver.resolve(states, now), rules, relationship, invisible,
         )
         return Case(name, now, owner, viewerId, r, invisible, avatar, states, rules, expected)
     }

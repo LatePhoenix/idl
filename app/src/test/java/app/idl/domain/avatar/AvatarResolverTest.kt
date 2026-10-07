@@ -220,7 +220,7 @@ class AvatarResolverTest {
             PrivacyFilter.viewFor(
                 viewerId = "me",
                 ownerId = "u_mo",
-                baseAvatar = saved,
+                identity = LegacyAvatarMigration.migrate(saved, registry),
                 presence = PresenceResolver.resolve(listOf(state), now),
                 rules = PrivacyRules.DEFAULT,
                 rel = Relationship(isFriend = true, isCloseFriend = false),
@@ -231,7 +231,7 @@ class AvatarResolverTest {
         assertNull(presence.activityType)
         assertNull(presence.mood)
         assertEquals("head_vr_headset", presence.headAccessoryAssetId)
-        val identity = LegacyAvatarMigration.migrate(view.restingAvatar, registry)
+        val identity = view.identity
         val resolved = resolver.resolve(request(identity, presence, target = RenderTarget.STANDARD_WIDGET))
         assertTrue(resolved.has("head_vr_headset"))
         assertEquals(LayerPriority.STATUS, resolved.layers.first { it.assetId == "head_vr_headset" }.priority)
@@ -252,7 +252,7 @@ class AvatarResolverTest {
             PrivacyFilter.viewFor(
                 viewerId = "me",
                 ownerId = "u_juno",
-                baseAvatar = saved,
+                identity = LegacyAvatarMigration.migrate(saved, registry),
                 presence = PresenceResolver.resolve(listOf(state), now),
                 rules = PrivacyRules.DEFAULT,
                 rel = Relationship(isFriend = true, isCloseFriend = true),
@@ -261,7 +261,7 @@ class AvatarResolverTest {
         )
         val presence = LegacyAvatarMigration.presence(view)
         assertEquals(ActivityType.VR, presence.activityType)
-        val identity = LegacyAvatarMigration.migrate(view.restingAvatar, registry)
+        val identity = view.identity
         val resolved = resolver.resolve(request(identity, presence, target = RenderTarget.STANDARD_WIDGET))
         assertEquals(LayerPriority.ACTIVITY, resolved.layers.first { it.assetId == "head_vr_headset" }.priority)
         assertFalse(resolved.has("face_glasses_round"))

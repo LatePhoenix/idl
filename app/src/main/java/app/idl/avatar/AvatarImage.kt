@@ -13,13 +13,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.idl.container
 import app.idl.domain.AvatarConfig
+import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.avatar.AvatarRenderRequest
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.LegacyAvatarMigration
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.VisiblePresence
 
-/** In-app avatar: paints with the same [AvatarRenderer] the widgets use. */
+/** In-app avatar from a v1 studio config. Migrates to the teardrop before drawing. */
 @Composable
 fun AvatarImage(
     config: AvatarConfig,
@@ -27,6 +28,27 @@ fun AvatarImage(
     modifier: Modifier = Modifier,
     size: Dp = 96.dp,
     badges: AvatarBadges? = null,
+) {
+    val registry = LocalContext.current.container.assetRegistry
+    AvatarImage(
+        configuration = LegacyAvatarMigration.migrate(config, registry),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        size = size,
+        badges = badges,
+        presence = VisiblePresence.NONE,
+    )
+}
+
+/** In-app avatar from a schema 3 recipe. Shared path with the widgets. */
+@Composable
+fun AvatarImage(
+    configuration: AvatarConfiguration,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 96.dp,
+    badges: AvatarBadges? = null,
+    presence: VisiblePresence = VisiblePresence.NONE,
 ) {
     val container = LocalContext.current.container
     Canvas(
@@ -37,7 +59,6 @@ fun AvatarImage(
         drawIntoCanvas { canvas ->
             val registry = container.assetRegistry
             val sizePx = this.size.minDimension
-            val configuration = LegacyAvatarMigration.migrate(config, registry)
             val target = when {
                 sizePx >= 256f -> RenderTarget.PROFILE
                 sizePx >= 96f -> RenderTarget.FRIEND_TILE
@@ -46,7 +67,7 @@ fun AvatarImage(
             val resolved = AvatarResolver(registry, container.expressionCatalog).resolve(
                 AvatarRenderRequest(
                     configuration = configuration,
-                    presence = VisiblePresence.NONE,
+                    presence = presence,
                     target = target,
                     sizePx = sizePx.toInt().coerceAtLeast(1),
                 ),

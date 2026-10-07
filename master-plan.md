@@ -389,10 +389,13 @@ in one PR.
   `ubuntu-24.04`. PR #10 run `37226686509`: android and backend success; logs have no Node 20
   deprecation warning.
 
-#### F-19 · Defence in depth for explicit expressions · ⬜ P2 (with Avatar Phase 3)
+#### F-19 · Defence in depth for explicit expressions · ✅ P2 (AP-7)
 - The resolver trusts `VisiblePresence.expressionId` even when `mood` is absent. That's
   acceptable under D-24 (the server never sends it then). Add a Phase 3 golden vector proving
   the server omits `visual.expression` when mood is hidden.
+- **Fixed in AP-7:** `presence_view` / `PrivacyFilter` only set `visual.expressionId` when mood
+  is visible. Privacy vectors and `CompositionVectorsTest` pin the leak. A mutation check shows
+  injecting `expressionId` without mood changes resolved layers.
 
 #### F-20 · Flaky first instrumented test on a cold emulator · ✅ P3
 - `StatusDeckTest.quickStateIsOneTap` failed with "No compose hierarchies found" on the first
@@ -457,16 +460,11 @@ in one PR.
   still sorts the ids, and a test checks that reversing a list does not change the key.
   `docs/AVATAR_RECIPE_SCHEMA.md` says so.
 
-#### F-29 · A newer avatar schema can be written back · 🟡 P1
+#### F-29 · A newer avatar schema can be written back · ✅ P1 (AP-7)
 - `IdlJson` drops unknown keys. Saving a decoded schema newer than `SCHEMA_VERSION` would
   overwrite fields this app does not know.
-- **Guard exists, not wired yet:** `AvatarConfiguration.prepareForWrite` returns
-  `NeedsAppUpdate` ("update the app to edit this avatar") for a newer schema, and
-  `AvatarConfiguration.decode` decodes and migrates. Both are unit-tested. Nothing calls them
-  yet: Room and the server still store v1 `AvatarConfig`, so no saved recipe exists.
-- **Still to do:** wire `decode()` and `prepareForWrite()` into the load and save path when
-  `AvatarConfiguration` becomes the persisted format (vector editor, `docs/ROADMAP.md` step 6).
-  The editor must show the `NeedsAppUpdate` message instead of saving.
+- **Fixed in AP-7:** Room and the server store schema 3. Load/save go through `decode` and
+  `prepareForWrite`. `NeedsAppUpdate` stops a newer schema from being rewritten.
 
 #### F-30 · Vector slice snapshots don't use widget targets · ✅ P2 (from PR #23, fixed in AV.2)
 - `EmojiSlice` renders 48, 128 and 512 px with `RenderTarget.PROFILE`. The 48 px goldens
@@ -551,7 +549,7 @@ format from Phase 2 stay (D-39). Every item ships original art (`license: propri
 | AV.1 | Decisions and design docs: D-41, D-42, D-43; scope file; ROADMAP, ARCHITECTURE and LICENSING notes | ✅ | | Done by Claude, 2026-10-05 |
 | AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ✅ | | `emoji_core` v2. Report `docs/handoff/reports/2026-10-05-teardrop-base.md` |
 | AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ✅ | | Shipped as AP-5 |
-| AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ⬜ | | Spec needed. Contract changes once |
+| AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ✅ | | Done as AP-7 (client #42, server this PR) |
 | AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Batch 1 shipped as AP-6 (15 moods; the enum has 15). Batch 2 is AP-13. |
 | AV.6 | Editor (Avatar Phases 4–5 merged): category strip, grid, colors, undo/redo, seeded randomize, 48 px preview, save through `prepareForWrite`, export PNG and recipe JSON (ROADMAP 6–7) | ⬜ | AV.4 | Spec needed |
 | AV.7 | Content waves, in this order: hair (10+), facial hair (6+), headwear, eyewear, jewelry and piercings, tops (after Q15), mouth and hand props, backgrounds, frames | ⬜ | AV.2; tops need Q15 | Each wave: original art, validator, goldens, 48 px review. Free baseline per Q14 |
@@ -1112,3 +1110,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-5 expression catalog: 110 faces, 15 priority-1 moods, shape counts for AP-6 and AP-13. 249 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-5-expression-catalog.md` |
 | 2026-10-06 | Cursor | AP-6 system: a visible mood uses the catalog face when the pack defines it. Hidden mood stays neutral. Art is the next PR. 250 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-6-expression-system.md` |
 | 2026-10-06 | Cursor | AP-6 art: 15 priority mood faces on the teardrop. Hidden mood stays neutral eyes and mouth. 254 JVM, 0 failed, 1 skipped. Lint 0/42. Device 21, 0 failed. | `docs/handoff/reports/2026-10-06-ap-6-expression-art.md` |
+| 2026-10-07 | Cursor | AP-7 server: schema 3 catalog, PresenceView v2, privacy + composition vectors. F-19 ✅, F-29 ✅. 264 JVM, SQL 29/29, device passed. | `docs/handoff/reports/2026-10-07-ap-7-schema3-server.md` |

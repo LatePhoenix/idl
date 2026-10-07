@@ -173,35 +173,43 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "availability": "text_only",
+                "visual": {
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -264,39 +272,48 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
                 "intent": "ask_later",
                 "activityType": "vr",
                 "note": "napping",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -359,33 +376,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
@@ -395,6 +415,12 @@
                 "joinable": true,
                 "joinUrl": "vrchat://launch",
                 "note": "napping",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -457,33 +483,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
@@ -493,6 +522,12 @@
                 "joinable": true,
                 "joinUrl": "vrchat://launch",
                 "note": "napping",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -555,33 +590,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 }
             }
         },
@@ -617,33 +655,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 }
             }
         },
@@ -705,33 +746,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 }
             }
         },
@@ -804,37 +848,46 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "intent": "ask_later",
                 "activityType": "vr",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -913,38 +966,47 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
                 "intent": "ask_later",
                 "note": "napping",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1023,39 +1085,47 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "availability": "text_only",
                 "activityType": "vr",
                 "activityLabel": "VRChat",
                 "joinable": true,
                 "joinUrl": "vrchat://launch",
+                "visual": {
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1124,33 +1194,30 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [],
+                    "restingExpressionId": "neutral",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
@@ -1225,33 +1292,30 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [],
+                    "restingExpressionId": "neutral",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 }
             }
         },
@@ -1364,33 +1428,30 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [],
+                    "restingExpressionId": "neutral",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 }
             }
         },
@@ -1503,33 +1564,41 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "visual": {
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
                 },
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1600,36 +1669,44 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "availability": "text_only",
                 "note": "napping",
+                "visual": {
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1700,38 +1777,47 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
                 "intent": "ask_later",
                 "activityType": "vr",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1804,36 +1890,45 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1906,35 +2001,43 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "availability": "text_only",
+                "visual": {
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -1983,39 +2086,44 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "human",
-                    "bodyColor": -11172,
-                    "faceStyle": "classic",
-                    "expression": "sleepy",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "blanket",
-                    "handProp": "tea",
-                    "scene": "cozy_bedroom",
-                    "frameStyle": "squircle",
-                    "themeColor": -8622862,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "human",
-                    "bodyColor": -11172,
-                    "faceStyle": "classic",
-                    "expression": "neutral",
-                    "headAccessory": "none",
-                    "faceAccessory": "none",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "squircle",
-                    "themeColor": -8622862,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_sunny",
+                    "signatureFeatureAssetIds": [],
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_squircle",
+                    "restingExpressionId": "neutral",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
                 "intent": "ask_later",
                 "activityType": "vr",
                 "note": "napping",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "propAssetId": "prop_tea",
+                    "bodyAccessoryAssetId": "body_blanket",
+                    "sceneAssetId": "scene_cozy_bedroom"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -2061,35 +2169,41 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "dnd",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "availability": "do_not_disturb",
+                "visual": {
+                    "expressionId": "dnd"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -2139,35 +2253,41 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "mischievous",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sad",
+                "visual": {
+                    "expressionId": "mischievous"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -2214,35 +2334,41 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "good",
+                "visual": {
+                    "expressionId": "happy"
+                },
                 "updatedAt": "2026-10-03T14:00:00Z",
                 "expiresAt": "2026-10-03T18:00:00Z"
             }
@@ -2308,37 +2434,44 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "sleepy",
-                    "headAccessory": "vr_headset",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "mood": "sleepy",
                 "availability": "text_only",
                 "activityType": "vr",
+                "visual": {
+                    "expressionId": "sleepy",
+                    "headAccessoryAssetId": "head_vr_headset"
+                },
                 "updatedAt": "2026-10-03T14:01:00Z",
                 "expiresAt": "2026-10-03T15:00:00Z"
             }
@@ -2389,33 +2522,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "activityType": "coding",
                 "updatedAt": "2026-10-03T14:00:00Z",
@@ -2487,33 +2623,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "activityType": "gaming",
                 "activityLabel": "New",
@@ -2586,33 +2725,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "activityType": "gaming",
                 "activityLabel": "Steam",
@@ -2678,33 +2820,36 @@
             },
             "expected": {
                 "userId": "00000000-0000-4000-8000-0000000000aa",
-                "avatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
-                },
-                "restingAvatar": {
-                    "baseForm": "fox",
-                    "bodyColor": -24763,
-                    "faceStyle": "blushy",
-                    "expression": "happy",
-                    "headAccessory": "crown",
-                    "faceAccessory": "glasses",
-                    "bodyAccessory": "none",
-                    "handProp": "none",
-                    "scene": "plain_gradient",
-                    "frameStyle": "circle",
-                    "themeColor": -881556,
-                    "renderVersion": 1
+                "identity": {
+                    "baseAssetId": "base_teardrop",
+                    "paletteAssetId": "palette_ember",
+                    "signatureFeatureAssetIds": [
+                        "feature_blush"
+                    ],
+                    "signatureHeadAccessoryAssetId": "head_crown",
+                    "signatureFaceAccessoryAssetId": "face_glasses_round",
+                    "defaultSceneAssetId": "scene_plain",
+                    "defaultFrameAssetId": "frame_circle",
+                    "restingExpressionId": "happy",
+                    "styleDna": {
+                        "styleFamily": "cozy",
+                        "expressionIntensity": "medium",
+                        "sceneDetailPreference": "low_detail",
+                        "motionPreference": "subtle",
+                        "semanticVisualOverrides": {}
+                    },
+                    "renderVersion": 2,
+                    "schemaVersion": 3,
+                    "packId": "core_proto",
+                    "packVersion": 1,
+                    "familyId": "teardrop_face",
+                    "itemIds": {},
+                    "colorOverrides": {},
+                    "unlinkedSlots": [],
+                    "itemTransforms": {},
+                    "background": {
+                        "mode": "scene"
+                    }
                 },
                 "activityType": "listening",
                 "updatedAt": "2026-10-03T14:00:00Z",

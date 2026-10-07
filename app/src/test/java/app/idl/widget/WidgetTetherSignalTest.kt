@@ -14,7 +14,15 @@ class WidgetTetherSignalTest {
     @Test fun `no widget model or badge carries a per-friend tether`() {
         assertNull(WidgetModel::class.java.declaredFields.find { it.name == "resonating" })
         assertNull(AvatarBadges::class.java.declaredFields.find { it.name == "resonating" })
-        val view = PresenceView(userId = "ari", avatar = AvatarConfig(), availability = Availability.TEXT_ONLY, mood = Mood.SLEEPY)
+        val view = PresenceView(
+            userId = "ari",
+            identity = app.idl.domain.avatar.AvatarConfiguration(
+                baseAssetId = "base_teardrop",
+                paletteAssetId = "palette_sunny",
+            ),
+            availability = Availability.TEXT_ONLY,
+            mood = Mood.SLEEPY,
+        )
         val models = listOf(
             WidgetModel(title = "Ari", friendView = view, availability = Availability.TEXT_ONLY, mood = Mood.SLEEPY, deepLink = "idl://friend/ari"),
             WidgetModel(title = "You", selfPresence = null, invisible = true, avatarDescription = "Orb avatar, sleepy", deepLink = "idl://status"),
