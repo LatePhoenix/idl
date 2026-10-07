@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iDL Art Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <strong class="brand">iDL Art Studio</strong>
+    <nav id="tabs">
+      <button data-view="catalog" class="on">Catalog</button>
+      <button data-view="workbench">Workbench</button>
+      <button data-view="expressions">Expressions</button>
+    </nav>
+    <span id="summary" class="muted"></span>
+    <button id="reload" title="Reload art from disk">Reload</button>
+  </header>
+  <main>
+    <section id="catalog" class="view on"></section>
+    <section id="workbench" class="view"></section>
+    <section id="expressions" class="view"></section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

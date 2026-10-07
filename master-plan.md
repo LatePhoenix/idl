@@ -1115,3 +1115,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-6 art: 15 priority mood faces on the teardrop. Hidden mood stays neutral eyes and mouth. 254 JVM, 0 failed, 1 skipped. Lint 0/42. Device 21, 0 failed. | `docs/handoff/reports/2026-10-06-ap-6-expression-art.md` |
 | 2026-10-07 | Cursor | AP-7 server: schema 3 catalog, PresenceView v2, privacy + composition vectors. F-19 ✅, F-29 ✅. 264 JVM, SQL 29/29, device passed. | `docs/handoff/reports/2026-10-07-ap-7-schema3-server.md` |
 | 2026-10-06 | User/Claude | Art Studio designed: `docs/avatar/ART_STUDIO.md`; D-50 recorded (Claude Code skill front end, AP-13/AP-15 move to the Studio, tool-only Python deps, Claude builds S0–S3) | branch `tools/art-studio-design` |
+| 2026-10-06 | Claude | Art Studio S0: read-only viewer (`tools/studio/`): Catalog, Workbench, Expressions; preview renderer mirrors the app; 7 engine tests | branch `tools/studio-s0` |
