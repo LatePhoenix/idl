@@ -1103,3 +1103,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-3 framing: head and bust viewports, body bands. Body art is the next PR. 241 JVM, 21/21 device, lint 0/42 | `docs/handoff/reports/2026-10-06-ap-3-framing.md` |
 | 2026-10-06 | Cursor | AP-3 body: neck, shoulders and the default crew tee. 243 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554 (21 instrumented tests). | `docs/handoff/reports/2026-10-06-ap-3-body.md` |
 | 2026-10-06 | Cursor | AP-4 picture format v2: strokes, tags and mask syntax. Masks are applied in AP-8. 246 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554. | `docs/handoff/reports/2026-10-06-ap-4-picture-v2.md` |
+| 2026-10-06 | Cursor | AP-4 pipeline: SVG sources for emoji_core and `tools/asset_pipeline.py check`. 8 pipeline tests. 246 JVM, 0 failed, 1 skipped. Lint 0/42. Contact sheets are the next PR. | `docs/handoff/reports/2026-10-06-ap-4-pipeline.md` |
