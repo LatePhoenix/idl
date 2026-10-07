@@ -1,0 +1,54 @@
+{
+  "category": "facial_hair",
+  "label": "Facial hair",
+  "idPrefix": "beard_",
+  "schemaVersion": 2,
+  "bands": [
+    60
+  ],
+  "colorSlots": {
+    "beard.primary": "#5B3A29",
+    "beard.shadow": "#3E271B"
+  },
+  "skeleton": [
+    {
+      "part": "mouth_hole",
+      "clipPath": true,
+      "required": false,
+      "about": "A data-clip-path ellipse around the mouth (about 392..632 x 515..665). Beards clip it with mode difference so every expression shows."
+    },
+    {
+      "part": "beard",
+      "band": 60,
+      "slot": "beard.primary",
+      "clip": "mouth_hole:difference",
+      "required": true,
+      "about": "Follows the jaw (anchors jaw_left/right, chin). Stays inside the head outline except a little volume at the chin."
+    },
+    {
+      "part": "shade",
+      "band": 60,
+      "slot": "beard.shadow",
+      "clip": "mouth_hole:difference",
+      "required": false,
+      "about": "One shade shape, lower right."
+    }
+  ],
+  "tryOn": [
+    [
+      "hair_short_crop"
+    ],
+    [
+      "hair_bob"
+    ],
+    [
+      "glasses_round_wire"
+    ]
+  ],
+  "tips": [
+    "Mustaches sit on the upper lip (anchor upper_lip y ~552) and never hide the mouth's corners.",
+    "Build a beard as intersect(head_outline, a band along the jaw) then subtract the mouth hole: use thicken() on a jaw curve.",
+    "Stubble reads as a lighter, lower-opacity fill on beard.primary, not as dots."
+  ],
+  "styleGuide": "docs/avatar/ART_STYLE_GUIDE.md"
+}
