@@ -75,7 +75,7 @@ insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('feature_freckles', 'core_proto', 1, 'signature_feature', 'free', false);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('feature_muzzle', 'core_proto', 1, 'signature_feature', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('frame_circle', 'core_proto', 1, 'frame', 'free', true);
-insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('frame_pixel', 'core_proto', 1, 'frame', 'premium', true);
+insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('frame_pixel', 'core_proto', 1, 'frame', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('frame_squircle', 'core_proto', 1, 'frame', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('frame_sticker', 'core_proto', 1, 'frame', 'premium', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('glasses_round_wire', 'emoji_core', 2, 'face_accessory', 'free', true);
@@ -192,7 +192,7 @@ insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_cozy_bedroom', 'core_proto', 1, 'scene', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_desk', 'core_proto', 1, 'scene', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_forest', 'core_proto', 1, 'scene', 'free', true);
-insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_neon_city', 'core_proto', 1, 'scene', 'premium', true);
+insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_neon_city', 'core_proto', 1, 'scene', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_plain', 'core_proto', 1, 'scene', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_rainy_window', 'core_proto', 1, 'scene', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('scene_round_soft', 'emoji_core', 2, 'scene', 'free', true);

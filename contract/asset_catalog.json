@@ -598,7 +598,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "frame",
-      "tier": "premium",
+      "tier": "free",
       "widgetSafe": true
     },
     {
@@ -1534,7 +1534,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "scene",
-      "tier": "premium",
+      "tier": "free",
       "widgetSafe": true
     },
     {

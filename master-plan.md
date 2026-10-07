@@ -516,6 +516,49 @@ in one PR.
   `overlay_cheek_blush` isn't used by any expression.
 - **Fix:** point those expressions at `overlay_cheek_blush` if that's intended, and check the privacy and widget
   rules for decoration overlays still hold. **Verify:** the expression contact sheets.
+  - Audit 2026-10-07: in the AD-1 sheets the blush spot sits on the chin, under the mouth, and reads as a stain.
+
+#### F-36 · AP-10 locked migrated v1 avatars out of saving · P1 (Claude audit, 2026-10-07) · ✅ fixed
+- AP-10 made `frame_pixel` and `scene_neon_city` premium. The v1 migration (client `LegacyAvatarMigration` and
+  server `migrate_avatar_config`) maps the pixel base to `frame_pixel` and the neon-city scene to
+  `scene_neon_city`. Those users got "unlock … to save this avatar" on every edit, and `put_avatar` would
+  refuse them with PT403.
+- **Fixed** on `fix/audit-2026-10-07`: both are free again (the sample premium items are now `frame_sticker` and
+  `face_visor`). Regression test: `LegacyAvatarMigrationTest` "every v1 option migrates to free items…".
+- **Rule:** an item that any migration can produce, or that users could already save, never becomes premium.
+
+#### F-37 · The nine new free hairstyles are invisible placeholders · P2 (Claude audit, 2026-10-07)
+- AP-10 added `hair_wavy_medium`, `hair_curly_short`, `hair_coily_afro`, `hair_locs_shoulder`,
+  `hair_braids_cornrows`, `hair_buzz`, `hair_bald`, `hair_bun` and `hair_ponytail` to `core_proto` as
+  `render: procedural`. Hair has no procedural band (`CompositeOrder.proceduralBand`), so all nine draw
+  nothing. They are `storeVisible`, free, and in the server catalog, so a saved recipe can already pin them.
+- The D-48 guard ("≥12 free hairstyles covering the textures") passes on these stubs, so it guards nothing yet.
+- **Fix:** AP-11 must not list hair without art (set `storeVisible: false` on the stubs, or filter on render
+  type). AP-15's hair wave ships real art **under these same ids** (they're now catalog contract; removing one
+  needs a `retired` mapping). Then tighten the guard to count only hair with vector art.
+
+#### F-38 · AD-1 sheets don't meet "hair reads as hair at 48 px" · P1 for AD-2 (Claude audit, 2026-10-07)
+- In B–G the hair is drawn inside the head outline and under the head stroke. The front masses read as heavy
+  brows or sunglasses and the side masses as ears or earmuffs, at 48 px and at 512. The crown shows only as a
+  thin arc above the outline.
+- B, C, F and G differ mainly in stroke weight and palette, so the sheets don't give the user a real choice.
+  The recommended F has the same problems.
+- **Fix before AD-2:** redo the sheets with hair drawn over the head outline (crown above the skull, fringe over
+  the forehead, sides outside the cheeks), and make the directions visibly different (proportions, eye size,
+  outline treatment). Or let the user's own rethink of the look (2026-10-07) replace AD-1.
+
+#### F-39 · Catalog tier changes don't reach an existing database · P2 (Claude audit, 2026-10-07)
+- `supabase/seed/asset_catalog_seed.sql` is pulled in by `\ir` from the already-applied migration
+  `20261007000000_avatar_schema3.sql`. AP-10 edited the seed, so fresh databases get the new tiers and the new
+  hair ids, but a database that already ran that migration never does.
+- **Fix:** catalog changes ship as a new migration that upserts `idl_private.asset_catalog` (have
+  `tools/gen_asset_catalog.py` write it, or add a `check` that fails when the seed changes without one).
+  Needed before any shared backend exists.
+
+#### F-40 · The entitlement refusal shows raw asset ids and is matched by string · P3 (Claude audit, 2026-10-07)
+- `NeedsEntitlement.message` reads "Unlock frame_sticker to save this avatar". The spec says the refusal names
+  the item; it should use the asset's `accessibilityLabel`. `AvatarStudioViewModel` detects it with
+  `startsWith("unlock ")`. Return a typed error instead. Fold into AP-11 (the new editor owns this path).
 
 ---
 
@@ -540,7 +583,8 @@ PostgREST tests) can be done at any time.
 ### 4.0 Next up (start here)
 
 **Paused before ST-2 (2026-10-07).** Cursor stopped at the user's request after AD-1 ✅ (#51) and
-AP-10 ✅ (#52). When work resumes, the next ready row is **ST-2** ⬜ (deps ST-1 ✅). Do not mark
+AP-10 ✅ (#52). Claude audited them on 2026-10-07 (F-36 fixed; F-37–F-40 open, F-38 matters before AD-2).
+When work resumes, the next ready row is **ST-2** ⬜ (deps ST-1 ✅). Do not mark
 ST-2 🔨 until implementation starts. Handoff:
 [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
 
@@ -581,7 +625,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-7 client | Widget heads are the teardrop, with a dark outline on light wallpaper and a light outline on dark: `app/src/test/snapshots/widget/contrast_light.png`, `contrast_dark.png`, `sleepy_default.png`, `hat.png`, `vector_dot.png`. | |
 | 2026-10-07 | ST-1 beanie | Slouch beanie draft (lint clean): `docs/handoff/sheets/st-1-hat_beanie_slouch.png`. Source `tools/studio/acceptance/hat_beanie_slouch.svg`. | |
 | 2026-10-07 | ST-1 curly hair | Short curly hair draft (lint clean): `docs/handoff/sheets/st-1-hair_short_curly.png`. Source `tools/studio/acceptance/hair_short_curly.svg`. | |
-| 2026-10-07 | AD-1 style sheets (Q17) | Compare A–G: `docs/art/exploration/v3/overview.png` and `docs/art/exploration/v3/{A–G}/sheet.png`. Read `docs/art/exploration/v3/README.md`. Agent recommendation: **F** (readable volume); E if wallpaper contrast wins; G reopens D-45/D-46. | |
+| 2026-10-07 | AD-1 style sheets (Q17) | Compare A–G: `docs/art/exploration/v3/overview.png` and `docs/art/exploration/v3/{A–G}/sheet.png`. Read `docs/art/exploration/v3/README.md`. Agent recommendation: **F** (readable volume); E if wallpaper contrast wins; G reopens D-45/D-46. **Claude audit:** hair sits inside the head outline and reads as brows/earmuffs; B–G barely differ. See F-38 before picking. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -1172,3 +1216,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | PR #51, tag `avatar-ad-1`, `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |
 | 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | PR #52, tag `avatar-ap-10`, `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |
 | 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | PR #53, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |
+| 2026-10-07 | Claude | Audit of #50–#53 (ST-1, AD-1, AP-10, handoff): check.sh green (296 tests, lint 0), Studio 28/28. F-36 fixed (legacy pixel/neon-city avatars locked by AP-10's premium samples); F-37–F-40 recorded; AD-1 sheets flagged before AD-2 (F-38) | `docs/handoff/reports/2026-10-07-audit-st1-ad1-ap10.md` |
