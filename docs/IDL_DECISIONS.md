@@ -295,6 +295,21 @@ the runbook lists (a needed decision, a new dependency, a failure it can't fix).
 the user is asynchronous: contact sheets go in each PR and in the master-plan review queue, and
 they don't block merging.
 
+**D-50 · The iDL Art Studio makes the avatar art (user, 2026-10-06).** A private, operator-only
+tool (`tools/studio/`, design in `docs/avatar/ART_STUDIO.md`) produces and manages avatar art from
+natural-language prompts. Claude writes pipeline SVG (not raster image generation) inside category
+kits, checks it with the style lint and the legibility metric, and opens art PRs. Answers Q-S1..Q-S4:
+- The AI front end is Claude Code through a project skill. An in-Studio Claude API chat panel is
+  optional and only built if the skill proves clumsy.
+- AP-13 (expression art batch 2) and AP-15 (content waves) are made with the Studio. Cursor skips
+  those rows and continues the rest of the program under D-49.
+- The Studio may use tool-only Python dependencies, listed in `tools/studio/requirements.txt` and
+  installed in its own virtual environment. The app and `tools/asset_pipeline.py` stay
+  dependency-free.
+- Claude builds phases S0–S3. Cursor may take S4–S5 from specs.
+- Until about 20 Studio items have shipped, the user merges art PRs (Q-S6 default).
+The Studio never ships in the app. The Base lab is a sandbox; D-45 and D-46 stand.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

@@ -106,6 +106,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | `docs/handoff/PHASE_2_TASK.md` | Avatar Phase 2 spec: vector renderer core, D-39 slice (ROADMAP steps 3–5, 8) |
 | `docs/avatar/AVATAR_PROGRAM.md` | **The avatar program (plan of record, 2026-10-06):** vision, architecture, testing, status table AP-1…AP-16, specs |
 | `docs/avatar/ART_STYLE_GUIDE.md` | Binding rules for avatar art |
+| `docs/avatar/ART_STUDIO.md` | The iDL Art Studio (D-50): operator-only, prompt-driven tool for making and managing avatar art. Phases S0–S6 |
 | `docs/handoff/CURSOR_RUNBOOK.md` | How Cursor runs the program on its own: session start, branches, checks, PRs, CI, merging, stop conditions (D-49) |
 | `docs/art/brand/` | Launcher icon, wordmark, splash and Play icon sources and generator (D-44) |
 | `supabase/README.md` | Server: security model, local tests, real-project setup |
@@ -512,6 +513,7 @@ PostgREST tests) can be done at any time.
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
+Rows marked 🎨 (AP-13, AP-15) are made with the Art Studio by Claude (D-50); skip them.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 
@@ -786,7 +788,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-49). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-50). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -831,6 +833,7 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-49). The most relevant t
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
 - **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
+- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 move to it, Cursor skips them (2026-10-06, user)
 
 ---
 
@@ -1112,3 +1115,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-6 art: 15 priority mood faces on the teardrop. Hidden mood stays neutral eyes and mouth. 254 JVM, 0 failed, 1 skipped. Lint 0/42. Device 21, 0 failed. | `docs/handoff/reports/2026-10-06-ap-6-expression-art.md` |
 | 2026-10-07 | Cursor | AP-7 server: schema 3 catalog, PresenceView v2, privacy + composition vectors. F-19 ✅, F-29 ✅. 264 JVM, SQL 29/29, device passed. | `docs/handoff/reports/2026-10-07-ap-7-schema3-server.md` |
 | 2026-10-07 | Cursor | AP-8: publishMask/clipBy applied, facial hair multiple, hand-overlay prop drop, transform limits, hair tags, LegibilityTest + combination test. 274 JVM. | `docs/handoff/reports/2026-10-07-ap-8-occlusion.md` |
+| 2026-10-06 | User/Claude | Art Studio designed: `docs/avatar/ART_STUDIO.md`; D-50 recorded (Claude Code skill front end, AP-13/AP-15 move to the Studio, tool-only Python deps, Claude builds S0–S3) | branch `tools/art-studio-design` |
