@@ -585,8 +585,10 @@ PostgREST tests) can be done at any time.
 
 **ST-2's tool work is done (2026-10-07).** PRs 1–3 are merged (#57–#59). PR 4 measures eyes and
 mouth instead of the whole 48 px canvas (F-33 ✅). PR 5 waits for a real item in `art/incoming/`.
-The next row is **ST-3** (retire). Claude's audit still has F-32 and F-34–F-40 open. F-37–F-40
-and F-38 matter, and F-32 waits on the art direction Cursor will choose.
+**ST-3 is done in the same pass:** `import_art.py retire <old> --to <new>` records the mapping
+and removes the old id from the shipped list. It refuses a removal that has no replacement.
+The next row is **AP-11** (editor; design note first, then a device check). Claude's audit still
+has F-32 and F-34–F-40 open. F-32 waits on the art direction Cursor will choose.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
@@ -594,7 +596,7 @@ dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff
 Rows marked 🎨 (AP-13, AP-15) are art made after AD-3. **D-51 (2026-10-07):** AP-15 item art comes from the
 external `idl-art-studio` through the importer (ST-2, contract `docs/avatar/ART_INTERCHANGE.md`); AP-13 expression
 art stays in-repo SVG.
-**Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → **ST-2** → ST-3 → AP-11 → AP-12 →
+**Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → ST-2 ✅ (pilot art still waits) → ST-3 ✅ → **AP-11** → AP-12 →
 AD-2 👤 (Q17) → AD-3 → AP-13 → AP-15 → AP-14 → AP-16.
 Cursor runs it under D-49. On 2026-10-07 the user asked Cursor to make art and design
 calls (including Q17) and to lock app functionality before a long restyle.
@@ -1223,3 +1225,4 @@ win once Track 0 is done.
 | 2026-10-07 | Claude | Audit of #50–#53 (ST-1, AD-1, AP-10, handoff): check.sh green (296 tests, lint 0), Studio 28/28. F-36 fixed (legacy pixel/neon-city avatars locked by AP-10's premium samples); F-37–F-40 recorded; AD-1 sheets flagged before AD-2 (F-38) | `docs/handoff/reports/2026-10-07-audit-st1-ad1-ap10.md` |
 | 2026-10-07 | User/Claude | D-51: item art comes from the external `idl-art-studio` as line art + slot-labelled regions; contract `docs/avatar/ART_INTERCHANGE.md`; ST-2 re-scoped to the importer, ST-3 to retire; Q18 licensing | PR #55 |
 | 2026-10-07 | Cursor | ST-2 importer: check (#57), import (#58), review sheets (#59), zone legibility (F-33). Pilot art PR waits | `docs/handoff/reports/2026-10-07-st-2-legibility-zones.md` |
+| 2026-10-07 | Cursor | ST-3 retire: `import_art.py retire <old> --to <new>` writes the mapping and will not remove an id without a replacement | `docs/handoff/reports/2026-10-07-st-3-retire.md` |

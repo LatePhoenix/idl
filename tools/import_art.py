@@ -7,6 +7,7 @@ Commands:
   check <dir>                 interchange checks; exit 1 when any problem is found
   import <dir> [--pack id]    copy a valid drop into the pack, rebuild, and archive it
   sheets <id>                 review sheet at 512 and 48 px (needs the Studio venv)
+  retire <old> --to <new>     map a removed id onto its replacement
 """
 
 from __future__ import annotations
@@ -109,9 +110,9 @@ def sheet_neighbors(assets: list[dict], asset_id: str) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) < 2 or argv[1] not in {"check", "import", "sheets"}:
+    if len(argv) < 2 or argv[1] not in {"check", "import", "sheets", "retire"}:
         print(
-            "usage: import_art.py check <dir> | import <dir> [--pack id] | sheets <id>",
+            "usage: import_art.py check <dir> | import <dir> [--pack id] | sheets <id> | retire <old> --to <new>",
             file=sys.stderr,
         )
         return 2
@@ -122,7 +123,84 @@ def main(argv: list[str]) -> int:
         return _check_cli(Path(argv[2]))
     if argv[1] == "sheets":
         return _sheets_cli(argv[2:])
+    if argv[1] == "retire":
+        return _retire_cli(argv[2:])
     return _import_cli(argv[2:])
+
+
+def _retire_cli(argv: list[str]) -> int:
+    if len(argv) != 3 or argv[1] != "--to" or argv[0].startswith("-") or argv[2].startswith("-"):
+        print("usage: import_art.py retire <old> --to <new>", file=sys.stderr)
+        return 2
+    try:
+        print(retire_asset(argv[0], argv[2]))
+    except DropRejected as error:
+        for issue in error.issues:
+            print(issue, file=sys.stderr)
+        return 1
+    except (OSError, pipeline.PipelineError) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    return 0
+
+
+def retire_asset(old: str, new: str, paths: RepoPaths | None = None) -> str:
+    """Record old → new and drop old from the shipped asset list. Refuses a removal with no replacement."""
+    paths = paths or default_paths()
+    if not SNAKE.match(old) or not SNAKE.match(new):
+        raise DropRejected([ImportError("ids must be lowercase snake case")])
+    if old == new:
+        raise DropRejected([ImportError("cannot retire an id onto itself")])
+
+    loaded: list[tuple[Path, dict]] = []
+    new_path: Path | None = None
+    old_path: Path | None = None
+    for pack_dir in sorted(path for path in paths.packs.iterdir() if path.is_dir()):
+        try:
+            manifest_path = pipeline.version_dir(pack_dir) / "manifest.json"
+        except pipeline.PipelineError:
+            continue
+        if not manifest_path.is_file():
+            continue
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        loaded.append((manifest_path, manifest))
+        for asset in manifest.get("assets", []):
+            if asset.get("id") == new:
+                new_path = manifest_path
+            if asset.get("id") == old:
+                old_path = manifest_path
+        if old in (manifest.get("retired") or {}) and manifest["retired"][old] != new:
+            raise DropRejected(
+                [ImportError(f"{old} is already retired to {manifest['retired'][old]}")]
+            )
+    if new_path is None:
+        raise DropRejected([ImportError(f"{new} is not a shipped asset")])
+    if old_path is None:
+        for _, manifest in loaded:
+            if (manifest.get("retired") or {}).get(old) == new:
+                return f"retired {old} -> {new}"
+        raise DropRejected([ImportError(f"{old} is not a shipped asset")])
+
+    target = old_path or new_path
+    manifest = next(item for path, item in loaded if path == target)
+    journal = _Journal()
+    journal.file(target)
+    journal.file(paths.catalog_json)
+    journal.file(paths.catalog_sql)
+    try:
+        manifest["assets"] = [asset for asset in manifest.get("assets", []) if asset.get("id") != old]
+        retired = manifest.setdefault("retired", {})
+        retired[old] = new
+        target.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
+        gen_asset_catalog.write(
+            gen_asset_catalog.build(paths.packs),
+            json_path=paths.catalog_json,
+            sql_path=paths.catalog_sql,
+        )
+    except Exception:
+        journal.restore()
+        raise
+    return f"retired {old} -> {new}"
 
 
 def _sheets_cli(argv: list[str]) -> int:

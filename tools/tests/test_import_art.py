@@ -451,5 +451,64 @@ class ImportArtSheetsTest(unittest.TestCase):
             self.assertGreater(png.stat().st_size, 1000)
 
 
+class ImportArtRetireTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        packs = self.tmp / "packs"
+        shutil.copytree(ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core", packs / "emoji_core")
+        shutil.copytree(ROOT / "app" / "src" / "main" / "assets" / "packs" / "core_proto", packs / "core_proto")
+        self.paths = import_art.RepoPaths(
+            art=self.tmp / "art",
+            packs=packs,
+            catalog_json=self.tmp / "catalog.json",
+            catalog_sql=self.tmp / "catalog.sql",
+            incoming=self.tmp / "incoming",
+        )
+        self.real = (
+            ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core" / "v2" / "manifest.json"
+        ).read_bytes()
+
+    def tearDown(self):
+        self.assertEqual(
+            (ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core" / "v2" / "manifest.json").read_bytes(),
+            self.real,
+        )
+
+    def manifest(self) -> dict:
+        return json.loads(
+            (self.paths.packs / "emoji_core" / "v2" / "manifest.json").read_text(encoding="utf-8")
+        )
+
+    def test_retire_maps_the_old_id_and_removes_it_from_the_list(self):
+        summary = import_art.retire_asset("stubble", "beard_full", paths=self.paths)
+        self.assertEqual(summary, "retired stubble -> beard_full")
+        manifest = self.manifest()
+        self.assertEqual(manifest["retired"]["stubble"], "beard_full")
+        self.assertNotIn("stubble", {asset["id"] for asset in manifest["assets"]})
+        self.assertIn("beard_full", {asset["id"] for asset in manifest["assets"]})
+        catalog = json.loads(self.paths.catalog_json.read_text(encoding="utf-8"))
+        self.assertEqual(catalog["retired"]["stubble"], "beard_full")
+        self.assertNotIn("stubble", {row["assetId"] for row in catalog["assets"]})
+
+    def test_retire_refuses_without_a_real_replacement(self):
+        with self.assertRaises(import_art.DropRejected):
+            import_art.retire_asset("stubble", "not_an_asset", paths=self.paths)
+        with self.assertRaises(import_art.DropRejected):
+            import_art.retire_asset("stubble", "stubble", paths=self.paths)
+        with self.assertRaises(import_art.DropRejected):
+            import_art.retire_asset("not_an_asset", "beard_full", paths=self.paths)
+        self.assertIn("stubble", {asset["id"] for asset in self.manifest()["assets"]})
+
+    def test_retire_refuses_a_second_replacement(self):
+        import_art.retire_asset("stubble", "beard_full", paths=self.paths)
+        with self.assertRaises(import_art.DropRejected) as caught:
+            import_art.retire_asset("stubble", "hair_bob", paths=self.paths)
+        self.assertIn("already retired", str(caught.exception))
+
+    def test_retire_usage(self):
+        self.assertEqual(import_art.main(["import_art.py", "retire", "stubble"]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

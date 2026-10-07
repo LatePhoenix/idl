@@ -294,8 +294,8 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
-**ST-2 tool PRs are done (2026-10-07).** Check, import, review sheets and F-33 are in. PR 5, the
-pilot real-art import, waits for a file in `art/incoming/`. The next row is ST-3.
+**Next (2026-10-07):** AP-11, the editor. ST-2's tool PRs and ST-3 (retire) are done. ST-2 PR 5,
+the pilot real-art import, waits for a file in `art/incoming/`.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -312,7 +312,7 @@ pilot real-art import, waits for a file in `art/incoming/`. The next row is ST-3
 | AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | ✅ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ✅ |
 | ST-2 | Art import (D-51): `tools/import_art.py` for `art/incoming/`, review sheets, legibility parity (F-33). Spec: `ART_INTERCHANGE.md` §9. Task: `docs/handoff/ART_IMPORT_TASK.md`. Pilot art (PR 5) waits for a real studio export | ST-1 | | | ✅ |
-| ST-3 | Art Studio S3: retire (promote is the importer, D-51) | ST-2 | | | ⬜ |
+| ST-3 | Art Studio S3: retire (promote is the importer, D-51) | ST-2 | | | ✅ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
 | AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |
 | AD-2 | 👤 The user picks the art direction from the AD-1 sheets (Q17, Q16) | AD-1 | | | ⬜ 👤 |
