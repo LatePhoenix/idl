@@ -24,9 +24,30 @@ class CompositeOrderTest {
             val presence = LegacyAvatarMigration.presence(PresenceResolver.resolve(listOf(quick.toState(now)), now))
             val resolved = resolver.resolve(request(config(), presence, target = RenderTarget.STANDARD_WIDGET, sizePx = RenderTarget.STANDARD_WIDGET.defaultSizePx))
             val frame = PlaceholderFrames.from(resolved, registry)
-            val ops = CompositeOrder.ops(resolved, registry)
-            assertEquals(quick.id, frame.layers.filter { it != Layer.FACE_STYLE }, ops.mapNotNull { it.toLayer() })
-            assertTrue(quick.id, ops.none { it is DrawOp.VectorPart })
+            val stub = VectorPicture(
+                schemaVersion = 1,
+                id = "stub",
+                contentVersion = 1,
+                viewBox = 1024,
+                parts = listOf(VectorPart("face", 40, VectorFill(slot = "face.primary"), "M 0 0")),
+            )
+            val ops = CompositeOrder.ops(resolved, registry) { id ->
+                if (registry.asset(id)?.render?.type == "vector") stub.copy(id = id) else null
+            }
+            val vectorCategories = resolved.layers.mapNotNull { layer ->
+                val asset = registry.asset(layer.assetId)
+                if (asset?.render?.type == "vector") asset.category else null
+            }.toSet()
+            fun Layer.drawnAsVector() = when (this) {
+                Layer.HEAD_BASE -> AssetCategory.BASE in vectorCategories
+                Layer.EYES -> AssetCategory.FACE_EYE in vectorCategories
+                Layer.BROWS -> AssetCategory.FACE_BROW in vectorCategories
+                Layer.MOUTH -> AssetCategory.FACE_MOUTH in vectorCategories
+                Layer.FACE_EXTRA -> AssetCategory.EXPRESSION_OVERLAY in vectorCategories
+                else -> false
+            }
+            assertEquals(quick.id, frame.layers.filter { it != Layer.FACE_STYLE && !it.drawnAsVector() }, ops.mapNotNull { it.toLayer() })
+            assertTrue(quick.id, ops.any { it is DrawOp.VectorPart && registry.asset(it.assetId)?.category == AssetCategory.BASE })
             assertTrue(quick.id, ops.dropWhile { !it.chrome }.all { it.chrome })
         }
     }

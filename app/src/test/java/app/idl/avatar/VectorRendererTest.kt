@@ -6,6 +6,7 @@ import android.graphics.RectF
 import app.idl.domain.avatar.AssetCategory
 import app.idl.domain.avatar.AssetDef
 import app.idl.domain.avatar.AssetManifest
+import app.idl.domain.avatar.AssetPacks
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.AssetRender
 import app.idl.domain.avatar.AvatarResolver
@@ -19,7 +20,9 @@ import app.idl.domain.avatar.VectorPicture
 import app.idl.domain.avatar.VectorStroke
 import app.idl.domain.avatar.config
 import app.idl.domain.avatar.coreRegistry
+import app.idl.domain.avatar.repoRoot
 import app.idl.domain.avatar.request
+import java.io.File
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -123,26 +126,37 @@ class VectorRendererTest {
         val lines = ShadowLog.getLogs().filter { it.msg.contains("avatar.vector_missing") }
         assertEquals(
             listOf(
+                "avatar.vector_missing asset=base_teardrop",
                 "avatar.vector_missing asset=mark_test_dot",
                 "avatar.vector_missing asset=top_crew_tee",
+                "avatar.vector_missing asset=eyes_round_neutral",
+                "avatar.vector_missing asset=brows_round_relaxed",
+                "avatar.vector_missing asset=mouth_round_neutral",
             ),
             lines.map { it.msg },
         )
     }
 
-    @Test fun `a test picture draws on top of the procedural avatar`() {
-        val registry = AssetRegistry(coreRegistry().manifests + AssetManifest(
-            packId = "test_pictures",
-            version = 1,
-            assets = listOf(dot()),
-        ))
+    @Test fun `a test picture draws on top of the teardrop`() {
+        val registry = AssetRegistry(
+            coreRegistry().manifests + AssetManifest(
+                packId = "test_pictures",
+                version = 1,
+                assets = listOf(dot()),
+            ),
+            AssetPacks.SHIPPED.map { it.substringBeforeLast("manifest.json") },
+        )
         val withDot = AvatarResolver(registry).resolve(
             request(config().copy(itemIds = mapOf("hair" to listOf("mark_test_dot"))), target = RenderTarget.STANDARD_WIDGET, sizePx = 256),
         )
         val plain = AvatarResolver(registry).resolve(
             request(config(), target = RenderTarget.STANDARD_WIDGET, sizePx = 256),
         )
-        val cache = VectorPictureCache { json }
+        val cache = VectorPictureCache(
+            packDirectory = { asset -> registry.packDirectory(asset.id) },
+        ) { path ->
+            if (path.endsWith("mark_test_dot.json")) json else File(repoRoot(), "app/src/main/assets/$path").readText()
+        }
         val dotted = AvatarRenderer.bitmap(withDot, registry, cache, 256)
         val bare = AvatarRenderer.bitmap(plain, registry, cache, 256)
         assertFalse(dotted.sameAs(bare))
