@@ -1,0 +1,26 @@
+{
+  "id": "glasses_round_thick",
+  "pack": "emoji_core",
+  "category": "face_accessory",
+  "accessibilityLabel": "Round thick glasses",
+  "tags": [
+    "round",
+    "thick"
+  ],
+  "tier": "free",
+  "colorSlots": {
+    "glasses.lens": "#9FD3FF",
+    "glasses.frame": "#2B2B2B"
+  },
+  "provenance": {
+    "tool": "idl-art-studio",
+    "model": "synthetic",
+    "controlnet": "none",
+    "seed": 0,
+    "prompt": "round thick glasses",
+    "commit": "a30b02d"
+  },
+  "reviewNotes": [
+    "synthetic test fixture drawn by the studio's tests, not generated art"
+  ]
+}

@@ -1,0 +1,14 @@
+---
+description: Art import from the external iDL Art Studio (D-51, D-52)
+globs: tools/import_art.py,tools/tests/test_import_art.py,tools/testdata/art_incoming/**,art/incoming/**,docs/avatar/ART_INTERCHANGE.md
+alwaysApply: false
+---
+
+- Read `COORDINATION.md` first. The contract is `docs/avatar/ART_INTERCHANGE.md`; the task is
+  `docs/handoff/ART_IMPORT_TASK.md`.
+- `tools/import_art.py` is standard-library only, like `tools/asset_pipeline.py`. Its tests are
+  `unittest` in `tools/tests/` and run in `scripts/check.sh` and CI.
+- `tools/testdata/art_incoming/` are the studio exporter's synthetic fixtures: never import them into a
+  real pack, never edit them by hand (the studio regenerates them).
+- Never commit `art/incoming/`; never edit the studio repo (`Z:\ai-tools\idl-art-studio`). Contract
+  changes start as a spec PR here, then a studio task.

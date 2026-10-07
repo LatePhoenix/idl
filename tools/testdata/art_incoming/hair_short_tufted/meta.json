@@ -1,0 +1,33 @@
+{
+  "id": "hair_short_tufted",
+  "pack": "emoji_core",
+  "category": "hair",
+  "accessibilityLabel": "Short tufted hair",
+  "tags": [
+    "short",
+    "tufted"
+  ],
+  "tier": "free",
+  "colorSlots": {
+    "hair.primary": "#4A3426",
+    "outline": "#7A4E00"
+  },
+  "patternRegions": [
+    "back_primary",
+    "back_primary_2",
+    "back_primary_3",
+    "back_primary_4",
+    "top_primary"
+  ],
+  "provenance": {
+    "tool": "idl-art-studio",
+    "model": "synthetic",
+    "controlnet": "none",
+    "seed": 0,
+    "prompt": "short tufted hair",
+    "commit": "a30b02d"
+  },
+  "reviewNotes": [
+    "synthetic test fixture drawn by the studio's tests, not generated art"
+  ]
+}
