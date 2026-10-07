@@ -62,6 +62,25 @@ class LegacyAvatarMigrationTest {
         assertEquals(9 * 9 * 3 * 3 * 3, index)
     }
 
+    @Test fun `every v1 option migrates to free items so a user with no purchases can still save`() {
+        // Regression (F-36): AP-10 made frame_pixel and scene_neon_city premium, which locked every
+        // migrated pixel or neon-city avatar out of saving.
+        val nothingOwned = LocalEntitlements(registry)
+        val v1s = BaseForm.entries.map { AvatarConfig(baseForm = it) } +
+            Scene.entries.map { AvatarConfig(scene = it) } +
+            FrameStyle.entries.map { AvatarConfig(frameStyle = it) } +
+            HeadAccessory.entries.map { AvatarConfig(headAccessory = it) } +
+            FaceAccessory.entries.map { AvatarConfig(faceAccessory = it) } +
+            BodyAccessory.entries.map { AvatarConfig(bodyAccessory = it) } +
+            Prop.entries.map { AvatarConfig(handProp = it) } +
+            FaceStyle.entries.map { AvatarConfig(faceStyle = it) }
+        v1s.forEach { v1 ->
+            val write = LegacyAvatarMigration.migrate(v1, registry)
+                .prepareForWrite(registry.baseFamilies, registry, nothingOwned)
+            assertTrue("$v1 -> $write", write is AvatarWrite.Ready)
+        }
+    }
+
     @Test fun `each v1 base maps to the teardrop and species marks are dropped`() {
         fun migrated(form: BaseForm, frame: FrameStyle = FrameStyle.SQUIRCLE) =
             LegacyAvatarMigration.migrate(AvatarConfig(baseForm = form, frameStyle = frame), registry)

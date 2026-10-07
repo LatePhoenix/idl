@@ -1171,8 +1171,7 @@
       "render": {
         "type": "procedural"
       },
-      "tier": "premium",
-      "price": 60,
+      "tier": "free",
       "collection": "core",
       "releaseTag": "core",
       "storeVisible": true
@@ -1229,8 +1228,7 @@
       "render": {
         "type": "procedural"
       },
-      "tier": "premium",
-      "price": 40,
+      "tier": "free",
       "collection": "core",
       "releaseTag": "core",
       "storeVisible": true
