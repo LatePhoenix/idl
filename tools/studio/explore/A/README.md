@@ -1,0 +1,1 @@
+Direction A uses shipped `art/emoji_core/*.svg` for base, short/long hair, glasses, tee and expressions. Only `hat_beanie_slouch` and `hair_short_curly` are sandboxed here (from ST-1 acceptance drafts).

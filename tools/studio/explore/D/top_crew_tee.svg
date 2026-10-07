@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="top_crew_tee"
+     data-content-version="1">
+  <path data-part="shirt" data-z="36" data-slot="top.primary" d="M 404 948 L 404 1024 C 404 1120 20 1180 -80 1220 L -80 1480 L 1104 1480 L 1104 1220 C 1004 1180 620 1120 620 1024 L 620 948 Z"/>
+</svg>
