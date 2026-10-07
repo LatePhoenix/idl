@@ -311,6 +311,187 @@ function update(patch, immediate = true) {
   pending = requestAnimationFrame(renderWorkbench);
 }
 
+// ---------- drafts ----------
+
+let draftsState = { list: [], selected: null, detail: null, showGuides: false, overlaySvg: null };
+let draftsPoll = 0;
+
+async function fetchDrafts() {
+  const response = await fetch('/api/drafts');
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+async function fetchDraft(id) {
+  const response = await fetch(`/api/drafts/${encodeURIComponent(id)}`);
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+async function fetchGuidesOverlay() {
+  if (draftsState.overlaySvg) return draftsState.overlaySvg;
+  const response = await fetch('/api/guides');
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  draftsState.overlaySvg = data.overlaySvg;
+  return data.overlaySvg;
+}
+
+function draftAsAsset(detail) {
+  const meta = detail.meta;
+  return {
+    id: meta.id,
+    category: meta.category,
+    accessibilityLabel: meta.label || meta.id,
+    colorSlots: meta.colorSlots || {},
+    tier: meta.tier || 'free',
+    contentVersion: meta.contentVersion || 1,
+    picture: detail.picture,
+    draft: true,
+  };
+}
+
+function draftPreviewList(detail) {
+  if (!detail?.picture || !base) return [base].filter(Boolean);
+  const asset = draftAsAsset(detail);
+  return compose(defaultRecipe(), asset);
+}
+
+async function selectDraft(id) {
+  draftsState.selected = id;
+  draftsState.detail = await fetchDraft(id);
+  renderDrafts();
+}
+
+async function revertDraft(id, n) {
+  const response = await fetch(`/api/drafts/${encodeURIComponent(id)}/revert`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ n }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  await selectDraft(id);
+}
+
+function renderDrafts() {
+  const root = $('#drafts');
+  const byGroup = new Map();
+  for (const meta of draftsState.list) {
+    const g = meta.group || meta.id;
+    if (!byGroup.has(g)) byGroup.set(g, []);
+    byGroup.get(g).push(meta);
+  }
+  const list = el('div', { class: 'panel', style: 'position:static' });
+  list.append(el('h2', {}, 'Drafts'), el('p', { class: 'muted' },
+    'Work in .studio/drafts/. Polls every 1.5s so CLI edits appear here.'));
+  if (!draftsState.list.length) list.append(el('p', { class: 'muted' }, 'No drafts yet. Use studio.py draft new …'));
+  for (const [group, rows] of [...byGroup].sort((a, b) => a[0].localeCompare(b[0]))) {
+    list.append(el('h3', {}, group));
+    for (const meta of rows) {
+      list.append(el('div', {
+        class: `card${meta.id === draftsState.selected ? ' sel' : ''}`,
+        style: 'text-align:left;margin-bottom:6px',
+        onclick: () => selectDraft(meta.id),
+      },
+      el('div', { class: 'id' }, meta.id),
+      el('div', { class: 'muted' }, `${meta.category} · rev ${meta.current || 0}`),
+      meta.prompt ? el('div', { class: 'muted' }, meta.prompt) : null));
+    }
+  }
+
+  const detail = el('aside', { class: 'panel' });
+  const d = draftsState.detail;
+  if (!d) {
+    detail.append(el('p', { class: 'muted' }, 'Select a draft.'));
+  } else {
+    const meta = d.meta;
+    detail.append(
+      el('h2', {}, meta.label || meta.id),
+      el('div', { class: 'muted' }, el('code', {}, meta.id), ` · ${meta.category} · rev ${meta.current || 0}`),
+      meta.prompt ? el('p', {}, meta.prompt) : null,
+      el('div', { class: 'row' },
+        el('button', {
+          class: draftsState.showGuides ? 'on' : '',
+          onclick: async () => {
+            draftsState.showGuides = !draftsState.showGuides;
+            if (draftsState.showGuides) await fetchGuidesOverlay();
+            renderDrafts();
+          },
+        }, 'Guides overlay')),
+    );
+    if (d.error) detail.append(el('div', { class: 'error' }, d.error));
+    else if (d.picture) {
+      const listAssets = draftPreviewList(d);
+      const previewWrap = el('div', { class: 'draft-preview' });
+      const canvas = avatarCanvas(192, listAssets, { framing: 'head' });
+      previewWrap.append(canvas);
+      if (draftsState.showGuides && draftsState.overlaySvg) {
+        const overlay = el('div', { class: 'guides-overlay' });
+        overlay.innerHTML = draftsState.overlaySvg;
+        const svg = overlay.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('width', '192');
+          svg.setAttribute('height', '192');
+          // Character grid 0..1024 maps into head framing (-40,0,1104).
+          svg.setAttribute('viewBox', '-40 0 1104 1104');
+        }
+        previewWrap.append(overlay);
+      }
+      detail.append(el('h3', {}, 'Current revision'), previewWrap);
+    } else {
+      detail.append(el('p', { class: 'muted' }, 'No revisions yet.'));
+    }
+    detail.append(el('h3', {}, 'Lint'));
+    if (!d.lint?.length) detail.append(el('p', { class: 'muted' }, d.picture ? 'clean' : '—'));
+    else {
+      detail.append(el('table', {}, d.lint.map((i) => el('tr', {},
+        el('td', {}, el('span', { class: `badge ${i.level === 'error' ? 'missing' : ''}` }, i.level)),
+        el('td', {}, el('code', {}, i.rule)),
+        el('td', {}, i.part ? `[${i.part}] ` : '', i.message)))));
+    }
+    detail.append(el('h3', {}, 'Revisions'));
+    if (!meta.revisions?.length) detail.append(el('p', { class: 'muted' }, 'none'));
+    else {
+      detail.append(el('table', {},
+        el('tr', {}, el('th', {}, 'rev'), el('th', {}, 'note'), el('th', {}, '')),
+        meta.revisions.slice().reverse().map((r) => el('tr', {},
+          el('td', {}, String(r.n) + (r.n === meta.current ? ' ●' : '')),
+          el('td', {}, r.note || r.time || ''),
+          el('td', {}, r.n === meta.current ? null : el('button', {
+            onclick: () => revertDraft(meta.id, r.n),
+          }, 'Revert'))))));
+    }
+  }
+  root.replaceChildren(el('div', { class: 'split' }, list, detail));
+}
+
+async function refreshDrafts(silent = false) {
+  try {
+    const list = await fetchDrafts();
+    const prev = JSON.stringify(draftsState.list);
+    draftsState.list = list;
+    if (draftsState.selected) {
+      const detail = await fetchDraft(draftsState.selected);
+      const same = JSON.stringify(draftsState.detail) === JSON.stringify(detail);
+      draftsState.detail = detail;
+      if (!silent || prev !== JSON.stringify(list) || !same) renderDrafts();
+    } else if (!silent || prev !== JSON.stringify(list)) {
+      renderDrafts();
+    }
+  } catch (error) {
+    if (!silent) {
+      $('#drafts').replaceChildren(el('div', { class: 'error' }, String(error.message || error)));
+    }
+  }
+}
+
+function startDraftsPoll() {
+  clearInterval(draftsPoll);
+  draftsPoll = setInterval(() => {
+    if (current === 'drafts') refreshDrafts(true);
+  }, 1500);
+}
+
 // ---------- expressions ----------
 
 function renderExpressions() {
@@ -373,7 +554,12 @@ function renderExpressions() {
 
 // ---------- shell ----------
 
-const RENDER = { catalog: renderCatalog, workbench: renderWorkbench, expressions: renderExpressions };
+const RENDER = {
+  catalog: renderCatalog,
+  workbench: renderWorkbench,
+  drafts: () => { refreshDrafts(false); },
+  expressions: renderExpressions,
+};
 let current = 'catalog';
 function show(view) {
   current = view;
@@ -387,6 +573,7 @@ async function start() {
   try {
     await load();
     if (!base) throw new Error('No vector base found in any pack.');
+    startDraftsPoll();
     let view = 'catalog';
     try { view = localStorage.getItem('idl-studio-view') || view; } catch { /* ignore */ }
     show(RENDER[view] ? view : 'catalog');
