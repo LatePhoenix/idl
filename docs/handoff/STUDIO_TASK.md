@@ -181,15 +181,15 @@ front hair. The head stays the teardrop. AD-3 applies it after the editor and th
 
 ## AD-3 · Apply the art direction
 
-Branch `art/ad-3-<direction>`. Once Q17 is answered:
+Branch `art/ad-3-readable-volume`. D-53 is already recorded. Do not open a second decision.
 
-1. Record it as a new `D-` entry in `docs/IDL_DECISIONS.md` and update `ART_STYLE_GUIDE.md` to match:
-   line weights, shading, proportions and the hair rules. If the user picked a new head (G), that reopens
-   D-45 and D-46; record the user's words.
+1. Update `ART_STYLE_GUIDE.md` to the D-53 numbers: 40-unit outlines, slightly larger eyes, hair
+   outside the skull, and raised brows over front hair. The head stays the teardrop (D-45 and D-46
+   stand). Widget framing gets the light sticker edge. The in-app bust does not.
 2. Update the kits (`tools/studio/kits/*.json`) and the lint numbers to the new guide.
-3. Restyle every shipped picture in the new direction with the Studio. **Keep every asset id**, bump
-   `contentVersion`, and re-record the goldens so saved avatars never break (invariant 5). A head change
-   also needs the guides re-derived and every fitted item checked by lint and try-on.
+3. Restyle every shipped picture in that direction with the Studio. **Keep every asset id**, bump
+   `contentVersion`, and re-record the goldens so saved avatars never break (invariant 5). Hair must
+   sit outside the skull (F-38). Fit every item with lint and try-on.
 4. This is the **pilot art PR**: the user merges it (D-50 as amended). Then AP-13 and AP-15 follow, made with
    the Studio, and Cursor merges those art PRs itself.
 

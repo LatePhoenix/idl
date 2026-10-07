@@ -539,15 +539,15 @@ in one PR.
   type). AP-15's hair wave ships real art **under these same ids** (they're now catalog contract; removing one
   needs a `retired` mapping). Then tighten the guard to count only hair with vector art.
 
-#### F-38 · AD-1 sheets don't meet "hair reads as hair at 48 px" · P1 for AD-2 (Claude audit, 2026-10-07)
+#### F-38 · AD-1 sheets don't meet "hair reads as hair at 48 px" · P1 for AD-3 (Claude audit, 2026-10-07)
 - In B–G the hair is drawn inside the head outline and under the head stroke. The front masses read as heavy
   brows or sunglasses and the side masses as ears or earmuffs, at 48 px and at 512. The crown shows only as a
   thin arc above the outline.
-- B, C, F and G differ mainly in stroke weight and palette, so the sheets don't give the user a real choice.
-  The recommended F has the same problems.
-- **Fix before AD-2:** redo the sheets with hair drawn over the head outline (crown above the skull, fringe over
-  the forehead, sides outside the cheeks), and make the directions visibly different (proportions, eye size,
-  outline treatment). Or let the user's own rethink of the look (2026-10-07) replace AD-1.
+- B, C, F and G differ mainly in stroke weight and palette, so the sheets don't give a real choice.
+  The chosen F has the same problems. D-53 still picks F, and says the redraw has to fix this.
+- **Fix in AD-3:** redraw the hair over the head outline (crown above the skull, fringe over the
+  forehead, sides outside the cheeks). The direction is already chosen, so the sheets do not need
+  another comparison pass.
 
 #### F-39 · Catalog tier changes don't reach an existing database · P2 (Claude audit, 2026-10-07)
 - `supabase/seed/asset_catalog_seed.sql` is pulled in by `\ir` from the already-applied migration
