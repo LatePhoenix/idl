@@ -4,8 +4,8 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last status refresh: **2026-10-07** (ST-2 PR 3 in progress). `origin/main` is at
-`2d0264b` (ST-2 PR 2, #58). Earlier full review: 2026-10-05 by Claude through PR #23.
+Last status refresh: **2026-10-07** (ST-2 PR 4, F-33). `origin/main` is at
+`0b9b1bb` (ST-2 PR 3, #59). Earlier full review: 2026-10-05 by Claude through PR #23.
 
 **ST-2 resumed (2026-10-07).** The pause before ST-2 is over. The importer is specified in
 [`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1
@@ -54,8 +54,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `2d0264b` (PR #58, ST-2 import, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
-| Open PRs | None until `tools/import-art-sheets` (ST-2 PR 3) is pushed |
+| `origin/main` | `0b9b1bb` (PR #59, ST-2 review sheets, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None until `tools/legibility-zones` (ST-2 PR 4) is pushed |
 | Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
@@ -500,11 +500,12 @@ in one PR.
 - **Fix:** redraw it with the Studio after ST-1 (it's the headwear kit's lint test case), or retire it with a mapping.
   Waits for the user's art direction.
 
-#### F-33 · LegibilityTest counts dark pixels anywhere · P2 (Claude, Studio S1, 2026-10-07)
-- It sums non-skin pixels over the whole 48 px canvas, so dark hair or a hat over the eyes can raise the
-  count and pass. It doesn't check that the eyes and mouth are still visible.
-- **Fix (ST-2):** measure feature pixels inside the eye and mouth zones (see `tools/studio/engine/legibility.py`).
-- **Verify:** a fixture that covers the eyes with a dark shape fails; the shipped items pass.
+#### F-33 · LegibilityTest counts dark pixels anywhere · P2 (Claude, Studio S1, 2026-10-07) · ✅ fixed
+- It summed non-skin pixels over the whole 48 px canvas, so dark hair or a hat over the eyes could raise the
+  count and pass.
+- **Fixed** in ST-2 PR 4. Feature pixels are where the neutral face differs from a blank face, inside the
+  eye and mouth zones. A dark rect over the eyes fails. Shipped hair, hats, glasses and the three importer
+  fixtures pass. Facial hair may cover the mouth. Eyewear may pass on contrast when a tint shifts the color.
 
 #### F-34 · Raised brows sit above the hairline limit · P3, needs the user (Q16)
 - The style guide lets front hair reach y 330 at the centre, but raised brows reach y ~271. Hair that follows
@@ -582,10 +583,10 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
-**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51), AP-10 ✅ (#52), importer PR 1 ✅ (#57)
-and PR 2 ✅ (#58) are merged. Claude's audit (F-36 fixed; F-37–F-40 open) still stands.
-The current row is **ST-2** 🔨: PR 3 writes review sheets (`tools/import_art.py sheets`).
-PR 4 is F-33. PR 5 waits for a real item in `art/incoming/`.
+**ST-2's tool work is done (2026-10-07).** PRs 1–3 are merged (#57–#59). PR 4 measures eyes and
+mouth instead of the whole 48 px canvas (F-33 ✅). PR 5 waits for a real item in `art/incoming/`.
+The next row is **ST-3** (retire). Claude's audit still has F-32 and F-34–F-40 open. F-37–F-40
+and F-38 matter, and F-32 waits on the art direction Cursor will choose.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
@@ -1221,3 +1222,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | PR #53, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |
 | 2026-10-07 | Claude | Audit of #50–#53 (ST-1, AD-1, AP-10, handoff): check.sh green (296 tests, lint 0), Studio 28/28. F-36 fixed (legacy pixel/neon-city avatars locked by AP-10's premium samples); F-37–F-40 recorded; AD-1 sheets flagged before AD-2 (F-38) | `docs/handoff/reports/2026-10-07-audit-st1-ad1-ap10.md` |
 | 2026-10-07 | User/Claude | D-51: item art comes from the external `idl-art-studio` as line art + slot-labelled regions; contract `docs/avatar/ART_INTERCHANGE.md`; ST-2 re-scoped to the importer, ST-3 to retire; Q18 licensing | PR #55 |
+| 2026-10-07 | Cursor | ST-2 importer: check (#57), import (#58), review sheets (#59), zone legibility (F-33). Pilot art PR waits | `docs/handoff/reports/2026-10-07-st-2-legibility-zones.md` |
