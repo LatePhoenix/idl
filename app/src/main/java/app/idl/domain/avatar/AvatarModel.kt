@@ -98,16 +98,58 @@ data class AvatarConfiguration(
         )
     }
 
+    /** Every asset id this recipe would persist (identity, items, scene, frame, …). */
+    fun referencedAssetIds(): List<String> = buildList {
+        add(baseAssetId)
+        add(paletteAssetId)
+        eyeFamilyAssetId?.let(::add)
+        mouthFamilyAssetId?.let(::add)
+        addAll(signatureFeatureAssetIds)
+        signatureHeadAccessoryAssetId?.let(::add)
+        signatureFaceAccessoryAssetId?.let(::add)
+        signatureBodyAccessoryAssetId?.let(::add)
+        defaultPropAssetId?.let(::add)
+        defaultSceneAssetId?.let(::add)
+        defaultFrameAssetId?.let(::add)
+        itemIds.values.forEach { addAll(it) }
+        background.assetId?.let(::add)
+        styleDna.semanticVisualOverrides.values.forEach { override ->
+            override.expressionId?.let(::add)
+            override.eyesAssetId?.let(::add)
+            override.propAssetId?.let(::add)
+            override.headAccessoryAssetId?.let(::add)
+            override.bodyAccessoryAssetId?.let(::add)
+            override.sceneAssetId?.let(::add)
+            override.availabilityIndicatorAssetId?.let(::add)
+            addAll(override.overlayAssetIds)
+        }
+    }.distinct()
+
     /**
      * Payload safe to save or upload. A newer schema is not rewritten: unknown fields were
      * dropped on decode, so writing it back would destroy them.
+     *
+     * When [registry] and [entitlements] are both set, premium items the user does not own
+     * yield [AvatarWrite.NeedsEntitlement] (AP-10). Cache rewrites omit both and skip the check.
      */
-    fun prepareForWrite(baseFamilies: Map<String, String> = emptyMap()): AvatarWrite =
-        if (schemaVersion > SCHEMA_VERSION) {
-            AvatarWrite.NeedsAppUpdate
-        } else {
-            AvatarWrite.Ready(migrateRecipe(baseFamilies))
+    fun prepareForWrite(
+        baseFamilies: Map<String, String> = emptyMap(),
+        registry: AssetRegistry? = null,
+        entitlements: Entitlements? = null,
+    ): AvatarWrite {
+        if (schemaVersion > SCHEMA_VERSION) return AvatarWrite.NeedsAppUpdate
+        val ready = migrateRecipe(baseFamilies)
+        if (registry != null && entitlements != null) {
+            val locked = ready.referencedAssetIds()
+                .filter { id ->
+                    val asset = registry.asset(id) ?: return@filter false
+                    asset.tier == AssetTier.PREMIUM && !entitlements.owns(id)
+                }
+                .sorted()
+            if (locked.isNotEmpty()) return AvatarWrite.NeedsEntitlement(locked)
         }
+        return AvatarWrite.Ready(ready)
+    }
 
     companion object {
         const val SCHEMA_VERSION = 3
@@ -125,6 +167,12 @@ sealed class AvatarWrite {
     data class Ready(val configuration: AvatarConfiguration) : AvatarWrite()
     data object NeedsAppUpdate : AvatarWrite() {
         const val message = "update the app to edit this avatar"
+    }
+
+    /** Recipe references premium items the user does not own (try-on is fine; save is not). */
+    data class NeedsEntitlement(val assetIds: List<String>) : AvatarWrite() {
+        val message: String
+            get() = "unlock ${assetIds.joinToString(", ")} to save this avatar"
     }
 }
 

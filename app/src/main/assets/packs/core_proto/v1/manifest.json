@@ -894,7 +894,12 @@
       "accessibilityLabel": "Face visor",
       "render": {
         "type": "procedural"
-      }
+      },
+      "tier": "premium",
+      "price": 30,
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true
     },
     {
       "id": "head_headphones",
@@ -1165,7 +1170,12 @@
       "accessibilityLabel": "Neon city",
       "render": {
         "type": "procedural"
-      }
+      },
+      "tier": "premium",
+      "price": 60,
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true
     },
     {
       "id": "scene_forest",
@@ -1205,7 +1215,12 @@
       "accessibilityLabel": "Sticker frame",
       "render": {
         "type": "procedural"
-      }
+      },
+      "tier": "premium",
+      "price": 40,
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true
     },
     {
       "id": "frame_pixel",
@@ -1213,7 +1228,12 @@
       "accessibilityLabel": "Pixel frame",
       "render": {
         "type": "procedural"
-      }
+      },
+      "tier": "premium",
+      "price": 40,
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true
     },
     {
       "id": "avail_available",
@@ -1511,6 +1531,157 @@
         "type": "procedural"
       },
       "minSizePx": 96
+    },
+    {
+      "id": "hair_wavy_medium",
+      "category": "hair",
+      "accessibilityLabel": "Medium wavy hair",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "wavy",
+        "medium"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_curly_short",
+      "category": "hair",
+      "accessibilityLabel": "Short curly hair",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "curly",
+        "short"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_coily_afro",
+      "category": "hair",
+      "accessibilityLabel": "Coily afro hair",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "coily",
+        "afro"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_locs_shoulder",
+      "category": "hair",
+      "accessibilityLabel": "Shoulder-length locs",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "locs",
+        "long"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_braids_cornrows",
+      "category": "hair",
+      "accessibilityLabel": "Cornrow braids",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "braids",
+        "short"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_buzz",
+      "category": "hair",
+      "accessibilityLabel": "Buzz cut",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "buzz",
+        "short"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_bald",
+      "category": "hair",
+      "accessibilityLabel": "Bald",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "bald"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_bun",
+      "category": "hair",
+      "accessibilityLabel": "Hair bun",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "bun"
+      ],
+      "license": "proprietary-idl"
+    },
+    {
+      "id": "hair_ponytail",
+      "category": "hair",
+      "accessibilityLabel": "Ponytail",
+      "render": {
+        "type": "procedural"
+      },
+      "tier": "free",
+      "collection": "core",
+      "releaseTag": "core",
+      "storeVisible": true,
+      "tags": [
+        "ponytail",
+        "long"
+      ],
+      "license": "proprietary-idl"
     }
   ],
   "expressions": [

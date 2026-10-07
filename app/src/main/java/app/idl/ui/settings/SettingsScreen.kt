@@ -52,6 +52,7 @@ fun SettingsScreen(
     val notif by c.settings.notifications.collectAsState(initial = AppSettings.Notifications(true, false, true))
     val wallpaper by c.settings.wallpaperContrast.collectAsState(initial = WallpaperContrastPreference.AUTO)
     val offline by c.settings.simulateOffline.collectAsState(initial = false)
+    val unlockAll by c.settings.unlockAllItems.collectAsState(initial = false)
     val sync by c.sync.lastSync.collectAsState(initial = null)
     var target by remember { mutableStateOf<String?>(null) }
     var log by remember { mutableStateOf<String?>(null) }
@@ -130,6 +131,14 @@ fun SettingsScreen(
                 SectionTitle("Alpha / debug")
                 Toggle("Simulate offline", "Every backend call fails; the app runs from cache", offline, Modifier.testTag("simulateOffline")) {
                     scope.launch { c.settings.setSimulateOffline(it) }
+                }
+                Toggle(
+                    "Unlock all items",
+                    "Own every premium catalog item (debug). Saving still hits the server free-tier check until C.3.",
+                    unlockAll,
+                    Modifier.testTag("unlockAllItems"),
+                ) {
+                    scope.launch { c.settings.setUnlockAllItems(it) }
                 }
                 Text("Demo friend", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
                 ChoiceChips(friendIds, chosen, { fake.displayNameOf(it) }, { target = it }, allowNone = false)

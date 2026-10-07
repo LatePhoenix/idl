@@ -35,6 +35,7 @@ import app.idl.domain.ReactionTemplate
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.AvatarConfiguration
 import app.idl.domain.avatar.AvatarWrite
+import app.idl.domain.avatar.Entitlements
 import app.idl.domain.avatar.LegacyAvatarMigration
 import app.idl.domain.avatar.LoadedAvatar
 import app.idl.domain.avatar.StoredAvatar
@@ -155,6 +156,7 @@ class AvatarRepository(
     private val backend: IdlBackend,
     private val widgets: WidgetRefresher,
     private val registry: () -> AssetRegistry,
+    private val entitlements: () -> Entitlements,
 ) {
     fun avatar(userId: String): Flow<AvatarConfig?> = dao.avatar(userId).map { row ->
         val json = row?.json ?: return@map null
@@ -181,16 +183,22 @@ class AvatarRepository(
         } else {
             StoredAvatar.applyStudio(existing, config, reg)
         }
-        val write = next.prepareForWrite(reg.baseFamilies)
-        if (write is AvatarWrite.NeedsAppUpdate) {
-            return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
-        }
-        val ready = (write as AvatarWrite.Ready).configuration
-        dao.upsertAvatar(AvatarEntity(userId, IdlJson.encodeToString(AvatarConfiguration.serializer(), ready)))
-        widgets.selfChanged()
-        return attempt {
-            backend.putAvatar(ready)
-            config
+        val write = next.prepareForWrite(reg.baseFamilies, reg, entitlements())
+        when (write) {
+            is AvatarWrite.NeedsAppUpdate ->
+                return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
+            is AvatarWrite.NeedsEntitlement ->
+                return Result.failure(IllegalStateException(write.message))
+            is AvatarWrite.Ready -> {
+                dao.upsertAvatar(
+                    AvatarEntity(userId, IdlJson.encodeToString(AvatarConfiguration.serializer(), write.configuration)),
+                )
+                widgets.selfChanged()
+                return attempt {
+                    backend.putAvatar(write.configuration)
+                    config
+                }
+            }
         }
     }
 }

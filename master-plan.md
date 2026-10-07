@@ -1158,3 +1158,4 @@ win once Track 0 is done.
 | 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
 | 2026-10-07 | Cursor | ST-1 Art Studio S1: OKLCH render, CLI (setup/guides/kit/draft/lint/render/geom), drafts UI, agent guide, tests, beanie + curly acceptance sheets | `docs/handoff/reports/2026-10-07-st-1-studio.md` |
 | 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |
+| 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |

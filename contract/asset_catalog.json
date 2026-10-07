@@ -526,7 +526,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "face_accessory",
-      "tier": "free",
+      "tier": "premium",
       "widgetSafe": true
     },
     {
@@ -598,7 +598,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "frame",
-      "tier": "free",
+      "tier": "premium",
       "widgetSafe": true
     },
     {
@@ -614,7 +614,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "frame",
-      "tier": "free",
+      "tier": "premium",
       "widgetSafe": true
     },
     {
@@ -626,9 +626,65 @@
       "widgetSafe": true
     },
     {
+      "assetId": "hair_bald",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
       "assetId": "hair_bob",
       "packId": "emoji_core",
       "packVersion": 2,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_braids_cornrows",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_bun",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_buzz",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_coily_afro",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_curly_short",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_locs_shoulder",
+      "packId": "core_proto",
+      "packVersion": 1,
       "category": "hair",
       "tier": "free",
       "widgetSafe": true
@@ -642,9 +698,25 @@
       "widgetSafe": true
     },
     {
+      "assetId": "hair_ponytail",
+      "packId": "core_proto",
+      "packVersion": 1,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
       "assetId": "hair_short_crop",
       "packId": "emoji_core",
       "packVersion": 2,
+      "category": "hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "hair_wavy_medium",
+      "packId": "core_proto",
+      "packVersion": 1,
       "category": "hair",
       "tier": "free",
       "widgetSafe": true
@@ -1462,7 +1534,7 @@
       "packId": "core_proto",
       "packVersion": 1,
       "category": "scene",
-      "tier": "free",
+      "tier": "premium",
       "widgetSafe": true
     },
     {
