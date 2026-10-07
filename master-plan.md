@@ -537,9 +537,9 @@ PostgREST tests) can be done at any time.
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
-Rows marked 🎨 (AP-13, AP-15) are made with the Art Studio (D-50); skip them. **Next for Cursor (2026-10-07):**
-ST-1..ST-3, the Art Studio, from `docs/handoff/STUDIO_TASK.md`; then AP-10. AP-11 and AP-12 are ⏸ while the user
-rethinks the avatar's look (Q17).
+Rows marked 🎨 (AP-13, AP-15) are art made with the Art Studio after AD-3 (D-50 as amended). **Re-planned 2026-10-07:** the status table is in execution order: ST-1 (Studio), AD-1 (style
+exploration sheets), AP-10, ST-2, ST-3, AP-11, AP-12, AD-2 👤 (the user picks the look), AD-3, AP-13, AP-15, AP-14, AP-16.
+Cursor runs it under D-49 and stops only at AD-2 if nothing else is left.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 
@@ -859,7 +859,7 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-50). The most relevant t
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
 - **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
-- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 move to it, Cursor skips them (2026-10-06, user)
+- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 are made with it (2026-10-06, user; amended 2026-10-07: Cursor builds S1–S3 and makes the art after AD-2)
 
 ---
 
@@ -895,7 +895,7 @@ Open (2026-10-07):
 | Q | Context | Options |
 | --- | --- | --- |
 | Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
-| Q17 The avatar's look | The user is rethinking the art direction before more art or editor work. AP-11, AP-12, AP-13 and AP-15 wait | User's call |
+| Q17 The avatar's look | The user is unhappy with the current art. AD-1 produces comparison sheets in `docs/art/exploration/v3/`; the answer is AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | Options A–G from AD-1 |
 
 Open:
 
@@ -1152,3 +1152,4 @@ win once Track 0 is done.
 | 2026-10-06 | Claude | Art Studio S0: read-only viewer (`tools/studio/`): Catalog, Workbench, Expressions; preview renderer mirrors the app; 7 engine tests | branch `tools/studio-s0` |
 | 2026-10-07 | Cursor | AP-9: OKLCH shadow/highlight, pack slotLinks + palettes, ContrastWarnings, RENDER_VERSION 3. 286 JVM, lint 0/42. | `docs/handoff/reports/2026-10-07-ap-9-color.md` |
 | 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |
+| 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
