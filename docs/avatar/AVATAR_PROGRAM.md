@@ -294,8 +294,9 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
-**Paused 2026-10-07 (user request):** AD-1 ✅ (#51), AP-10 ✅ (#52). Next ready row is **ST-2** ⬜
-(not started). Handoff: [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](../handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
+**In progress (2026-10-07):** ST-2, the art importer (`docs/handoff/ART_IMPORT_TASK.md`). PR 1 is
+`import_art.py check`. PRs 2–4 follow on their own branches. PR 5 waits for a real studio export.
+The pause handoff is [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](../handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -311,7 +312,7 @@ row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exac
 | ST-1 | Art Studio S1: kits, drafts, lint, PNG renders, agent guide | | | | ✅ |
 | AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | ✅ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ✅ |
-| ST-2 | Art import (D-51): `tools/import_art.py` for `art/incoming/`, review sheets, legibility parity (F-33). Spec: `ART_INTERCHANGE.md` §9. Task: `docs/handoff/ART_IMPORT_TASK.md` | ST-1 | | | ⬜ |
+| ST-2 | Art import (D-51): `tools/import_art.py` for `art/incoming/`, review sheets, legibility parity (F-33). Spec: `ART_INTERCHANGE.md` §9. Task: `docs/handoff/ART_IMPORT_TASK.md` | ST-1 | | | 🔨 |
 | ST-3 | Art Studio S3: retire (promote is the importer, D-51) | ST-2 | | | ⬜ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
 | AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |

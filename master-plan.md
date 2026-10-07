@@ -4,14 +4,13 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last status refresh: **2026-10-07** (Cursor handoff before ST-2). `origin/main` is at
-`8989a39` (merge of AP-10 / PR #52). Earlier full review: 2026-10-05 by Claude through PR #23.
+Last status refresh: **2026-10-07** (ST-2 PR 1 in progress). `origin/main` is at
+`980fc2c` (art coordination / D-52, PR #56). Earlier full review: 2026-10-05 by Claude through PR #23.
 
-**Handoff / paused (2026-10-07):** Cursor stopped before ST-2 at the user's request. Parked on
-`main`; keep-working loop killed; no open agent PRs. Resume with **ST-2** (deps ST-1 ✅) from
-[`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 and
-[`docs/handoff/STUDIO_TASK.md`](docs/handoff/STUDIO_TASK.md), under
-[`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md) (D-49). See
+**ST-2 resumed (2026-10-07).** The pause before ST-2 is over. The importer is specified in
+[`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1 is
+`tools/import_art.py check`. PRs 2–4 follow; PR 5 waits for a real studio export
+([`COORDINATION.md`](COORDINATION.md)). The pause note is
 `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`.
 
 ---
@@ -54,8 +53,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `8989a39` (merge of PR #52 / AP-10, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
-| Open PRs | None (parked; Cursor handoff before ST-2) |
+| `origin/main` | `980fc2c` (PR #56, D-52 art coordination, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None on `main`. ST-2 PR 1 is branch `tools/import-art-validate` |
 | Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
@@ -86,8 +85,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1, plus recipe schema 3 (PR #9). `itemIds`, color slots and vector assets resolve (Phase 2 PR A) |
-| Vector avatar art (D-39) | 🟡 | `emoji_core` v1: original round face, neutral and happy, bob hair, full beard, wire glasses, soft background. `CanvasVectorAssetRenderer` draws it through the same compositor as the procedural layers. Only visible on the debug **Settings → Vector slice** screen: no saved avatar uses it, and widgets still show the procedural pack (ROADMAP step 10) |
-| Avatar editor for the new recipe format | ⬜ | Avatar Studio still edits v1 `AvatarConfig`, and Room and the server store v1. D-41 switches the saved format (AV.4); the editor is AV.6 |
+| Vector avatar art (D-39) | 🟡 | `emoji_core` is the teardrop (AP-1) with schema 3 recipes saved in Room and on the server (AP-7). Widgets and the in-app avatar draw that vector head. Content beyond the first slice is still thin (F-37) |
+| Avatar editor for the new recipe format | ⬜ | Saved recipes are schema 3 (AP-7). The quick creator and full editor are AP-11, not started |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names come from the manifest (F-08 ✅) |
 | Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes. Memory access is locked (F-10 ✅, F-26 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
@@ -582,10 +581,10 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
-**Paused before ST-2 (2026-10-07).** Cursor stopped at the user's request after AD-1 ✅ (#51) and
-AP-10 ✅ (#52). Claude audited them on 2026-10-07 (F-36 fixed; F-37–F-40 open, F-38 matters before AD-2).
-When work resumes, the next ready row is **ST-2** ⬜ (deps ST-1 ✅). Do not mark
-ST-2 🔨 until implementation starts. Handoff:
+**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51) and AP-10 ✅ (#52) are merged. Claude's audit
+(F-36 fixed; F-37–F-40 open, F-38 matters before AD-2) still stands. The current row is **ST-2** 🔨:
+PR 1 validates drops (`tools/import_art.py check`); PRs 2–4 are the import, review sheets and F-33.
+PR 5 waits for a real item in `art/incoming/`. Handoff from the pause:
 [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
 
 **The avatar program is the work queue.** Take the next item from the status table in
