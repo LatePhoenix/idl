@@ -128,12 +128,20 @@ class VectorResolverTest {
     }
 
     @Test fun `item transforms are kept only for assets that are drawn`() {
-        val registry = sandbox(extra = listOf(hair("hair_a")))
-        val shift = ItemTransform(translateX = 4f)
+        val registry = sandbox(extra = listOf(hair("hair_a"), piece("glasses_a", AssetCategory.FACE_ACCESSORY)))
+        val shift = ItemTransform(translateY = 8f)
         val resolved = AvatarResolver(registry).resolve(request(box(
             mapOf("hair" to listOf("hair_a")),
-        ).copy(itemTransforms = mapOf("hair_a" to shift, "missing" to ItemTransform(scale = 2f)))))
-        assertEquals(mapOf("hair_a" to shift), resolved.itemTransforms)
+        ).copy(
+            signatureFaceAccessoryAssetId = "glasses_a",
+            itemTransforms = mapOf(
+                "hair_a" to ItemTransform(translateX = 4f),
+                "glasses_a" to shift,
+                "missing" to ItemTransform(scale = 2f),
+            ),
+        )))
+        // Hair has no transform allowance; eyewear keeps the clamped vertical nudge.
+        assertEquals(mapOf("glasses_a" to shift), resolved.itemTransforms)
     }
 
     private fun assertNullVariant(resolved: ResolvedAvatar, assetId: String) {

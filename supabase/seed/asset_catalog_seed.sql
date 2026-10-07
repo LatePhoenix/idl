@@ -82,6 +82,7 @@ insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('hair_bob', 'emoji_core', 2, 'hair', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('hair_long_straight', 'emoji_core', 2, 'hair', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('hair_short_crop', 'emoji_core', 2, 'hair', 'free', true);
+insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('hat_brim_cap', 'emoji_core', 2, 'head_accessory', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('head_beanie', 'core_proto', 1, 'head_accessory', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('head_cat_ears', 'core_proto', 1, 'head_accessory', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('head_crown', 'core_proto', 1, 'head_accessory', 'free', true);
@@ -115,6 +116,7 @@ insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('mouthfam_fang', 'core_proto', 1, 'mouth_family', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('mouthfam_screen', 'core_proto', 1, 'mouth_family', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('mustache_classic', 'emoji_core', 2, 'facial_hair', 'free', true);
+insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('outer_hood', 'emoji_core', 2, 'outerwear', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('overlay_afk_tag', 'core_proto', 1, 'expression_overlay', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('overlay_anger_mark', 'core_proto', 1, 'expression_overlay', 'free', true);
 insert into idl_private.asset_catalog (asset_id, pack_id, pack_version, category, tier, widget_safe) values ('overlay_bandage', 'core_proto', 1, 'expression_overlay', 'free', true);

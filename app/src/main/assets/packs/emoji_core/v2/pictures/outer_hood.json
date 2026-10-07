@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 2,
+  "id": "outer_hood",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "back",
+      "zBand": 20,
+      "fill": {
+        "slot": "outer.primary"
+      },
+      "commands": "M 220 420 C 260 280 764 280 804 420 C 820 520 780 640 720 700 C 640 640 384 640 304 700 C 244 640 204 520 220 420 Z"
+    },
+    {
+      "id": "rim",
+      "zBand": 90,
+      "fill": {
+        "slot": "outer.secondary"
+      },
+      "commands": "M 300 360 C 360 300 664 300 724 360 C 680 420 344 420 300 360 Z"
+    }
+  ]
+}
