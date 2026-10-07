@@ -293,6 +293,13 @@ class AvatarResolver(
         accepted = resolveConflicts(accepted, baseId, dropped)
         accepted = dropUnsatisfied(accepted, dropped)
         accepted = dropOccluded(accepted, dropped)
+        if (catalog.expression(expressionId)?.handOverlay == true) {
+            val props = accepted.filter { it.asset.category == AssetCategory.FOREGROUND_PROP }
+            if (props.isNotEmpty()) {
+                accepted = accepted.filterNot { it.asset.category == AssetCategory.FOREGROUND_PROP }
+                props.forEach { dropped += DroppedAsset(it.asset.id, DropReason.OCCLUDED) }
+            }
+        }
         accepted = simplify(accepted, request, dropped)
         if (config.styleDna.sceneDetailPreference == SceneDetailPreference.NONE) {
             registry.asset(registry.defaults.scene)?.let { plain ->
@@ -319,7 +326,9 @@ class AvatarResolver(
             renderKey = renderKey(request, layers),
             accessibilityDescription = describe(baseId, expressionId, presence),
             colorSlots = ColorSlots.resolve(layers, config, registry),
-            itemTransforms = config.itemTransforms.filterKeys { key -> layers.any { it.assetId == key } }.toSortedMap(),
+            itemTransforms = ItemTransformLimits.clampAll(
+                config.itemTransforms.filterKeys { key -> layers.any { it.assetId == key } },
+            ) { id -> registry.asset(id)?.category },
             framing = request.target.framing,
         )
     }

@@ -297,7 +297,7 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | AP-5 | Expression catalog (was AV.3) | | | | ✅ |
 | AP-6 | Expression system and art batch 1 (16 mood faces) | AP-4, AP-5 | yes | | ✅ |
 | AP-7 | Schema 3 saved everywhere, teardrop-only migration (D-41, D-46; was AV.4). **Design note first** | AP-6 | yes | yes | ✅ |
-| AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ⬜ |
+| AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ✅ |
 | AP-9 | Color system: OKLCH, links, palettes | AP-4 | | | ⬜ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ⬜ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |

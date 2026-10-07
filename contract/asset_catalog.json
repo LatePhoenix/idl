@@ -650,6 +650,14 @@
       "widgetSafe": true
     },
     {
+      "assetId": "hat_brim_cap",
+      "packId": "emoji_core",
+      "packVersion": 2,
+      "category": "head_accessory",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
       "assetId": "head_beanie",
       "packId": "core_proto",
       "packVersion": 1,
@@ -910,6 +918,14 @@
       "packId": "emoji_core",
       "packVersion": 2,
       "category": "facial_hair",
+      "tier": "free",
+      "widgetSafe": true
+    },
+    {
+      "assetId": "outer_hood",
+      "packId": "emoji_core",
+      "packVersion": 2,
+      "category": "outerwear",
       "tier": "free",
       "widgetSafe": true
     },
