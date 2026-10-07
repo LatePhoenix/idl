@@ -54,4 +54,4 @@ Acceptance for this PR:
 
 ## Commits
 
-Recorded after the commit, in the PR body if this file is amended.
+`984a273` Add interchange checks so a bad art drop is refused before import.
