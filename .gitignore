@@ -15,3 +15,6 @@ __pycache__/
 # Art Studio drafts (docs/avatar/ART_STUDIO.md)
 /.studio/
 /tools/studio/.venv/
+
+# Art Studio drop zone (COORDINATION.md): the importer moves items into art/<pack>/
+art/incoming/

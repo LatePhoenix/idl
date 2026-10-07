@@ -19,6 +19,10 @@ Art follows [`docs/avatar/ART_STYLE_GUIDE.md`](docs/avatar/ART_STYLE_GUIDE.md). 
 specs (`docs/IDL_AVATAR_CREATOR_PLAN.md` phases, `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md`
 requirements cited as §n) are background. Where they differ, the program wins.
 
+Item art comes from a separate repo, the iDL Art Studio (D-51). [`COORDINATION.md`](COORDINATION.md) says
+who owns what across the two repos; read it before touching `art/incoming/`, `tools/import_art.py` or
+`docs/avatar/ART_INTERCHANGE.md`.
+
 Branching: start each item from an up-to-date `origin/main` on its own branch, commit in small
 reviewable steps, and open a PR. Visual or widget changes need a device screenshot or a snapshot
 test in the PR (CI has no device tests yet).

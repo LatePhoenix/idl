@@ -47,7 +47,7 @@ bangs, beards, mustaches) sits wrong in the app until the rig uses these numbers
 | Eye centres | (375, 420), (650, 420) | (201.9, 237.9), (310.5, 237.9) | (180, 230), (332, 230) ✗ |
 | Eye size (neutral) | rx 40, ry 52 | rx 15.8, ry 20.5 | 13 × 17 ✗ |
 | Brows | y 306–342, x 305–445 / 580–720 | y 193–208 | none |
-| Mouth (neutral) | centre (512, 580), 192 wide | (256, 298.2), 76 wide | (256, 340) ✗ |
+| Mouth (neutral) | centre (512, 580), 192 wide | (256, 301.1), 76 wide (D-52) | (256, 340) ✗ |
 | Eyewear bridge | x 512, on the eye line | x 256, y 237.9 | |
 | Hairline limit | front hair ends at y ≥ 330 at the centre | y ≥ 202.4 | |
 | Headwear lower edge | ≤ y 330 (except eye-covering items) | ≤ y 202.4 | |
@@ -91,8 +91,8 @@ shape. **Textures** are not drawn by the studio: patterns will later fill a regi
 6. **Label regions.** Guess roles automatically (largest = primary, then by position and the category
    table in §6), then let the operator fix them with one click per region in the UI. Areas where the
    face or background should show through (inside a brim, around the lenses) get the role `none` and
-   are not exported. Optional shade: `primary − translate(primary, −10 px, −10 px)`, kept only if it is
-   at least 13 px thick.
+   are not exported. Optional shade: `primary − translate(primary, −14 px, −14 px)`, kept only if it is
+   at least 13 px thick (D-52: a 10 px shift can't reach 13 px, so shades were always dropped).
 7. **Vectorize** each region and the line art separately, simplify the curves, transform to 1024
    (§2), round to 0.1.
 8. **Preview** on the app-faced rig at 512 and 48 px, in **three color presets** (the default and two
@@ -109,8 +109,8 @@ line art on top.
 
 | Category | Region roles | Line art | Bands and extras |
 | --- | --- | --- | --- |
-| Hair | `hair.primary` (main mass), `hair.highlight` (one strand region, required by the style guide), optional `hair.shadow` shade | `outline`; strand lines allowed | Split every shape against the head silhouette: **outside** the head → band 20, tag `hair_back`; **inside** → band 70, tag `hair_top`, `data-clip-by="occlude.hair_top:difference"`. Keep hair as a few big regions; draw strands as lines, not regions |
-| Facial hair | `beard.primary`, optional `beard.shadow` shade | `outline` | Band 60. Keep the mouth hole (`data-clip`, mode `difference`) so every expression shows |
+| Hair | `hair.primary` (main mass), `hair.highlight` (one strand region, required by the style guide), optional `hair.shadow` shade | `outline`; strand lines allowed | Split every shape against the head silhouette: **outside** the head → band 20, tag `hair_back`; **inside** → band 70, tag `hair_top`, `data-clip-by="occlude.hair_top:difference"`. The line art splits too, so hair has **one line-art part per band** (D-52). Keep hair as a few big regions; draw strands as lines, not regions |
+| Facial hair | `beard.primary`, optional `beard.shadow` shade | `outline` | Band 60. Keep the mouth hole (`data-clip`, mode `difference`) so every expression shows. The hole is the one in `art/emoji_core/beard_full.svg` (`mouth_hole`), copied as is; to change it, change `beard_full` and the studio copies it again (D-52). Mustaches (`mustache_`) have no hole |
 | Headwear | `hat.primary` (crown), `hat.secondary` (brim, band, pom-pom, cuff) | `outline` | Band 90. The crown/brim union is also published as `data-publish-mask="occlude.hair_top"` |
 | Eyewear | `glasses.lens` with `data-opacity` ≤ 0.35 (≤ 0.75 for sunglasses), `none` for anything else | **`glasses.frame`** (the lines are the frame) | Band 80. Thick frames may add a `glasses.frame` region |
 | Tops | `top.primary` (body), `top.secondary` (collar, cuffs, trim), `top.accent` (small details) | `outline` | Band 36, outerwear band 38. The collar stays visible at 48 px |
@@ -136,7 +136,9 @@ The subset `tools/asset_pipeline.py` reads. Example, a beanie:
   (`hair_`, `beard_`/`mustache_`, `hat_`, `glasses_`, `top_`, `prop_`).
 - `data-content-version` starts at 1 and goes up by one whenever the art changes.
 - Geometry stays within −16..1040 (body, rear-hair and background bands may extend further,
-  `AVATAR_PROGRAM.md` §3.1).
+  `AVATAR_PROGRAM.md` §3.1). Hats too (D-52): in studio space a hat reaches at most y 65.8, 44 px above
+  the crown. Taller hats (top hats, wizard hats) wait until the head framing shows them; the studio
+  doesn't emit `data-allow-overflow`.
 - Aim for well under 16 KB per item. Every item is drawn on the home-screen widget.
 
 ## 8. Hand-off folder and metadata
@@ -186,8 +188,8 @@ art/incoming/<assetId>/
 
 **Importer** (`tools/import_art.py`, to be built here) takes `art/incoming/<id>/` and:
 
-1. Checks §4–§7: subset, slots per category, bands, tags, id, bounds, size, exactly one line-art part,
-   every region at least 32 units thick.
+1. Checks §4–§7: subset, slots per category, bands, tags, id, bounds, size, exactly one line-art part
+   per band (hair has two, D-52), every region at least 32 units thick.
 2. Moves the SVG to `art/<pack>/`, upserts the manifest entry from `meta.json` (adds
    `license: proprietary-idl`, `compatibleBases: ["base_teardrop"]`) and keeps the provenance.
 3. Runs `python tools/asset_pipeline.py build <pack>` and `python tools/gen_asset_catalog.py`.
@@ -205,6 +207,9 @@ through a migration (F-39).
 
 ## 10. Open points for the user
 
+- **Decided (D-52).** Five clarifications found while building the studio side: the mouth anchor
+  (§3), the shade shift (§5), one line-art part per band for hair (§6, §9), the beard mouth hole (§6),
+  and no hat overflow (§7). See `IDL_DECISIONS.md`.
 - **Decided (D-51).** Item art comes from the studio through this contract; ST-2 is the importer
   (§9), ST-3 keeps retire. Expression art stays in-repo SVG.
 - **Licensing.** Every item ships as `proprietary-idl` original art. Generated art records its model

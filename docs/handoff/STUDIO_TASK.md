@@ -99,7 +99,7 @@ Branch `tools/studio-s1-cursor`.
 ## ST-2 · S2: real resolver, try-on, legibility parity
 
 > **Re-scoped by D-51 (2026-10-07):** ST-2 is now the art importer and review sheets in
-> `docs/avatar/ART_INTERCHANGE.md` §9. Keep the legibility parity fix (F-33) below; the resolver and
+> `docs/avatar/ART_INTERCHANGE.md` §9 — the importer is specified in `ART_IMPORT_TASK.md`. Keep the legibility parity fix (F-33) below; the resolver and
 > try-on parts apply only where the review sheets need them.
 
 Branch `tools/studio-s2`.

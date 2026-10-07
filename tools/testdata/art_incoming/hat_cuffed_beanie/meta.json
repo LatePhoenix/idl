@@ -1,0 +1,31 @@
+{
+  "id": "hat_cuffed_beanie",
+  "pack": "emoji_core",
+  "category": "head_accessory",
+  "accessibilityLabel": "Cuffed beanie",
+  "tags": [
+    "cuffed",
+    "beanie",
+    "knit"
+  ],
+  "tier": "free",
+  "colorSlots": {
+    "hat.primary": "#3A6EA5",
+    "hat.secondary": "#2B4F78",
+    "outline": "#7A4E00"
+  },
+  "patternRegions": [
+    "primary"
+  ],
+  "provenance": {
+    "tool": "idl-art-studio",
+    "model": "synthetic",
+    "controlnet": "none",
+    "seed": 0,
+    "prompt": "cuffed knit beanie",
+    "commit": "a30b02d"
+  },
+  "reviewNotes": [
+    "synthetic test fixture drawn by the studio's tests, not generated art"
+  ]
+}

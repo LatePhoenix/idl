@@ -339,6 +339,20 @@ and later backgrounds and frames) are generated in the separate repo `LatePhoeni
   generated art is open (Q18).
 - Q17 (art direction) is answered from the studio's line-art samples, not only the AD-1 sheets.
 
+**D-52 · Interchange clarifications (user delegated to Claude, 2026-10-07).** Five points found while
+building the studio side of `docs/avatar/ART_INTERCHANGE.md` (D-51); the user asked Claude to decide.
+- **Mouth anchor:** studio space (256, 301.1). The §3 table said 298.2, but the §2 map applied to
+  `mouth_round_neutral.svg` (centre 512, 580) gives 301.1; the app's art wins.
+- **Shade:** `primary − translate(primary, −14, −14)`, kept if ≥ 13 px (32 units) thick. A 10 px shift
+  makes a crescent of at most about 12 px, so the old rule always dropped it.
+- **Hair line art:** one line-art part per band (back 20, top 70). Splitting every hair shape against
+  the head (§6) splits the lines too; the importer checks "exactly one line-art part per band".
+- **Beard mouth hole:** the canonical hole is `mouth_hole` in `art/emoji_core/beard_full.svg`; the
+  studio copies it. Mustaches have no hole. The hole doesn't fully clear the yawn mouth; widen it in
+  `beard_full` if that matters, and the studio copies it again.
+- **Hat height:** no overflow. Hats stay inside −16..1040 like other band-90 parts (44 px above the
+  crown in studio space). Tall hats wait until a framing shows them.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

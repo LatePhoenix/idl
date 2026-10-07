@@ -2,6 +2,33 @@
 
 Paste one of these into a **new Cursor agent chat** opened on this repo.
 
+## Resume the program with the art importer, ST-2 (latest, 2026-10-07)
+
+```text
+You're running the iDL avatar program on your own (D-49). It was paused on 2026-10-07; resume it.
+Item art now comes from a separate repo, the iDL Art Studio (D-51), as line art with labelled colour
+regions; D-52 clarified five points of that contract. Another Cursor session builds the studio;
+Claude audits both. You work only in this repo.
+
+1. Read AGENTS.md, COORDINATION.md, docs/handoff/CURSOR_RUNBOOK.md, docs/avatar/AVATAR_PROGRAM.md
+   (§0–§5), docs/avatar/ART_INTERCHANGE.md (the contract), D-51 and D-52 in docs/IDL_DECISIONS.md,
+   and docs/handoff/ART_IMPORT_TASK.md (your next task, ST-2).
+2. Do the runbook's §1 session-start steps. Review master-plan.md §1 and the newest report in
+   docs/handoff/reports/; if a doc contradicts the code or the status table, fix the doc first in a
+   small docs PR.
+3. Build ST-2 exactly as ART_IMPORT_TASK.md lays it out: PR 1 (check), PR 2 (import), PR 3 (sheets),
+   each end to end under the runbook, merging your own green PRs. Work from the fixtures in
+   tools/testdata/art_incoming/; you don't need the studio, ComfyUI or a GPU.
+4. ST-2 PR 4 (the pilot art PR) is blocked until a real item from the studio appears in
+   art/incoming/. Don't wait for it: continue with the next ⬜ row in the §5 status table whose
+   dependencies are ✅, as the runbook says.
+5. Never edit the studio repo (Z:\ai-tools\idl-art-studio), never commit art/incoming/, and never
+   import the fixtures into a real pack. Contract changes start as a spec PR here (COORDINATION.md).
+
+Don't ask me for confirmation between items. Stop only for a runbook §7 condition, or when every
+remaining row needs a 👤 decision; then tell me exactly what to decide and where to look.
+```
+
 ## Review the repo, then run the program to the end (2026-10-07)
 
 ```text
