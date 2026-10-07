@@ -498,7 +498,7 @@ in one PR.
 - `hat_brim_cap` (AP-8): the crown spans about y 180–360 and the brim reaches y ~400. The head's crown is at
   y 96, so the cap looks too small, covers raised brows, and breaks the style guide's lower-edge limit (y 330).
 - **Fix:** redraw it with the Studio after ST-1 (it's the headwear kit's lint test case), or retire it with a mapping.
-  Waits for the user's art direction.
+  Waits for AD-3. Direction is D-53 (readable volume). The cap is placeholder art until that redraw.
 
 #### F-33 · LegibilityTest counts dark pixels anywhere · P2 (Claude, Studio S1, 2026-10-07) · ✅ fixed
 - It summed non-skin pixels over the whole 48 px canvas, so dark hair or a hat over the eyes could raise the
@@ -507,10 +507,11 @@ in one PR.
   eye and mouth zones. A dark rect over the eyes fails. Shipped hair, hats, glasses and the three importer
   fixtures pass. Facial hair may cover the mouth. Eyewear may pass on contrast when a tint shifts the color.
 
-#### F-34 · Raised brows sit above the hairline limit · P3, needs the user (Q16)
+#### F-34 · Raised brows sit above the hairline limit · P3 · decided (Q16, D-53)
 - The style guide lets front hair reach y 330 at the centre, but raised brows reach y ~271. Hair that follows
   the guide can hide raised brows (surprise, worry).
-- **Options:** (a) brows draw above front hair; (b) lower the raised-brow shapes; (c) raise the hairline limit.
+- **Decided (a):** brows draw over front hair. Apply it when AD-3 redraws the hair and the brow shapes.
+  Do not lower the brows, and do not raise the hairline limit.
 
 #### F-35 · Happy faces use the procedural blush · P3 (Claude, Studio S0, 2026-10-07)
 - The emoji pack's smiling expressions list `overlay_blush`, a `core_proto` procedural asset. The vector
@@ -587,8 +588,9 @@ PostgREST tests) can be done at any time.
 mouth instead of the whole 48 px canvas (F-33 ✅). PR 5 waits for a real item in `art/incoming/`.
 **ST-3 is done in the same pass:** `import_art.py retire <old> --to <new>` records the mapping
 and removes the old id from the shipped list. It refuses a removal that has no replacement.
-The next row is **AP-11** (editor; design note first, then a device check). Claude's audit still
-has F-32 and F-34–F-40 open. F-32 waits on the art direction Cursor will choose.
+The next row is **AP-11** (editor screen, quick creator, export). Art direction is recorded (D-53).
+The restyle is AD-3 and waits until the editor and the widgets are in. Shipped pictures stay
+placeholders. Claude's audit still has F-32 and F-35–F-40 open. F-34 is decided and applies in AD-3.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
@@ -597,7 +599,7 @@ Rows marked 🎨 (AP-13, AP-15) are art made after AD-3. **D-51 (2026-10-07):** 
 external `idl-art-studio` through the importer (ST-2, contract `docs/avatar/ART_INTERCHANGE.md`); AP-13 expression
 art stays in-repo SVG.
 **Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → ST-2 ✅ (pilot art still waits) → ST-3 ✅ → **AP-11** → AP-12 →
-AD-2 👤 (Q17) → AD-3 → AP-13 → AP-15 → AP-14 → AP-16.
+AD-2 ✅ (D-53) → AD-3 (restyle, after the editor and widgets) → AP-13 → AP-15 → AP-14 → AP-16.
 Cursor runs it under D-49. On 2026-10-07 the user asked Cursor to make art and design
 calls (including Q17) and to lock app functionality before a long restyle.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
@@ -629,7 +631,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-7 client | Widget heads are the teardrop, with a dark outline on light wallpaper and a light outline on dark: `app/src/test/snapshots/widget/contrast_light.png`, `contrast_dark.png`, `sleepy_default.png`, `hat.png`, `vector_dot.png`. | |
 | 2026-10-07 | ST-1 beanie | Slouch beanie draft (lint clean): `docs/handoff/sheets/st-1-hat_beanie_slouch.png`. Source `tools/studio/acceptance/hat_beanie_slouch.svg`. | |
 | 2026-10-07 | ST-1 curly hair | Short curly hair draft (lint clean): `docs/handoff/sheets/st-1-hair_short_curly.png`. Source `tools/studio/acceptance/hair_short_curly.svg`. | |
-| 2026-10-07 | AD-1 style sheets (Q17) | Compare A–G: `docs/art/exploration/v3/overview.png` and `docs/art/exploration/v3/{A–G}/sheet.png`. Read `docs/art/exploration/v3/README.md`. Agent recommendation: **F** (readable volume); E if wallpaper contrast wins; G reopens D-45/D-46. **Claude audit:** hair sits inside the head outline and reads as brows/earmuffs; B–G barely differ. See F-38 before picking. | |
+| 2026-10-07 | AD-1 style sheets (Q17) | Compare A–G: `docs/art/exploration/v3/overview.png` and `docs/art/exploration/v3/{A–G}/sheet.png`. Read `docs/art/exploration/v3/README.md`. **Picked (D-53):** F, with E's light border on widgets only. Sheets stay for the record. F-38 still applies when AD-3 redraws the hair. | picked, D-53 |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -953,13 +955,13 @@ Answered 2026-10-04 (feature ideas, §7.1):
 | Q13 Redraw the hair? | **Yes**, on the new teardrop base (2026-10-05) | D-42, AV.2 |
 | Q14 What is always free? | **The generous baseline** Claude recommended (2026-10-06) | D-48 |
 | Q15 How much body shows, for shirts? | **(c)** bust in the app, head and collar on widgets (2026-10-06) | D-47 |
+| Q16 Raised brows vs the hairline | **(a)** brows draw over front hair (2026-10-07, pick delegated) | D-53, F-34 |
+| Q17 The avatar's look | **F**, with E's light border on widget framing only. Shipped art stays a placeholder until AD-3 (2026-10-07, pick delegated) | D-53 |
 
 Open (2026-10-07):
 
 | Q | Context | Options |
 | --- | --- | --- |
-| Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
-| Q17 The avatar's look | The user is unhappy with the current art. D-51: answer from the `idl-art-studio` line-art samples too. AD-1 sheets are in `docs/art/exploration/v3/` (see README). Answer under AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | **A** Current (shipped baseline) · **B** Bold and flat (40–48 outlines, no face gradient) · **C** Big-eye soft (larger/lower eyes, smaller mouth) · **D** Cel-shaded (two-tone + rim light) · **E** Sticker (light border + dark outline) · **F** Readable volume (proposal: keep gradient, fix hair for 48 px) · **G** Rounder head (reopens D-45/D-46). Agent leans **F**; hybrids ok (e.g. F + E’s border). |
 | Q18 Licensing of generated item art | D-51: item art is generated with local models (SDXL + ControlNet) and ships as `license: proprietary-idl` with per-item provenance | (a) provenance is enough · (b) also check each model's license terms before the first art PR · (c) get legal advice before shipping generated art |
 
 Open:
@@ -1226,3 +1228,4 @@ win once Track 0 is done.
 | 2026-10-07 | User/Claude | D-51: item art comes from the external `idl-art-studio` as line art + slot-labelled regions; contract `docs/avatar/ART_INTERCHANGE.md`; ST-2 re-scoped to the importer, ST-3 to retire; Q18 licensing | PR #55 |
 | 2026-10-07 | Cursor | ST-2 importer: check (#57), import (#58), review sheets (#59), zone legibility (F-33). Pilot art PR waits | `docs/handoff/reports/2026-10-07-st-2-legibility-zones.md` |
 | 2026-10-07 | Cursor | ST-3 retire: `import_art.py retire <old> --to <new>` writes the mapping and will not remove an id without a replacement | `docs/handoff/reports/2026-10-07-st-3-retire.md` |
+| 2026-10-07 | Cursor | AD-2: Q17 is F with a widget sticker edge, Q16 is brows over front hair (D-53). Shipped art stays a placeholder until AD-3 | `docs/handoff/reports/2026-10-07-ad-2-direction.md` |

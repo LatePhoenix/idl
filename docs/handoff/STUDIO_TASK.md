@@ -173,11 +173,11 @@ compare directions before more art is made. Give them pictures, not descriptions
    queue, and put options A–G into Q17. Docs only, so merge it under D-49 and **continue with the next row**.
    Don't wait for the user's answer.
 
-## AD-2 · 👤 The user picks the art direction
+## AD-2 · The user picks the art direction
 
-Not Cursor's row. The user answers Q17 (and Q16) in `master-plan.md` §6, for example "C, with E's
-border, and fix the brows with option (a)". When every remaining row depends on AD-2, stop under
-runbook §7 and tell the user what to decide, pointing at `docs/art/exploration/v3/README.md`.
+Answered 2026-10-07. The user delegated the pick and asked to treat shipped art as a placeholder.
+Recorded as D-53: **F, with E's light border on widget framing only**, and Q16 **(a)** brows over
+front hair. The head stays the teardrop. AD-3 applies it after the editor and the widgets.
 
 ## AD-3 · Apply the art direction
 

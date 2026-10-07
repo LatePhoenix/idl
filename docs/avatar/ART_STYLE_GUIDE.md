@@ -4,6 +4,12 @@
 All art is original (D-42) and drawn for one shape, the brand teardrop (D-45, D-46). When this guide
 and a spec disagree, the spec wins. Record the case in the PR.
 
+**Target look (D-53, 2026-10-07):** readable volume, with a light sticker edge on widget framing only.
+Shipped pictures are placeholders until AD-3. This file's numbers stay the lint target until that
+restyle, so placeholder art keeps passing. When AD-3 lands it updates this guide, the kits, and the
+pictures together: 40-unit outlines, slightly larger eyes, hair outside the skull, and raised brows
+drawn over front hair (Q16 a).
+
 ## 1. The look
 
 - **Friendly emoji, not realistic.** Big readable features, flat color, a single soft shade, an
