@@ -21,7 +21,7 @@ from engine import repo, server  # noqa: E402
 
 VENV_DIR = STUDIO_DIR / ".venv"
 REQUIREMENTS = STUDIO_DIR / "requirements.txt"
-SKIA_COMMANDS = frozenset({"guides", "kit", "draft", "lint", "render", "geom"})
+SKIA_COMMANDS = frozenset({"guides", "kit", "draft", "lint", "render", "geom", "sheets"})
 
 
 def _venv_python() -> Path:
@@ -272,6 +272,19 @@ def cmd_lint(args: argparse.Namespace) -> int:
     return 1 if any(i["level"] == "error" for i in issues) else 0
 
 
+def cmd_sheets(args: argparse.Namespace) -> int:
+    from engine import review_sheet
+
+    try:
+        out = Path(args.out) if args.out else None
+        path = review_sheet.write_review(args.id, out)
+    except Exception as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    print(path)
+    return 0
+
+
 def cmd_render(args: argparse.Namespace) -> int:
     from engine import compose, drafts, render
 
@@ -432,6 +445,10 @@ def main(argv: list[str]) -> int:
     lint_p.add_argument("id")
     lint_p.add_argument("--json", action="store_true")
 
+    sheets_p = sub.add_parser("sheets", help="write the import review sheet for an asset id")
+    sheets_p.add_argument("id")
+    sheets_p.add_argument("--out", default=None, help="directory (default docs/handoff/sheets/<id>)")
+
     render_p = sub.add_parser("render", help="render the standard sheet for a draft or asset")
     render_p.add_argument("id")
     render_p.add_argument("--with", dest="with_items", default="")
@@ -456,6 +473,7 @@ def main(argv: list[str]) -> int:
         "kit": cmd_kit,
         "draft": cmd_draft,
         "lint": cmd_lint,
+        "sheets": cmd_sheets,
         "render": cmd_render,
         "geom": cmd_geom,
     }

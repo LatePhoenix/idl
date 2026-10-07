@@ -6,6 +6,7 @@ Task: docs/handoff/ART_IMPORT_TASK.md.
 Commands:
   check <dir>                 interchange checks; exit 1 when any problem is found
   import <dir> [--pack id]    copy a valid drop into the pack, rebuild, and archive it
+  sheets <id>                 review sheet at 512 and 48 px (needs the Studio venv)
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ import json
 import math
 import re
 import shutil
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -74,16 +76,62 @@ class ImportError(Exception):
         return self.message
 
 
+# Review-sheet expressions. Smile is a shipped expression. Open keeps the neutral eyes and
+# swaps in mouth_round_open, because no shipped expression is an open mouth on its own.
+SHEET_EXPRESSIONS = (
+    ("neutral", "neutral_face", None),
+    ("smile", "smiling_face_with_smiling_eyes", None),
+    ("open", "neutral_face", "mouth_round_open"),
+)
+
+
+def sheet_neighbors(assets: list[dict], asset_id: str) -> list[str]:
+    """Shipped hats and glasses to show beside this item."""
+    by_id = {asset["id"]: asset for asset in assets}
+    asset = by_id[asset_id]
+    accessory = {"head_accessory", "face_accessory"}
+    wanted: set[str] = set()
+    if asset["category"] == "head_accessory":
+        wanted.update(item["id"] for item in assets if item["category"] == "face_accessory")
+    elif asset["category"] == "face_accessory":
+        wanted.update(item["id"] for item in assets if item["category"] == "head_accessory")
+    elif asset["category"] == "hair":
+        wanted.update(item["id"] for item in assets if item["category"] == "head_accessory")
+    for other_id in asset.get("conflictsWith") or []:
+        other = by_id.get(other_id)
+        if other and other["category"] in accessory:
+            wanted.add(other_id)
+    for other in assets:
+        if asset_id in (other.get("conflictsWith") or []) and other["category"] in accessory:
+            wanted.add(other["id"])
+    wanted.discard(asset_id)
+    return sorted(wanted)
+
+
 def main(argv: list[str]) -> int:
-    if len(argv) < 2 or argv[1] not in {"check", "import"}:
-        print("usage: import_art.py check <dir> | import <dir> [--pack id]", file=sys.stderr)
+    if len(argv) < 2 or argv[1] not in {"check", "import", "sheets"}:
+        print(
+            "usage: import_art.py check <dir> | import <dir> [--pack id] | sheets <id>",
+            file=sys.stderr,
+        )
         return 2
     if argv[1] == "check":
         if len(argv) != 3:
             print("usage: import_art.py check <dir>", file=sys.stderr)
             return 2
         return _check_cli(Path(argv[2]))
+    if argv[1] == "sheets":
+        return _sheets_cli(argv[2:])
     return _import_cli(argv[2:])
+
+
+def _sheets_cli(argv: list[str]) -> int:
+    if len(argv) != 1 or argv[0].startswith("-"):
+        print("usage: import_art.py sheets <id>", file=sys.stderr)
+        return 2
+    studio = ROOT / "tools" / "studio" / "studio.py"
+    completed = subprocess.run([sys.executable, str(studio), "sheets", argv[0]], check=False)
+    return completed.returncode
 
 
 def _check_cli(directory: Path) -> int:

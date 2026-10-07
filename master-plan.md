@@ -4,13 +4,13 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last status refresh: **2026-10-07** (ST-2 PR 2 in progress). `origin/main` is at
-`601dc30` (ST-2 PR 1, #57). Earlier full review: 2026-10-05 by Claude through PR #23.
+Last status refresh: **2026-10-07** (ST-2 PR 3 in progress). `origin/main` is at
+`2d0264b` (ST-2 PR 2, #58). Earlier full review: 2026-10-05 by Claude through PR #23.
 
 **ST-2 resumed (2026-10-07).** The pause before ST-2 is over. The importer is specified in
 [`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1
-(`import_art.py check`) merged as #57. PR 2 is `import_art.py import` on
-`tools/import-art-apply`. PRs 3–4 follow; PR 5 waits for a real studio export
+merged as #57 and PR 2 as #58. PR 3 is review sheets on `tools/import-art-sheets`.
+PR 4 is F-33. PR 5 waits for a real studio export
 ([`COORDINATION.md`](COORDINATION.md)). The pause note is
 `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`.
 
@@ -54,8 +54,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `601dc30` (PR #57, ST-2 drop checks, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
-| Open PRs | None until `tools/import-art-apply` (ST-2 PR 2) is pushed |
+| `origin/main` | `2d0264b` (PR #58, ST-2 import, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None until `tools/import-art-sheets` (ST-2 PR 3) is pushed |
 | Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
@@ -582,11 +582,10 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
-**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51) and AP-10 ✅ (#52) are merged. PR 1 of the
-importer merged as #57. Claude's audit (F-36 fixed; F-37–F-40 open, F-38 matters before AD-2)
-still stands. The current row is **ST-2** 🔨: PR 2 copies a valid drop into the pack
-(`tools/import_art.py import`). PRs 3–4 are review sheets and F-33. PR 5 waits for a real item
-in `art/incoming/`.
+**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51), AP-10 ✅ (#52), importer PR 1 ✅ (#57)
+and PR 2 ✅ (#58) are merged. Claude's audit (F-36 fixed; F-37–F-40 open) still stands.
+The current row is **ST-2** 🔨: PR 3 writes review sheets (`tools/import_art.py sheets`).
+PR 4 is F-33. PR 5 waits for a real item in `art/incoming/`.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose

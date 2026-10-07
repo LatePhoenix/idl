@@ -295,8 +295,8 @@ ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDI
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
 **In progress (2026-10-07):** ST-2, the art importer (`docs/handoff/ART_IMPORT_TASK.md`). PR 1
-(`import_art.py check`) merged as #57. PR 2 is `import_art.py import`. PRs 3–4 follow on their
-own branches. PR 5 waits for a real studio export.
+merged as #57 and PR 2 as #58. PR 3 is `import_art.py sheets`. PR 4 is F-33. PR 5 waits for a
+real studio export.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
