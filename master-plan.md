@@ -569,6 +569,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-7 client | Widget heads are the teardrop, with a dark outline on light wallpaper and a light outline on dark: `app/src/test/snapshots/widget/contrast_light.png`, `contrast_dark.png`, `sleepy_default.png`, `hat.png`, `vector_dot.png`. | |
 | 2026-10-07 | ST-1 beanie | Slouch beanie draft (lint clean): `docs/handoff/sheets/st-1-hat_beanie_slouch.png`. Source `tools/studio/acceptance/hat_beanie_slouch.svg`. | |
 | 2026-10-07 | ST-1 curly hair | Short curly hair draft (lint clean): `docs/handoff/sheets/st-1-hair_short_curly.png`. Source `tools/studio/acceptance/hair_short_curly.svg`. | |
+| 2026-10-07 | AD-1 style sheets (Q17) | Compare A–G: `docs/art/exploration/v3/overview.png` and `docs/art/exploration/v3/{A–G}/sheet.png`. Read `docs/art/exploration/v3/README.md`. Agent recommendation: **F** (readable volume); E if wallpaper contrast wins; G reopens D-45/D-46. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -897,7 +898,7 @@ Open (2026-10-07):
 | Q | Context | Options |
 | --- | --- | --- |
 | Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
-| Q17 The avatar's look | The user is unhappy with the current art. AD-1 produces comparison sheets in `docs/art/exploration/v3/`; the answer is AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | Options A–G from AD-1 |
+| Q17 The avatar's look | The user is unhappy with the current art. AD-1 sheets are in `docs/art/exploration/v3/` (see README). Answer under AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | **A** Current (shipped baseline) · **B** Bold and flat (40–48 outlines, no face gradient) · **C** Big-eye soft (larger/lower eyes, smaller mouth) · **D** Cel-shaded (two-tone + rim light) · **E** Sticker (light border + dark outline) · **F** Readable volume (proposal: keep gradient, fix hair for 48 px) · **G** Rounder head (reopens D-45/D-46). Agent leans **F**; hybrids ok (e.g. F + E’s border). |
 
 Open:
 
@@ -1156,3 +1157,4 @@ win once Track 0 is done.
 | 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |
 | 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
 | 2026-10-07 | Cursor | ST-1 Art Studio S1: OKLCH render, CLI (setup/guides/kit/draft/lint/render/geom), drafts UI, agent guide, tests, beanie + curly acceptance sheets | `docs/handoff/reports/2026-10-07-st-1-studio.md` |
+| 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |

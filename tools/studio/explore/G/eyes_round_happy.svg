@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="eyes_round_happy"
+     data-content-version="3">
+  <path data-part="eyes" data-z="50" data-slot="eye.iris" d="M 303 420 C 341 356 409 356 447 420 C 411 398 339 398 303 420 Z M 578 420 C 616 356 684 356 722 420 C 686 398 614 398 578 420 Z"/>
+</svg>

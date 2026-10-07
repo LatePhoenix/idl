@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="mouth_round_neutral"
+     data-content-version="3">
+  <path data-part="mouth" data-z="50" data-slot="mouth" d="M 608 580 C 608 592.2 565 602 512 602 C 459 602 416 592.2 416 580 C 416 567.8 459 558 512 558 C 565 558 608 567.8 608 580 Z"/>
+</svg>

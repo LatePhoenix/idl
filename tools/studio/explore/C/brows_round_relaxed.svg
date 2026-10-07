@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="brows_round_relaxed"
+     data-content-version="3">
+  <path data-part="brows" data-z="50" data-slot="hair.primary" d="M 301.5 380.5 C 343.5 342.7 406.5 342.7 448.5 380.5 C 408.6 365.8 341.4 365.8 301.5 380.5 Z M 576.5 380.5 C 618.5 342.7 681.5 342.7 723.5 380.5 C 683.6 365.8 616.4 365.8 576.5 380.5 Z"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="2" data-id="hair_short_curly"
+     data-content-version="1">
+  <path data-part="back" data-z="20" data-slot="hair.shadow" data-tags="hair_back" d="M 512 20 C 640 20 760 90 800 200 C 700 140 324 140 224 200 C 264 90 384 20 512 20 Z M 160 260 C 80 320 60 440 120 520 C 180 460 200 340 160 260 Z M 864 260 C 944 320 964 440 904 520 C 844 460 824 340 864 260 Z"/>
+  <path data-part="side" data-z="70" data-slot="hair.primary" data-tags="hair_side" d="M 120 300 C 60 380 70 500 140 560 C 190 500 200 380 160 320 Z M 904 300 C 964 380 954 500 884 560 C 834 500 824 380 864 320 Z"/>
+  <path data-part="top" data-z="70" data-slot="hair.primary" data-tags="hair_top" data-clip-by="occlude.hair_top:difference" d="M 200 320 C 180 240 220 160 300 140 C 360 120 400 160 420 220 C 440 280 400 330 340 340 C 270 350 220 350 200 320 Z M 300 200 C 280 140 320 90 380 90 C 440 90 470 140 460 200 C 450 250 400 280 350 270 C 310 260 310 230 300 200 Z M 824 320 C 844 240 804 160 724 140 C 664 120 624 160 604 220 C 584 280 624 330 684 340 C 754 350 804 350 824 320 Z M 724 200 C 744 140 704 90 644 90 C 584 90 554 140 564 200 C 574 250 624 280 674 270 C 714 260 714 230 724 200 Z"/>
+  <path data-part="highlight" data-z="80" data-slot="hair.highlight" data-tags="hair_top" data-clip-by="occlude.hair_top:difference" d="M 360 120 C 400 100 450 120 470 160 C 430 180 380 170 360 120 Z M 580 110 C 640 130 690 180 720 200 C 680 220 620 190 580 110 Z"/>
+</svg>

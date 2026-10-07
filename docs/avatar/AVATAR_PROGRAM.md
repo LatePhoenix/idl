@@ -306,7 +306,7 @@ row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exac
 | AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ✅ |
 | AP-9 | Color system: OKLCH, links, palettes | AP-4 | | | ✅ |
 | ST-1 | Art Studio S1: kits, drafts, lint, PNG renders, agent guide | | | | ✅ |
-| AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | 🔨 |
+| AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | ✅ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ⬜ |
 | ST-2 | Art Studio S2: real resolver, try-on, legibility parity (F-33) | ST-1 | | | ⬜ |
 | ST-3 | Art Studio S3: promote and retire | ST-2 | | | ⬜ |

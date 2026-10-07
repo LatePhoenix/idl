@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="eyes_round_neutral"
+     data-content-version="3">
+  <path data-part="eyes" data-z="50" data-slot="eye.iris" d="M 415 420 C 415 448.7 397.1 472 375 472 C 352.9 472 335 448.7 335 420 C 335 391.3 352.9 368 375 368 C 397.1 368 415 391.3 415 420 Z M 690 420 C 690 448.7 672.1 472 650 472 C 627.9 472 610 448.7 610 420 C 610 391.3 627.9 368 650 368 C 672.1 368 690 391.3 690 420 Z"/>
+</svg>
