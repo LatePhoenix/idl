@@ -1,0 +1,2669 @@
+{
+  "unicodeVersion": "18.0",
+  "emojiTestDate": "2026-04-30",
+  "source": "config/unicode/emoji-test-18.0.txt",
+  "aliases": {
+    "neutral": "neutral_face",
+    "happy": "smiling_face_with_smiling_eyes",
+    "excited": "star_struck",
+    "sleepy": "sleeping_face",
+    "tired": "yawning_face",
+    "sad": "crying_face",
+    "anxious": "anxious_face_with_sweat",
+    "angry": "angry_face",
+    "sick": "face_with_thermometer",
+    "focused": "face_with_monocle",
+    "overwhelmed": "face_with_spiral_eyes",
+    "social": "partying_face",
+    "mischievous": "smirking_face",
+    "afk": "sleeping_face",
+    "dnd": "shushing_face"
+  },
+  "reviewNotes": {
+    "face_with_bags_under_eyes": "low_energy's emoji is a battery, not a face",
+    "zany_face": "chaotic's emoji is a cyclone; zany is the closest face",
+    "smirking_face": "mischievous has no mood emoji; smirk rather than a tongue-wink",
+    "shushing_face": "dnd's emoji is a moon; shushing is the closest face",
+    "sleeping_face": "afk aliases the same face as sleepy"
+  },
+  "expressions": [
+    {
+      "codepoints": [
+        "1F600"
+      ],
+      "cldrName": "grinning face",
+      "subgroup": "face-smiling",
+      "expressionId": "grinning_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F603"
+      ],
+      "cldrName": "grinning face with big eyes",
+      "subgroup": "face-smiling",
+      "expressionId": "grinning_face_with_big_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "big",
+        "brows": "neutral",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F604"
+      ],
+      "cldrName": "grinning face with smiling eyes",
+      "subgroup": "face-smiling",
+      "expressionId": "grinning_face_with_smiling_eyes",
+      "mood": "happy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F601"
+      ],
+      "cldrName": "beaming face with smiling eyes",
+      "subgroup": "face-smiling",
+      "expressionId": "beaming_face_with_smiling_eyes",
+      "mood": "happy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "beam"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F606"
+      ],
+      "cldrName": "grinning squinting face",
+      "subgroup": "face-smiling",
+      "expressionId": "grinning_squinting_face",
+      "mood": "happy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F605"
+      ],
+      "cldrName": "grinning face with sweat",
+      "subgroup": "face-smiling",
+      "expressionId": "grinning_face_with_sweat",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "grin"
+      },
+      "overlays": [
+        "sweat"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F923"
+      ],
+      "cldrName": "rolling on the floor laughing",
+      "subgroup": "face-smiling",
+      "expressionId": "rolling_on_the_floor_laughing",
+      "mood": "happy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [
+        "joy_tears",
+        "rofl"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F602"
+      ],
+      "cldrName": "face with tears of joy",
+      "subgroup": "face-smiling",
+      "expressionId": "face_with_tears_of_joy",
+      "mood": "happy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [
+        "joy_tears"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F642"
+      ],
+      "cldrName": "slightly smiling face",
+      "subgroup": "face-smiling",
+      "expressionId": "slightly_smiling_face",
+      "mood": "good",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F643"
+      ],
+      "cldrName": "upside-down face",
+      "subgroup": "face-smiling",
+      "expressionId": "upside_down_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [
+        "upside_down"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE0"
+      ],
+      "cldrName": "melting face",
+      "subgroup": "face-smiling",
+      "expressionId": "melting_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "slight_smile"
+      },
+      "overlays": [
+        "melt"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAEB"
+      ],
+      "cldrName": "cracking face",
+      "subgroup": "face-smiling",
+      "expressionId": "cracking_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "grin"
+      },
+      "overlays": [
+        "crack"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F609"
+      ],
+      "cldrName": "winking face",
+      "subgroup": "face-smiling",
+      "expressionId": "winking_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "wink",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60A"
+      ],
+      "cldrName": "smiling face with smiling eyes",
+      "subgroup": "face-smiling",
+      "expressionId": "smiling_face_with_smiling_eyes",
+      "mood": "happy",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F607"
+      ],
+      "cldrName": "smiling face with halo",
+      "subgroup": "face-smiling",
+      "expressionId": "smiling_face_with_halo",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "halo"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F970"
+      ],
+      "cldrName": "smiling face with hearts",
+      "subgroup": "face-affection",
+      "expressionId": "smiling_face_with_hearts",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "hearts"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60D"
+      ],
+      "cldrName": "smiling face with heart-eyes",
+      "subgroup": "face-affection",
+      "expressionId": "smiling_face_with_heart_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "heart",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F929"
+      ],
+      "cldrName": "star-struck",
+      "subgroup": "face-affection",
+      "expressionId": "star_struck",
+      "mood": "excited",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "star",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F618"
+      ],
+      "cldrName": "face blowing a kiss",
+      "subgroup": "face-affection",
+      "expressionId": "face_blowing_a_kiss",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "kiss"
+      },
+      "overlays": [
+        "kiss_mark"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F617"
+      ],
+      "cldrName": "kissing face",
+      "subgroup": "face-affection",
+      "expressionId": "kissing_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "kiss"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "263A",
+        "FE0F"
+      ],
+      "cldrName": "smiling face",
+      "subgroup": "face-affection",
+      "expressionId": "smiling_face",
+      "mood": "good",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F61A"
+      ],
+      "cldrName": "kissing face with closed eyes",
+      "subgroup": "face-affection",
+      "expressionId": "kissing_face_with_closed_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "kiss"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F619"
+      ],
+      "cldrName": "kissing face with smiling eyes",
+      "subgroup": "face-affection",
+      "expressionId": "kissing_face_with_smiling_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "kiss"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F972"
+      ],
+      "cldrName": "smiling face with tear",
+      "subgroup": "face-affection",
+      "expressionId": "smiling_face_with_tear",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "tears"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60B"
+      ],
+      "cldrName": "face savoring food",
+      "subgroup": "face-tongue",
+      "expressionId": "face_savoring_food",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "savor"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F61B"
+      ],
+      "cldrName": "face with tongue",
+      "subgroup": "face-tongue",
+      "expressionId": "face_with_tongue",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "tongue"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F61C"
+      ],
+      "cldrName": "winking face with tongue",
+      "subgroup": "face-tongue",
+      "expressionId": "winking_face_with_tongue",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "wink",
+        "brows": "neutral",
+        "mouth": "tongue"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92A"
+      ],
+      "cldrName": "zany face",
+      "subgroup": "face-tongue",
+      "expressionId": "zany_face",
+      "mood": "chaotic",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "tongue"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": true
+    },
+    {
+      "codepoints": [
+        "1F61D"
+      ],
+      "cldrName": "squinting face with tongue",
+      "subgroup": "face-tongue",
+      "expressionId": "squinting_face_with_tongue",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "none",
+        "mouth": "tongue"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F911"
+      ],
+      "cldrName": "money-mouth face",
+      "subgroup": "face-tongue",
+      "expressionId": "money_mouth_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "money"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F917"
+      ],
+      "cldrName": "smiling face with open hands",
+      "subgroup": "face-hand",
+      "expressionId": "smiling_face_with_open_hands",
+      "mood": "social",
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92D"
+      ],
+      "cldrName": "face with hand over mouth",
+      "subgroup": "face-hand",
+      "expressionId": "face_with_hand_over_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "none"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE2"
+      ],
+      "cldrName": "face with open eyes and hand over mouth",
+      "subgroup": "face-hand",
+      "expressionId": "face_with_open_eyes_and_hand_over_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "none"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE3"
+      ],
+      "cldrName": "face with peeking eye",
+      "subgroup": "face-hand",
+      "expressionId": "face_with_peeking_eye",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "low",
+      "parts": {
+        "eyes": "peek",
+        "brows": "neutral",
+        "mouth": "none"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92B"
+      ],
+      "cldrName": "shushing face",
+      "subgroup": "face-hand",
+      "expressionId": "shushing_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "none"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": true
+    },
+    {
+      "codepoints": [
+        "1F914"
+      ],
+      "cldrName": "thinking face",
+      "subgroup": "face-hand",
+      "expressionId": "thinking_face",
+      "mood": "focused",
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE1"
+      ],
+      "cldrName": "saluting face",
+      "subgroup": "face-hand",
+      "expressionId": "saluting_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": true,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [
+        "hand"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F910"
+      ],
+      "cldrName": "zipper-mouth face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "zipper_mouth_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "zipper"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F928"
+      ],
+      "cldrName": "face with raised eyebrow",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "face_with_raised_eyebrow",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "neutral"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F610"
+      ],
+      "cldrName": "neutral face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "neutral_face",
+      "mood": "neutral",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "neutral"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F611"
+      ],
+      "cldrName": "expressionless face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "expressionless_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "none",
+        "mouth": "neutral"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F636"
+      ],
+      "cldrName": "face without mouth",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "face_without_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "none"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE5"
+      ],
+      "cldrName": "dotted line face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "dotted_line_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "dotted",
+        "brows": "none",
+        "mouth": "none"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F636",
+        "200D",
+        "1F32B",
+        "FE0F"
+      ],
+      "cldrName": "face in clouds",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "face_in_clouds",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "neutral"
+      },
+      "overlays": [
+        "clouds"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60F"
+      ],
+      "cldrName": "smirking face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "smirking_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "smirk"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": true
+    },
+    {
+      "codepoints": [
+        "1F612"
+      ],
+      "cldrName": "unamused face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "unamused_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "angry",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F644"
+      ],
+      "cldrName": "face with rolling eyes",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "face_with_rolling_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "rolling",
+        "brows": "none",
+        "mouth": "neutral"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62C"
+      ],
+      "cldrName": "grimacing face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "grimacing_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "grimace"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62E",
+        "200D",
+        "1F4A8"
+      ],
+      "cldrName": "face exhaling",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "face_exhaling",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "none"
+      },
+      "overlays": [
+        "breath"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F925"
+      ],
+      "cldrName": "lying face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "lying_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "long_nose"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE8"
+      ],
+      "cldrName": "shaking face",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "shaking_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [
+        "shake"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F642",
+        "200D",
+        "2194",
+        "FE0F"
+      ],
+      "cldrName": "head shaking horizontally",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "head_shaking_horizontally",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_smile"
+      },
+      "overlays": [
+        "shake_horizontal"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F642",
+        "200D",
+        "2195",
+        "FE0F"
+      ],
+      "cldrName": "head shaking vertically",
+      "subgroup": "face-neutral-skeptical",
+      "expressionId": "head_shaking_vertically",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "shake_vertical"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60C"
+      ],
+      "cldrName": "relieved face",
+      "subgroup": "face-sleepy",
+      "expressionId": "relieved_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "slight_smile"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F614"
+      ],
+      "cldrName": "pensive face",
+      "subgroup": "face-sleepy",
+      "expressionId": "pensive_face",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62A"
+      ],
+      "cldrName": "sleepy face",
+      "subgroup": "face-sleepy",
+      "expressionId": "sleepy_face",
+      "mood": "sleepy",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "none",
+        "mouth": "neutral"
+      },
+      "overlays": [
+        "zzz"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F924"
+      ],
+      "cldrName": "drooling face",
+      "subgroup": "face-sleepy",
+      "expressionId": "drooling_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "drool"
+      },
+      "overlays": [
+        "drool"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F634"
+      ],
+      "cldrName": "sleeping face",
+      "subgroup": "face-sleepy",
+      "expressionId": "sleeping_face",
+      "mood": "sleepy",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "none"
+      },
+      "overlays": [
+        "zzz"
+      ],
+      "decomposedItems": [],
+      "needsReview": true
+    },
+    {
+      "codepoints": [
+        "1FAE9"
+      ],
+      "cldrName": "face with bags under eyes",
+      "subgroup": "face-sleepy",
+      "expressionId": "face_with_bags_under_eyes",
+      "mood": "low_energy",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "bags",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": true
+    },
+    {
+      "codepoints": [
+        "1F637"
+      ],
+      "cldrName": "face with medical mask",
+      "subgroup": "face-unwell",
+      "expressionId": "face_with_medical_mask",
+      "mood": "sick",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "none"
+      },
+      "overlays": [
+        "medical_mask"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F912"
+      ],
+      "cldrName": "face with thermometer",
+      "subgroup": "face-unwell",
+      "expressionId": "face_with_thermometer",
+      "mood": "sick",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "thermometer"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F915"
+      ],
+      "cldrName": "face with head-bandage",
+      "subgroup": "face-unwell",
+      "expressionId": "face_with_head_bandage",
+      "mood": "sick",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "bandage"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F922"
+      ],
+      "cldrName": "nauseated face",
+      "subgroup": "face-unwell",
+      "expressionId": "nauseated_face",
+      "mood": "sick",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "wavy"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92E"
+      ],
+      "cldrName": "face vomiting",
+      "subgroup": "face-unwell",
+      "expressionId": "face_vomiting",
+      "mood": "sick",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "open"
+      },
+      "overlays": [
+        "vomit"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F927"
+      ],
+      "cldrName": "sneezing face",
+      "subgroup": "face-unwell",
+      "expressionId": "sneezing_face",
+      "mood": "sick",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "open"
+      },
+      "overlays": [
+        "sneeze"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F975"
+      ],
+      "cldrName": "hot face",
+      "subgroup": "face-unwell",
+      "expressionId": "hot_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "angry",
+        "mouth": "frown"
+      },
+      "overlays": [
+        "heat"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F976"
+      ],
+      "cldrName": "cold face",
+      "subgroup": "face-unwell",
+      "expressionId": "cold_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "grimace"
+      },
+      "overlays": [
+        "cold"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F974"
+      ],
+      "cldrName": "woozy face",
+      "subgroup": "face-unwell",
+      "expressionId": "woozy_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "uneven",
+        "brows": "none",
+        "mouth": "wavy"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F635"
+      ],
+      "cldrName": "face with crossed-out eyes",
+      "subgroup": "face-unwell",
+      "expressionId": "face_with_crossed_out_eyes",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "crossed",
+        "brows": "none",
+        "mouth": "open"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F635",
+        "200D",
+        "1F4AB"
+      ],
+      "cldrName": "face with spiral eyes",
+      "subgroup": "face-unwell",
+      "expressionId": "face_with_spiral_eyes",
+      "mood": "overwhelmed",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "spiral",
+        "brows": "none",
+        "mouth": "open"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92F"
+      ],
+      "cldrName": "exploding head",
+      "subgroup": "face-unwell",
+      "expressionId": "exploding_head",
+      "mood": "chaotic",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "open"
+      },
+      "overlays": [
+        "explode"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F920"
+      ],
+      "cldrName": "cowboy hat face",
+      "subgroup": "face-hat",
+      "expressionId": "cowboy_hat_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "headwear_cowboy_hat"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F973"
+      ],
+      "cldrName": "partying face",
+      "subgroup": "face-hat",
+      "expressionId": "partying_face",
+      "mood": "social",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "grin"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "headwear_party"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F978"
+      ],
+      "cldrName": "disguised face",
+      "subgroup": "face-hat",
+      "expressionId": "disguised_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "neutral"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "eyewear_glasses",
+        "nose_disguise",
+        "facial_hair_mustache"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F60E"
+      ],
+      "cldrName": "smiling face with sunglasses",
+      "subgroup": "face-glasses",
+      "expressionId": "smiling_face_with_sunglasses",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "eyewear_sunglasses"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F913"
+      ],
+      "cldrName": "nerd face",
+      "subgroup": "face-glasses",
+      "expressionId": "nerd_face",
+      "mood": "focused",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "smile"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "eyewear_glasses"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F9D0"
+      ],
+      "cldrName": "face with monocle",
+      "subgroup": "face-glasses",
+      "expressionId": "face_with_monocle",
+      "mood": "focused",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "raised",
+        "mouth": "slight_smile"
+      },
+      "overlays": [],
+      "decomposedItems": [
+        "eyewear_monocle"
+      ],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F615"
+      ],
+      "cldrName": "confused face",
+      "subgroup": "face-concerned",
+      "expressionId": "confused_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "diagonal"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAE4"
+      ],
+      "cldrName": "face with diagonal mouth",
+      "subgroup": "face-concerned",
+      "expressionId": "face_with_diagonal_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "diagonal"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F61F"
+      ],
+      "cldrName": "worried face",
+      "subgroup": "face-concerned",
+      "expressionId": "worried_face",
+      "mood": "anxious",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F641"
+      ],
+      "cldrName": "slightly frowning face",
+      "subgroup": "face-concerned",
+      "expressionId": "slightly_frowning_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "neutral",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "2639",
+        "FE0F"
+      ],
+      "cldrName": "frowning face",
+      "subgroup": "face-concerned",
+      "expressionId": "frowning_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62E"
+      ],
+      "cldrName": "face with open mouth",
+      "subgroup": "face-concerned",
+      "expressionId": "face_with_open_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "open"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62F"
+      ],
+      "cldrName": "hushed face",
+      "subgroup": "face-concerned",
+      "expressionId": "hushed_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "o"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F632"
+      ],
+      "cldrName": "astonished face",
+      "subgroup": "face-concerned",
+      "expressionId": "astonished_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "raised",
+        "mouth": "open"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F633"
+      ],
+      "cldrName": "flushed face",
+      "subgroup": "face-concerned",
+      "expressionId": "flushed_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "none"
+      },
+      "overlays": [
+        "blush"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1FAEA"
+      ],
+      "cldrName": "distorted face",
+      "subgroup": "face-concerned",
+      "expressionId": "distorted_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "wavy"
+      },
+      "overlays": [
+        "distort"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F97A"
+      ],
+      "cldrName": "pleading face",
+      "subgroup": "face-concerned",
+      "expressionId": "pleading_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "pleading",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F979"
+      ],
+      "cldrName": "face holding back tears",
+      "subgroup": "face-concerned",
+      "expressionId": "face_holding_back_tears",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "holding_tears"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F626"
+      ],
+      "cldrName": "frowning face with open mouth",
+      "subgroup": "face-concerned",
+      "expressionId": "frowning_face_with_open_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F627"
+      ],
+      "cldrName": "anguished face",
+      "subgroup": "face-concerned",
+      "expressionId": "anguished_face",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F628"
+      ],
+      "cldrName": "fearful face",
+      "subgroup": "face-concerned",
+      "expressionId": "fearful_face",
+      "mood": "anxious",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "open"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F630"
+      ],
+      "cldrName": "anxious face with sweat",
+      "subgroup": "face-concerned",
+      "expressionId": "anxious_face_with_sweat",
+      "mood": "anxious",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "frown"
+      },
+      "overlays": [
+        "sweat"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F625"
+      ],
+      "cldrName": "sad but relieved face",
+      "subgroup": "face-concerned",
+      "expressionId": "sad_but_relieved_face",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "sweat"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F622"
+      ],
+      "cldrName": "crying face",
+      "subgroup": "face-concerned",
+      "expressionId": "crying_face",
+      "mood": "sad",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "worried",
+        "mouth": "frown"
+      },
+      "overlays": [
+        "tears"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62D"
+      ],
+      "cldrName": "loudly crying face",
+      "subgroup": "face-concerned",
+      "expressionId": "loudly_crying_face",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "open"
+      },
+      "overlays": [
+        "tears"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F631"
+      ],
+      "cldrName": "face screaming in fear",
+      "subgroup": "face-concerned",
+      "expressionId": "face_screaming_in_fear",
+      "mood": "anxious",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "worried",
+        "mouth": "scream"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F616"
+      ],
+      "cldrName": "confounded face",
+      "subgroup": "face-concerned",
+      "expressionId": "confounded_face",
+      "mood": "stressed",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "angry",
+        "mouth": "grimace"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F623"
+      ],
+      "cldrName": "persevering face",
+      "subgroup": "face-concerned",
+      "expressionId": "persevering_face",
+      "mood": "stressed",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "grimace"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F61E"
+      ],
+      "cldrName": "disappointed face",
+      "subgroup": "face-concerned",
+      "expressionId": "disappointed_face",
+      "mood": "sad",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "low",
+      "parts": {
+        "eyes": "open",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F613"
+      ],
+      "cldrName": "downcast face with sweat",
+      "subgroup": "face-concerned",
+      "expressionId": "downcast_face_with_sweat",
+      "mood": "stressed",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "worried",
+        "mouth": "slight_frown"
+      },
+      "overlays": [
+        "sweat"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F629"
+      ],
+      "cldrName": "weary face",
+      "subgroup": "face-concerned",
+      "expressionId": "weary_face",
+      "mood": "tired",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "worried",
+        "mouth": "wavy"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F62B"
+      ],
+      "cldrName": "tired face",
+      "subgroup": "face-concerned",
+      "expressionId": "tired_face",
+      "mood": "tired",
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "squint",
+        "brows": "worried",
+        "mouth": "wavy"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F971"
+      ],
+      "cldrName": "yawning face",
+      "subgroup": "face-concerned",
+      "expressionId": "yawning_face",
+      "mood": "tired",
+      "priority": 1,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "closed",
+        "brows": "none",
+        "mouth": "yawn"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F624"
+      ],
+      "cldrName": "face with steam from nose",
+      "subgroup": "face-negative",
+      "expressionId": "face_with_steam_from_nose",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "open",
+        "brows": "angry",
+        "mouth": "frown"
+      },
+      "overlays": [
+        "steam"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F621"
+      ],
+      "cldrName": "enraged face",
+      "subgroup": "face-negative",
+      "expressionId": "enraged_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "wide",
+        "brows": "angry",
+        "mouth": "frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F620"
+      ],
+      "cldrName": "angry face",
+      "subgroup": "face-negative",
+      "expressionId": "angry_face",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "open",
+        "brows": "angry",
+        "mouth": "frown"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F92C"
+      ],
+      "cldrName": "face with symbols on mouth",
+      "subgroup": "face-negative",
+      "expressionId": "face_with_symbols_on_mouth",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "open",
+        "brows": "angry",
+        "mouth": "symbols"
+      },
+      "overlays": [],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F608"
+      ],
+      "cldrName": "smiling face with horns",
+      "subgroup": "face-negative",
+      "expressionId": "smiling_face_with_horns",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "medium",
+      "parts": {
+        "eyes": "smiling",
+        "brows": "none",
+        "mouth": "smile"
+      },
+      "overlays": [
+        "horns"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    },
+    {
+      "codepoints": [
+        "1F47F"
+      ],
+      "cldrName": "angry face with horns",
+      "subgroup": "face-negative",
+      "expressionId": "angry_face_with_horns",
+      "mood": null,
+      "priority": 2,
+      "handOverlay": false,
+      "intensity": "high",
+      "parts": {
+        "eyes": "open",
+        "brows": "angry",
+        "mouth": "frown"
+      },
+      "overlays": [
+        "horns"
+      ],
+      "decomposedItems": [],
+      "needsReview": false
+    }
+  ],
+  "shapes": {
+    "eyes": [
+      {
+        "id": "open",
+        "count": 42
+      },
+      {
+        "id": "smiling",
+        "count": 14
+      },
+      {
+        "id": "squint",
+        "count": 14
+      },
+      {
+        "id": "wide",
+        "count": 14
+      },
+      {
+        "id": "closed",
+        "count": 13
+      },
+      {
+        "id": "wink",
+        "count": 2
+      },
+      {
+        "id": "bags",
+        "count": 1
+      },
+      {
+        "id": "big",
+        "count": 1
+      },
+      {
+        "id": "crossed",
+        "count": 1
+      },
+      {
+        "id": "dotted",
+        "count": 1
+      },
+      {
+        "id": "heart",
+        "count": 1
+      },
+      {
+        "id": "peek",
+        "count": 1
+      },
+      {
+        "id": "pleading",
+        "count": 1
+      },
+      {
+        "id": "rolling",
+        "count": 1
+      },
+      {
+        "id": "spiral",
+        "count": 1
+      },
+      {
+        "id": "star",
+        "count": 1
+      },
+      {
+        "id": "uneven",
+        "count": 1
+      }
+    ],
+    "brows": [
+      {
+        "id": "none",
+        "count": 37
+      },
+      {
+        "id": "worried",
+        "count": 30
+      },
+      {
+        "id": "neutral",
+        "count": 22
+      },
+      {
+        "id": "raised",
+        "count": 13
+      },
+      {
+        "id": "angry",
+        "count": 8
+      }
+    ],
+    "mouths": [
+      {
+        "id": "slight_frown",
+        "count": 13
+      },
+      {
+        "id": "smile",
+        "count": 13
+      },
+      {
+        "id": "frown",
+        "count": 10
+      },
+      {
+        "id": "grin",
+        "count": 10
+      },
+      {
+        "id": "none",
+        "count": 10
+      },
+      {
+        "id": "open",
+        "count": 9
+      },
+      {
+        "id": "slight_smile",
+        "count": 9
+      },
+      {
+        "id": "neutral",
+        "count": 7
+      },
+      {
+        "id": "wavy",
+        "count": 5
+      },
+      {
+        "id": "grimace",
+        "count": 4
+      },
+      {
+        "id": "kiss",
+        "count": 4
+      },
+      {
+        "id": "tongue",
+        "count": 4
+      },
+      {
+        "id": "diagonal",
+        "count": 2
+      },
+      {
+        "id": "beam",
+        "count": 1
+      },
+      {
+        "id": "drool",
+        "count": 1
+      },
+      {
+        "id": "money",
+        "count": 1
+      },
+      {
+        "id": "o",
+        "count": 1
+      },
+      {
+        "id": "savor",
+        "count": 1
+      },
+      {
+        "id": "scream",
+        "count": 1
+      },
+      {
+        "id": "smirk",
+        "count": 1
+      },
+      {
+        "id": "symbols",
+        "count": 1
+      },
+      {
+        "id": "yawn",
+        "count": 1
+      },
+      {
+        "id": "zipper",
+        "count": 1
+      }
+    ],
+    "overlays": [
+      {
+        "id": "hand",
+        "count": 7
+      },
+      {
+        "id": "sweat",
+        "count": 4
+      },
+      {
+        "id": "tears",
+        "count": 3
+      },
+      {
+        "id": "horns",
+        "count": 2
+      },
+      {
+        "id": "joy_tears",
+        "count": 2
+      },
+      {
+        "id": "zzz",
+        "count": 2
+      },
+      {
+        "id": "bandage",
+        "count": 1
+      },
+      {
+        "id": "blush",
+        "count": 1
+      },
+      {
+        "id": "breath",
+        "count": 1
+      },
+      {
+        "id": "clouds",
+        "count": 1
+      },
+      {
+        "id": "cold",
+        "count": 1
+      },
+      {
+        "id": "crack",
+        "count": 1
+      },
+      {
+        "id": "distort",
+        "count": 1
+      },
+      {
+        "id": "drool",
+        "count": 1
+      },
+      {
+        "id": "explode",
+        "count": 1
+      },
+      {
+        "id": "halo",
+        "count": 1
+      },
+      {
+        "id": "hearts",
+        "count": 1
+      },
+      {
+        "id": "heat",
+        "count": 1
+      },
+      {
+        "id": "holding_tears",
+        "count": 1
+      },
+      {
+        "id": "kiss_mark",
+        "count": 1
+      },
+      {
+        "id": "long_nose",
+        "count": 1
+      },
+      {
+        "id": "medical_mask",
+        "count": 1
+      },
+      {
+        "id": "melt",
+        "count": 1
+      },
+      {
+        "id": "rofl",
+        "count": 1
+      },
+      {
+        "id": "shake",
+        "count": 1
+      },
+      {
+        "id": "shake_horizontal",
+        "count": 1
+      },
+      {
+        "id": "shake_vertical",
+        "count": 1
+      },
+      {
+        "id": "sneeze",
+        "count": 1
+      },
+      {
+        "id": "steam",
+        "count": 1
+      },
+      {
+        "id": "thermometer",
+        "count": 1
+      },
+      {
+        "id": "upside_down",
+        "count": 1
+      },
+      {
+        "id": "vomit",
+        "count": 1
+      }
+    ]
+  }
+}

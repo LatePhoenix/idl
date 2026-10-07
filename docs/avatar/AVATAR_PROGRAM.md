@@ -294,7 +294,7 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | AP-2 | F-31: pack directory per asset | | | | ✅ |
 | AP-3 | Body, body bands and framing (D-47) | AP-1 | yes | | ✅ |
 | AP-4 | Authoring pipeline and picture format v2 | AP-2, AP-3 | | | ✅ |
-| AP-5 | Expression catalog (was AV.3) | | | | ⬜ (may run beside AP-3/AP-4) |
+| AP-5 | Expression catalog (was AV.3) | | | | 🔨 |
 | AP-6 | Expression system and art batch 1 (16 mood faces) | AP-4, AP-5 | yes | | ⬜ |
 | AP-7 | Schema 3 saved everywhere, teardrop-only migration (D-41, D-46; was AV.4). **Design note first** | AP-6 | yes | yes | ⬜ |
 | AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ⬜ |
