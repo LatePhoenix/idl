@@ -11,3 +11,6 @@ build/
 google-services.json
 __pycache__/
 *.pyc
+
+# Art Studio drafts (docs/avatar/ART_STUDIO.md)
+/.studio/

@@ -34,6 +34,7 @@ scripts/check.sh --device   # also instrumented tests (emulator; set ANDROID_SER
 ./gradlew testDebugUnitTest -Pidl.updateGolden=true           # regenerate contract/privacy_vectors.json
 ./gradlew recordRoborazziDebug                            # record widget snapshot goldens into app/src/test/snapshots
 ./gradlew verifyRoborazziDebug                            # fail when a golden differs; scripts/check.sh runs this
+python tools/studio/studio.py serve                # Art Studio viewer on 127.0.0.1:8765 (operator tool, D-50)
 ```
 
 Requirements: JDK 17+ and Android SDK platform 35. `local.properties` (gitignored) needs `sdk.dir`.
