@@ -6,7 +6,7 @@
 
 The external iDL Art Studio drops one folder per accepted item into `art/incoming/<assetId>/`. ST-2
 turns a drop into a reviewed PR. This replaces the "promote" half of the old ST-2/ST-3 plan
-(`STUDIO_TASK.md` notes the re-scope). F-33 (legibility parity) stays in ST-2 as its own PR.
+(`STUDIO_TASK.md` notes the re-scope). F-33 (legibility parity) stays in ST-2 as PR 4 below.
 
 You don't need the studio, ComfyUI or a GPU: build and test everything against the fixtures in
 `tools/testdata/art_incoming/` (three exporter outputs, synthetic drawings — never ship them).
@@ -37,12 +37,17 @@ the interchange checks on top. Report every problem with the part id, then exit 
 - Bands per category (§6): hair 20 (tag `hair_back`) or 70 (tag `hair_top` + `data-clip-by
   ="occlude.hair_top:difference"`); facial hair 60; headwear 90; eyewear 80; tops 36/38; props 100/110.
 - Bounds per band: −16..1040, or the body region for bands 0, 20, 34, 36, 38 (`AVATAR_PROGRAM.md`
-  §3.1), unless `data-allow-overflow="true"`.
+  §3.1). Imported art never uses `data-allow-overflow` (D-52: no hat overflow; the studio never
+  emits it): reject the attribute on any part. Test: a band-90 hat outside −16..1040 with
+  `data-allow-overflow="true"` fails.
 - Exactly one line-art part **per band** (`data-fill-rule="evenodd"`, slot `outline`, or
   `glasses.frame` for eyewear). Hair has two (D-52).
-- Every region at least 32 units thick: rasterize each non-line part on a 1024 grid and check the
-  largest inscribed circle's diameter (a distance transform, done in plain Python on a coarse grid
-  is fine; keep it stdlib).
+- Every region at least 32 units thick. "Thick" means the diameter of the region's **largest inscribed
+  circle** (spec §5 step 5, "smallest dimension") — the same measure the studio uses when it merges
+  thin regions, so the two sides agree. Rasterize each non-line part on a 1024 grid and take
+  2 × the maximum distance-to-edge (a distance transform in plain Python on a coarse grid is fine;
+  keep it stdlib). Don't require 32 units at every cross-section: every real shape tapers to thin
+  tips (brim ends, hair points, corners), and the line art drawn on top keeps those legible.
 - `meta.colorSlots` declares every slot the SVG uses, except `*.shadow` / `*.highlight` (derived by
   AP-9). Hex colours only.
 - `meta.category` matches the id prefix: Hat → `head_accessory`, Eyewear → `face_accessory`, Hairstyle
@@ -83,7 +88,17 @@ import of the same version refuses; a bumped version updates in place.
 and dark, with three expressions (neutral, smile, open) and next to the shipped hats/glasses it can
 conflict with. Write them to `docs/handoff/sheets/<id>/`. Sheets are tool-only: CI doesn't run them.
 
-### PR 4 · `art/import-<id>`: the pilot (after the studio exports a real item)
+### PR 4 · `tools/legibility-zones`: F-33, legibility parity
+
+From `master-plan.md` F-33: `LegibilityTest` sums non-skin pixels over the whole 48 px canvas, so a
+dark shape over the eyes can still pass. Measure feature pixels **inside the eye and mouth zones**
+instead (port the idea from `tools/studio/engine/legibility.py` into the Kotlin test).
+
+**Acceptance:** a test fixture that covers the eyes with a dark shape fails `LegibilityTest`; every
+shipped item and all three importer fixtures (imported into a temp pack) pass; F-33 is marked
+resolved in `master-plan.md`.
+
+### PR 5 · `art/import-<id>`: the pilot (after the studio exports a real item)
 
 Blocked until the studio delivers a real generated item (GPU cooling, see `COORDINATION.md`). Then:
 import it, add its sheets and a review-queue row (`master-plan.md` §4.1), open the PR. **The user
@@ -91,7 +106,7 @@ merges this first art PR** (D-50 as amended). After that, Cursor merges its own 
 
 ## Acceptance
 
-- `scripts/check.sh` is green with the new tests; CI unchanged apart from running them.
+- PRs 1–4 merged (PR 5 waits for real art). `scripts/check.sh` is green with the new tests; CI unchanged apart from running them.
 - All three fixtures pass `check` and import cleanly into a temp pack; the built pictures render
   in the existing pack tests without new failures.
 - `art/incoming/` is ignored by git; nothing in the importer writes outside `art/<pack>/`, the pack's

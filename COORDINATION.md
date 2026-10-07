@@ -64,7 +64,7 @@ Hard rules:
    running; it works from the fixtures.
 3. **Studio: real generations** — blocked until the GPU's cooling is fixed (2026-10-07: fans at 0 %).
    Then tune line-art prompts and export three real samples into `art/incoming/`.
-4. **Pilot:** one real item end to end (generate → export → import → widget at 48 px). The user merges
+4. **Pilot (ST-2 PR 5):** one real item end to end (generate → export → import → widget at 48 px). The user merges
    this first art PR (D-50 amended). Only after it works: more categories and content waves (AP-15).
 
 Until step 4 works, neither side adds features the other side hasn't asked for.

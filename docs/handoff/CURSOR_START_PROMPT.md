@@ -17,11 +17,11 @@ Claude audits both. You work only in this repo.
    docs/handoff/reports/; if a doc contradicts the code or the status table, fix the doc first in a
    small docs PR.
 3. Build ST-2 exactly as ART_IMPORT_TASK.md lays it out: PR 1 (check), PR 2 (import), PR 3 (sheets),
-   each end to end under the runbook, merging your own green PRs. Work from the fixtures in
-   tools/testdata/art_incoming/; you don't need the studio, ComfyUI or a GPU.
-4. ST-2 PR 4 (the pilot art PR) is blocked until a real item from the studio appears in
-   art/incoming/. Don't wait for it: continue with the next ⬜ row in the §5 status table whose
-   dependencies are ✅, as the runbook says.
+   PR 4 (F-33 legibility zones), each end to end under the runbook, merging your own green PRs. Work
+   from the fixtures in tools/testdata/art_incoming/; you don't need the studio, ComfyUI or a GPU.
+4. Only after PR 4 is merged: ST-2 PR 5 (the pilot art PR) is blocked until a real item from the
+   studio appears in art/incoming/. Don't wait for it: continue with the next ⬜ row in the §5 status
+   table whose dependencies are ✅, as the runbook says.
 5. Never edit the studio repo (Z:\ai-tools\idl-art-studio), never commit art/incoming/, and never
    import the fixtures into a real pack. Contract changes start as a spec PR here (COORDINATION.md).
 
