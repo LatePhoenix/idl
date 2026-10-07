@@ -567,6 +567,8 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-5 | Mood mappings that are a judgment call: `docs/avatar/EXPRESSION_CATALOG.md` section "Needs a look" (`face_with_bags_under_eyes`, `zany_face`, `smirking_face`, `shushing_face`, `sleeping_face`). | |
 | 2026-10-06 | AP-6 faces | The 15 priority mood faces at 512 and 48: `app/src/test/snapshots/vector/mood_faces_512.png`, `mood_faces_48.png`, and the dark pair. Part sheets: `app/src/test/snapshots/packs/emoji_core/face_eye_512.png`, `face_brow_512.png`, `face_mouth_512.png`, `expression_overlay_512.png`. | |
 | 2026-10-06 | AP-7 client | Widget heads are the teardrop, with a dark outline on light wallpaper and a light outline on dark: `app/src/test/snapshots/widget/contrast_light.png`, `contrast_dark.png`, `sleepy_default.png`, `hat.png`, `vector_dot.png`. | |
+| 2026-10-07 | ST-1 beanie | Slouch beanie draft (lint clean): `docs/handoff/sheets/st-1-hat_beanie_slouch.png`. Source `tools/studio/acceptance/hat_beanie_slouch.svg`. | |
+| 2026-10-07 | ST-1 curly hair | Short curly hair draft (lint clean): `docs/handoff/sheets/st-1-hair_short_curly.png`. Source `tools/studio/acceptance/hair_short_curly.svg`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -1153,3 +1155,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | AP-9: OKLCH shadow/highlight, pack slotLinks + palettes, ContrastWarnings, RENDER_VERSION 3. 286 JVM, lint 0/42. | `docs/handoff/reports/2026-10-07-ap-9-color.md` |
 | 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |
 | 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
+| 2026-10-07 | Cursor | ST-1 Art Studio S1: OKLCH render, CLI (setup/guides/kit/draft/lint/render/geom), drafts UI, agent guide, tests, beanie + curly acceptance sheets | `docs/handoff/reports/2026-10-07-st-1-studio.md` |
