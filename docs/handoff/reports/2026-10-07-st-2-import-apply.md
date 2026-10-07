@@ -34,8 +34,8 @@ Omitted `*.shadow` and `*.highlight` slots are filled from the primary with the 
 
 | Command | Result |
 | --- | --- |
-| `python -m unittest discover -s tools/tests -v` | 35 tests, OK |
-| `scripts/check.ps1` | Picture pipeline 35 tests OK. `asset_pipeline.py check` and `gen_asset_catalog.py check` OK. Gradle: 298 tests, 0 failed, 1 skipped. Lint: 0 errors, 42 warnings. **All checks passed.** |
+| `python -m unittest discover -s tools/tests -v` | 37 tests, OK |
+| `scripts/check.ps1` | Picture pipeline 37 tests OK. `asset_pipeline.py check` and `gen_asset_catalog.py check` OK. Gradle: 298 tests, 0 failed, 1 skipped. Lint: 0 errors, 42 warnings. **All checks passed.** |
 | `scripts/check.ps1 -Device` | not applicable |
 | `scripts/check.ps1 -Sql` | not applicable. The catalog SQL seed is generated into the temp root in tests. F-39 still means a seed edit does not update an already-migrated database |
 
