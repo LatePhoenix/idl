@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_asleep",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 476 600 C 499.4 614 524.6 614 548 600 C 528.2 608.7 495.8 608.7 476 600 Z"
+    }
+  ]
+}

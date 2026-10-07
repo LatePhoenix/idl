@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_thermo_mark",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "stem",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.thermo"
+      },
+      "commands": "M 774 180 L 806 180 L 806 390 L 774 390 Z"
+    },
+    {
+      "id": "bulb",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.thermo"
+      },
+      "commands": "M 754 420 C 754 400.1 770.1 384 790 384 C 809.9 384 826 400.1 826 420 C 826 439.9 809.9 456 790 456 C 770.1 456 754 439.9 754 420 Z"
+    }
+  ]
+}

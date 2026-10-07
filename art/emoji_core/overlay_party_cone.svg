@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="overlay_party_cone"
+     data-content-version="1">
+  <path data-part="cone" data-z="110" data-slot="overlay.hat" d="M 512 20 L 720 250 L 304 250 Z"/>
+  <path data-part="band" data-z="110" data-slot="overlay.hat" d="M 330 220 L 694 220 L 694 250 L 330 250 Z"/>
+</svg>

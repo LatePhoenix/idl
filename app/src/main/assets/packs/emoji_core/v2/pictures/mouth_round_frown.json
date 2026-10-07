@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_frown",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 402 660 C 473.5 570 550.5 570 622 660 C 561.5 604.2 462.5 604.2 402 660 Z"
+    }
+  ]
+}

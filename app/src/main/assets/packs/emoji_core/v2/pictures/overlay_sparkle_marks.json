@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_sparkle_marks",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "spark_left",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.sparkle"
+      },
+      "commands": "M 250 192 L 263.44 226.56 L 298 240 L 263.44 253.44 L 250 288 L 236.56 253.44 L 202 240 L 236.56 226.56 Z"
+    },
+    {
+      "id": "spark_right",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.sparkle"
+      },
+      "commands": "M 770 150 L 781.2 178.8 L 810 190 L 781.2 201.2 L 770 230 L 758.8 201.2 L 730 190 L 758.8 178.8 Z"
+    }
+  ]
+}

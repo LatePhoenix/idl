@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mouth_round_slight_smile",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "mouth",
+      "zBand": 50,
+      "fill": {
+        "slot": "mouth"
+      },
+      "commands": "M 422 575 C 480.5 623 543.5 623 602 575 C 552.5 604.8 471.5 604.8 422 575 Z"
+    }
+  ]
+}

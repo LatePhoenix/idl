@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_party_cone",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "cone",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.hat"
+      },
+      "commands": "M 512 20 L 720 250 L 304 250 Z"
+    },
+    {
+      "id": "band",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.hat"
+      },
+      "commands": "M 330 220 L 694 220 L 694 250 L 330 250 Z"
+    }
+  ]
+}

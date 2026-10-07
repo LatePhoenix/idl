@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="eyes_round_squint"
+     data-content-version="1">
+  <path data-part="eyes_0" data-z="50" data-slot="eye.primary" d="M 303 424 C 349.8 402 400.2 402 447 424 C 407.4 410.4 342.6 410.4 303 424 Z M 578 424 C 624.8 402 675.2 402 722 424 C 682.4 410.4 617.6 410.4 578 424 Z"/>
+</svg>

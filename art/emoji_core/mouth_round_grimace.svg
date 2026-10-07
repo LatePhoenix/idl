@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="1" data-id="mouth_round_grimace"
+     data-content-version="1">
+  <path data-part="mouth" data-z="50" data-slot="mouth" d="M 390 590 C 430 650 470 540 512 620 C 554 700 594 540 634 590 C 600 670 424 670 390 590 Z"/>
+</svg>

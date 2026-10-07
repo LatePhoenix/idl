@@ -375,6 +375,735 @@
       "compatibleBases": [
         "base_teardrop"
       ]
+    },
+    {
+      "id": "eyes_round_closed",
+      "category": "face_eye",
+      "accessibilityLabel": "Closed eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_closed.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_wide",
+      "category": "face_eye",
+      "accessibilityLabel": "Wide eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_wide.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.white": "#FFF6E8",
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_squint",
+      "category": "face_eye",
+      "accessibilityLabel": "Squinting eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_squint.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_star",
+      "category": "face_eye",
+      "accessibilityLabel": "Star eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_star.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_spiral",
+      "category": "face_eye",
+      "accessibilityLabel": "Spiral eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_spiral.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "eyes_round_bags",
+      "category": "face_eye",
+      "accessibilityLabel": "Tired eyes",
+      "render": {
+        "type": "vector",
+        "file": "pictures/eyes_round_bags.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "eye.primary": "#3B2A1A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "brows_round_worried",
+      "category": "face_brow",
+      "accessibilityLabel": "Worried brows",
+      "render": {
+        "type": "vector",
+        "file": "pictures/brows_round_worried.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "hair.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "brows_round_raised",
+      "category": "face_brow",
+      "accessibilityLabel": "Raised brows",
+      "render": {
+        "type": "vector",
+        "file": "pictures/brows_round_raised.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "hair.primary": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_slight_smile",
+      "category": "face_mouth",
+      "accessibilityLabel": "Slight smile",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_slight_smile.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_grin",
+      "category": "face_mouth",
+      "accessibilityLabel": "Grin",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_grin.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_frown",
+      "category": "face_mouth",
+      "accessibilityLabel": "Frown",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_frown.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_slight_frown",
+      "category": "face_mouth",
+      "accessibilityLabel": "Slight frown",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_slight_frown.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_open",
+      "category": "face_mouth",
+      "accessibilityLabel": "Open mouth",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_open.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_yawn",
+      "category": "face_mouth",
+      "accessibilityLabel": "Yawn",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_yawn.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_grimace",
+      "category": "face_mouth",
+      "accessibilityLabel": "Grimace",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_grimace.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_tongue",
+      "category": "face_mouth",
+      "accessibilityLabel": "Tongue",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_tongue.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "mouth_round_asleep",
+      "category": "face_mouth",
+      "accessibilityLabel": "Asleep mouth",
+      "render": {
+        "type": "vector",
+        "file": "pictures/mouth_round_asleep.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "mouth": "#6B2E1F"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_sweat_drop",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sweat drop",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_sweat_drop.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.sweat": "#7EC8E3"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_teardrops",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Tears",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_teardrops.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.tears": "#7EC8E3"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_zzz_marks",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sleep Zs",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_zzz_marks.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.zzz": "#5B3A29"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_thermo_mark",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Thermometer",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_thermo_mark.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.thermo": "#D64545"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_cheek_blush",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Blush",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_cheek_blush.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.blush": "#F0A0A8"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_heart_marks",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Hearts",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_heart_marks.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.hearts": "#E25B7A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_steam_puffs",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Steam",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_steam_puffs.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.steam": "#C8D0D8"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_sparkle_marks",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Sparkles",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_sparkle_marks.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.sparkle": "#F0C84A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_monocle_lens",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Monocle",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_monocle_lens.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "glasses.frame": "#2B2B2B"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    },
+    {
+      "id": "overlay_party_cone",
+      "category": "expression_overlay",
+      "accessibilityLabel": "Party hat",
+      "render": {
+        "type": "vector",
+        "file": "pictures/overlay_party_cone.json"
+      },
+      "collection": "emoji_core",
+      "license": "proprietary-idl",
+      "contentVersion": 1,
+      "colorSlots": {
+        "overlay.hat": "#E25B7A"
+      },
+      "compatibleBases": [
+        "base_teardrop"
+      ]
+    }
+  ],
+  "expressions": [
+    {
+      "id": "neutral_face",
+      "label": "Neutral face",
+      "eyes": "eyes_open",
+      "brows": "brows_flat",
+      "mouth": "mouth_flat",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_neutral",
+          "brows": "brows_round_relaxed",
+          "mouth": "mouth_round_neutral"
+        }
+      }
+    },
+    {
+      "id": "slightly_smiling_face",
+      "label": "Slightly smiling face",
+      "eyes": "eyes_happy_arc",
+      "brows": "brows_relaxed",
+      "mouth": "mouth_smile",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_neutral",
+          "brows": "brows_round_relaxed",
+          "mouth": "mouth_round_slight_smile"
+        }
+      },
+      "overlays": [
+        "overlay_blush"
+      ]
+    },
+    {
+      "id": "smiling_face_with_smiling_eyes",
+      "label": "Smiling face with smiling eyes",
+      "eyes": "eyes_happy_arc",
+      "brows": "brows_relaxed",
+      "mouth": "mouth_smile",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_happy",
+          "brows": "brows_round_relaxed",
+          "mouth": "mouth_round_smile"
+        }
+      },
+      "overlays": [
+        "overlay_blush"
+      ]
+    },
+    {
+      "id": "star_struck",
+      "label": "Star-struck",
+      "eyes": "eyes_sparkle",
+      "brows": "brows_raised",
+      "mouth": "mouth_big_grin",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_star",
+          "brows": "brows_round_raised",
+          "mouth": "mouth_round_grin"
+        }
+      },
+      "overlays": [
+        "overlay_sparkle_marks"
+      ]
+    },
+    {
+      "id": "sleeping_face",
+      "label": "Sleeping face",
+      "eyes": "eyes_closed_line",
+      "brows": "brows_relaxed",
+      "mouth": "mouth_small_o",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_closed",
+          "brows": "brows_round_relaxed",
+          "mouth": "mouth_round_asleep"
+        }
+      },
+      "overlays": [
+        "overlay_zzz_marks"
+      ]
+    },
+    {
+      "id": "yawning_face",
+      "label": "Yawning face",
+      "eyes": "eyes_half_lid",
+      "brows": "brows_flat",
+      "mouth": "mouth_flat",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_closed",
+          "brows": "brows_round_relaxed",
+          "mouth": "mouth_round_yawn"
+        }
+      }
+    },
+    {
+      "id": "face_with_bags_under_eyes",
+      "label": "Face with bags under eyes",
+      "eyes": "eyes_half_lid",
+      "brows": "brows_flat",
+      "mouth": "mouth_flat",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_bags",
+          "brows": "brows_round_worried",
+          "mouth": "mouth_round_slight_frown"
+        }
+      }
+    },
+    {
+      "id": "persevering_face",
+      "label": "Persevering face",
+      "eyes": "eyes_wide",
+      "brows": "brows_worried",
+      "mouth": "mouth_wavy",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_squint",
+          "brows": "brows_round_worried",
+          "mouth": "mouth_round_grimace"
+        }
+      }
+    },
+    {
+      "id": "anxious_face_with_sweat",
+      "label": "Anxious face with sweat",
+      "eyes": "eyes_wide",
+      "brows": "brows_worried",
+      "mouth": "mouth_wavy",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_wide",
+          "brows": "brows_round_worried",
+          "mouth": "mouth_round_frown"
+        }
+      },
+      "overlays": [
+        "overlay_sweat_drop"
+      ]
+    },
+    {
+      "id": "crying_face",
+      "label": "Crying face",
+      "eyes": "eyes_tearful",
+      "brows": "brows_worried",
+      "mouth": "mouth_frown",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_closed",
+          "brows": "brows_round_worried",
+          "mouth": "mouth_round_frown"
+        }
+      },
+      "overlays": [
+        "overlay_teardrops"
+      ]
+    },
+    {
+      "id": "face_with_thermometer",
+      "label": "Face with thermometer",
+      "eyes": "eyes_half_lid",
+      "brows": "brows_worried",
+      "mouth": "mouth_wavy",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_neutral",
+          "brows": "brows_round_worried",
+          "mouth": "mouth_round_slight_frown"
+        }
+      },
+      "overlays": [
+        "overlay_thermo_mark"
+      ]
+    },
+    {
+      "id": "face_with_monocle",
+      "label": "Face with monocle",
+      "eyes": "eyes_narrow",
+      "brows": "brows_determined",
+      "mouth": "mouth_flat",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_neutral",
+          "brows": "brows_round_raised",
+          "mouth": "mouth_round_slight_smile"
+        }
+      },
+      "overlays": [
+        "overlay_monocle_lens"
+      ]
+    },
+    {
+      "id": "zany_face",
+      "label": "Zany face",
+      "eyes": "eyes_side_glance",
+      "brows": "brows_determined",
+      "mouth": "mouth_smirk",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_wide",
+          "brows": "brows_round_raised",
+          "mouth": "mouth_round_tongue"
+        }
+      }
+    },
+    {
+      "id": "partying_face",
+      "label": "Partying face",
+      "eyes": "eyes_wink",
+      "brows": "brows_raised",
+      "mouth": "mouth_big_grin",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_happy",
+          "brows": "brows_round_raised",
+          "mouth": "mouth_round_grin"
+        }
+      },
+      "overlays": [
+        "overlay_party_cone"
+      ]
+    },
+    {
+      "id": "face_with_spiral_eyes",
+      "label": "Face with spiral eyes",
+      "eyes": "eyes_spiral",
+      "brows": "brows_raised",
+      "mouth": "mouth_open_o",
+      "baseOverrides": {
+        "base_teardrop": {
+          "eyes": "eyes_round_spiral",
+          "brows": "brows_round_raised",
+          "mouth": "mouth_round_open"
+        }
+      },
+      "overlays": [
+        "overlay_steam_puffs"
+      ]
     }
   ],
   "expressionOverrides": {

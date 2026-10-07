@@ -7,6 +7,7 @@ import app.idl.avatar.VectorPictureCache
 import app.idl.data.local.AppSettings
 import app.idl.domain.avatar.AssetPacks
 import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.ExpressionCatalog
 import app.idl.data.local.IdlDatabase
 import app.idl.data.push.MockPushSource
 import app.idl.data.push.PushHandler
@@ -57,6 +58,9 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
         packDirectory = { asset -> assetRegistry.packDirectory(asset.id) },
     ) { path ->
         app.assets.open(path).bufferedReader().use { it.readText() }
+    }
+    val expressionCatalog: ExpressionCatalog by lazy {
+        ExpressionCatalog.parse(app.assets.open("expression_catalog.json").bufferedReader().use { it.readText() })
     }
 
     val mockPush = MockPushSource()

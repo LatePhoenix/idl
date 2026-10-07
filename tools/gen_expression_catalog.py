@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCOPE_PATH = ROOT / "config" / "emoji_face_scope.json"
 EMOJI_TEST = ROOT / "config" / "unicode" / "emoji-test-18.0.txt"
 CATALOG_PATH = ROOT / "config" / "expression_catalog.json"
+ASSETS_CATALOG = ROOT / "app" / "src" / "main" / "assets" / "expression_catalog.json"
 DOC_PATH = ROOT / "docs" / "avatar" / "EXPRESSION_CATALOG.md"
 
 SKIN = {"1F3FB", "1F3FC", "1F3FD", "1F3FE", "1F3FF"}
@@ -389,8 +390,9 @@ def check():
         actual_json = (Path(tmp) / "expression_catalog.json").read_text(encoding="utf-8")
         actual_doc = (Path(tmp) / "EXPRESSION_CATALOG.md").read_text(encoding="utf-8")
     committed_json = CATALOG_PATH.read_text(encoding="utf-8")
+    committed_assets = ASSETS_CATALOG.read_text(encoding="utf-8")
     committed_doc = DOC_PATH.read_text(encoding="utf-8")
-    if actual_json != committed_json or actual_doc != committed_doc:
+    if actual_json != committed_json or actual_json != committed_assets or actual_doc != committed_doc:
         raise SystemExit("expression catalog is stale; run tools/gen_expression_catalog.py")
 
 
@@ -403,6 +405,7 @@ def main(argv):
     generated_doc = ROOT / "config" / "EXPRESSION_CATALOG.md"
     DOC_PATH.write_text(generated_doc.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     generated_doc.unlink()
+    ASSETS_CATALOG.write_text(CATALOG_PATH.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     print(f"wrote {len(catalog['expressions'])} expressions")
 
 

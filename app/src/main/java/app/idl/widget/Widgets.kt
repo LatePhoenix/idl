@@ -80,7 +80,7 @@ private suspend fun render(context: Context, model: WidgetModel, size: DpSize): 
             registry = { context.container.assetRegistry },
             onFailure = { IdlLog.e("widget.render_failed", it) },
         ) { registry, inputs ->
-            val resolved = AvatarResolver(registry).resolve(inputs.request(contrast.wallpaper))
+            val resolved = AvatarResolver(registry, context.container.expressionCatalog).resolve(inputs.request(contrast.wallpaper))
             val described = model.copy(avatarDescription = resolved.accessibilityDescription)
             val key = RenderCache.keyOf("${resolved.renderKey}|$AVATAR_PX")
             val ownerId = model.friendView?.userId ?: RenderCache.OWNER_SELF

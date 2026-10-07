@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "overlay_sweat_drop",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "sweat",
+      "zBand": 110,
+      "fill": {
+        "slot": "overlay.sweat"
+      },
+      "commands": "M 760 220 C 800 300 800 370 760 410 C 720 370 720 300 760 220 Z"
+    }
+  ]
+}
