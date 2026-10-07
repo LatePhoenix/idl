@@ -266,10 +266,12 @@ object AvatarRenderer {
                     // viewport. Chrome stays in output pixels.
                     val character = useFraming && !op.chrome && part.zBand != 0
                     if (character) applyFraming(canvas, resolved.framing, size)
+                    val colors = painter.contrast.outlineColor?.let { resolved.colorSlots + ("outline" to it) }
+                        ?: resolved.colorSlots
                     vectors.draw(
                         canvas,
                         paths.picture,
-                        resolved.colorSlots,
+                        colors,
                         worn.defaultTransform ?: ItemTransform(),
                         resolved.itemTransforms[op.assetId] ?: ItemTransform(),
                         if (character) VectorPicture.VIEW_BOX.toFloat() else size,

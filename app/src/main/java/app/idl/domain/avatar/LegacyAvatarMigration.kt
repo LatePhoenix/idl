@@ -26,7 +26,6 @@ object LegacyAvatarMigration {
 
     fun migrate(v1: AvatarConfig, registry: AssetRegistry): AvatarConfiguration {
         val features = buildList {
-            addAll(baseFeatures(v1.baseForm))
             when (v1.faceStyle) {
                 FaceStyle.CLASSIC -> Unit
                 FaceStyle.BLUSHY -> add("feature_blush")
@@ -34,7 +33,7 @@ object LegacyAvatarMigration {
             }
         }
         val mapped = AvatarConfiguration(
-            baseAssetId = baseId(v1.baseForm),
+            baseAssetId = "base_teardrop",
             paletteAssetId = registry.ofCategory(AssetCategory.PALETTE)
                 .firstOrNull { it.colors?.body == v1.bodyColor }?.id
                 ?: registry.defaults.palette,
@@ -84,22 +83,6 @@ object LegacyAvatarMigration {
             bodyAccessoryAssetId = visual.bodyAccessory?.let { bodyId(it) },
             sceneAssetId = visual.scene?.let { sceneId(it) },
         )
-    }
-
-    private fun baseId(form: BaseForm): String = when (form) {
-        BaseForm.HUMAN -> "base_orb"
-        BaseForm.BLOB, BaseForm.ALIEN -> "base_blob"
-        BaseForm.ROBOT, BaseForm.PIXEL -> "base_bot"
-        BaseForm.GHOST -> "base_ghost"
-        BaseForm.CAT, BaseForm.FOX, BaseForm.BEAR -> "base_critter"
-    }
-
-    private fun baseFeatures(form: BaseForm): List<String> = when (form) {
-        BaseForm.CAT -> listOf("feature_ears_cat")
-        BaseForm.FOX -> listOf("feature_ears_fox", "feature_muzzle")
-        BaseForm.BEAR -> listOf("feature_ears_bear")
-        BaseForm.ALIEN -> listOf("feature_antennae")
-        else -> emptyList()
     }
 
     private fun headId(accessory: HeadAccessory): String? = when (accessory) {

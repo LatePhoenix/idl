@@ -62,47 +62,29 @@ class LegacyAvatarMigrationTest {
         assertEquals(9 * 9 * 3 * 3 * 3, index)
     }
 
-    @Test fun `each v1 base maps to the documented v2 identity`() {
+    @Test fun `each v1 base maps to the teardrop and species marks are dropped`() {
         fun migrated(form: BaseForm, frame: FrameStyle = FrameStyle.SQUIRCLE) =
             LegacyAvatarMigration.migrate(AvatarConfig(baseForm = form, frameStyle = frame), registry)
 
-        val human = migrated(BaseForm.HUMAN)
-        assertEquals("base_orb", human.baseAssetId)
-        assertTrue(human.signatureFeatureAssetIds.isEmpty())
-
-        assertEquals("base_blob", migrated(BaseForm.BLOB).baseAssetId)
-        assertEquals("base_bot", migrated(BaseForm.ROBOT).baseAssetId)
-        assertEquals("base_ghost", migrated(BaseForm.GHOST).baseAssetId)
-
-        val cat = migrated(BaseForm.CAT)
-        assertEquals("base_critter", cat.baseAssetId)
-        assertEquals(listOf("feature_ears_cat"), cat.signatureFeatureAssetIds)
-
-        val fox = migrated(BaseForm.FOX)
-        assertEquals("base_critter", fox.baseAssetId)
-        assertEquals(listOf("feature_ears_fox", "feature_muzzle"), fox.signatureFeatureAssetIds)
-
-        val bear = migrated(BaseForm.BEAR)
-        assertEquals("base_critter", bear.baseAssetId)
-        assertEquals(listOf("feature_ears_bear"), bear.signatureFeatureAssetIds)
-
-        val alien = migrated(BaseForm.ALIEN)
-        assertEquals("base_blob", alien.baseAssetId)
-        assertEquals(listOf("feature_antennae"), alien.signatureFeatureAssetIds)
+        BaseForm.entries.forEach { form ->
+            val config = migrated(form)
+            assertEquals(form.name, "base_teardrop", config.baseAssetId)
+            assertTrue(form.name, config.signatureFeatureAssetIds.none { it.startsWith("feature_ears_") || it == "feature_muzzle" || it == "feature_antennae" })
+        }
 
         val pixel = migrated(BaseForm.PIXEL, FrameStyle.CIRCLE)
-        assertEquals("base_bot", pixel.baseAssetId)
         assertEquals("eyefam_pixel", pixel.eyeFamilyAssetId)
         assertEquals("frame_pixel", pixel.defaultFrameAssetId)
     }
 
-    @Test fun `cat ears beat a migrated helmet and pixel frame wins over frame style`() {
+    @Test fun `a cat keeps blush and the helmet once the ears no longer fit`() {
         val cat = LegacyAvatarMigration.migrate(
             AvatarConfig(baseForm = BaseForm.CAT, headAccessory = HeadAccessory.HELMET, faceStyle = FaceStyle.BLUSHY),
             registry,
         )
-        assertEquals(listOf("feature_ears_cat", "feature_blush"), cat.signatureFeatureAssetIds)
-        assertNull(cat.signatureHeadAccessoryAssetId)
+        assertEquals("base_teardrop", cat.baseAssetId)
+        assertEquals(listOf("feature_blush"), cat.signatureFeatureAssetIds)
+        assertEquals("head_helmet", cat.signatureHeadAccessoryAssetId)
 
         val plain = LegacyAvatarMigration.migrate(AvatarConfig(frameStyle = FrameStyle.CIRCLE), registry)
         assertEquals("frame_circle", plain.defaultFrameAssetId)
