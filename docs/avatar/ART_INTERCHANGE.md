@@ -141,8 +141,10 @@ The subset `tools/asset_pipeline.py` reads. Example, a beanie:
 
 ## 8. Hand-off folder and metadata
 
-**Accept & Export** writes one folder per item into this repo's working tree, on a branch it creates
-(`art/studio-<assetId>`), and commits there. It never pushes and never merges.
+**Accept & Export** writes one folder per item into `art/incoming/` of this repo's checkout
+(`export.app_assets_dir` = `Z:/Singularity/idl/art/incoming`). It **does not run git in this repo**:
+other agents may be working in the same checkout. The app-side importer (§9) makes the branch and PR.
+Re-exporting the same id overwrites that folder only.
 
 ```text
 art/incoming/<assetId>/
