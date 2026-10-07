@@ -320,7 +320,7 @@ in-repo Studio.
 **D-51 · Item art comes from the external iDL Art Studio as line art (user, 2026-10-07).** Avatar
 customizations and accessories (hair, facial hair, headwear, eyewear, jewelry, tops, outerwear, props,
 and later backgrounds and frames) are generated in the separate repo `LatePhoenix/idl-art-studio`
-(`Z:i-tools\idl-art-studio`, local ComfyUI). The contract is `docs/avatar/ART_INTERCHANGE.md`:
+(`Z:\ai-tools\idl-art-studio`, local ComfyUI). The contract is `docs/avatar/ART_INTERCHANGE.md`:
 - The studio makes **black line art**, closes it into regions and labels each region with a color
   slot. The app does all coloring through slots (AP-9), and later textures (pattern fills clipped to
   regions, a separate spec). One drawing covers every colorway.
