@@ -24,7 +24,8 @@ gh pr list --author "@me" --state open
 2. **If `main` is red** (`gh run list --branch main --limit 3`), fixing it is the next item
    (§6.4).
 3. Otherwise read `master-plan.md` §0–§1, then the status table in `AVATAR_PROGRAM.md` §5. The
-   next item is the first ⬜ row whose dependencies are all ✅.
+   next item is the first ⬜ row whose dependencies are all ✅. Skip rows marked 🎨: Claude makes
+   them with the Art Studio (D-50). AP-16 waits until they're ✅.
 4. Read that item's spec in full, plus every document it cites. Read the code it touches before
    you change it.
 

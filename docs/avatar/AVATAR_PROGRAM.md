@@ -286,7 +286,8 @@ Rules:
 
 ## 5. Status table
 
-Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · ⏸ blocked (see the report).
+Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · ⏸ blocked (see the report) ·
+🎨 made with the Art Studio by Claude (D-50, [`ART_STUDIO.md`](ART_STUDIO.md)). **Cursor skips 🎨 rows.**
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -302,9 +303,9 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ⬜ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
 | AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |
-| AP-13 | Expression art batch 2: the rest of the catalog | AP-6, AP-8 | | | ⬜ |
+| AP-13 | Expression art batch 2: the rest of the catalog | AP-6, AP-8 | | | 🎨 ⬜ |
 | AP-14 | Status face picker: any expression as a status. **Design note first** | AP-13, AP-11 | yes | yes | ⬜ |
-| AP-15 | Content waves (AP-15.1–15.9) | AP-11 | per wave | | ⬜ |
+| AP-15 | Content waves (AP-15.1–15.9) | AP-11 | per wave | | 🎨 ⬜ |
 | AP-16 | Hardening, performance, accessibility, final report | all above | yes | yes | ⬜ |
 
 ---
@@ -565,6 +566,8 @@ Device screenshots of real home-screen widgets.
 
 ### AP-13 · Expression art batch 2: the rest of the catalog
 
+🎨 **Made with the Art Studio (D-50).** Cursor skips this row. The spec below still defines done.
+
 Branch per subgroup, `avatar/ap-13-<subgroup>`. One PR per catalog subgroup, in catalog order.
 Each PR draws the new shapes it needs, wires its expressions, extends the contact sheet, and
 keeps `LegibilityTest` and the privacy tests green. Hand-overlay expressions follow §3.6.
@@ -590,6 +593,8 @@ Branch `avatar/ap-14-status-face`. Server and client.
 Status Deck flow, device screenshots.
 
 ### AP-15 · Content waves
+
+🎨 **Made with the Art Studio (D-50).** Cursor skips this row. The waves below still define done.
 
 One branch and PR per wave: `avatar/ap-15-<n>-<category>`. Each wave follows
 [`AUTHORING.md`](AUTHORING.md) and the style guide, passes the pack, legibility and combination

@@ -1,7 +1,6 @@
 # iDL Art Studio: design
 
-**Status:** draft for the operator's review, 2026-10-06. Nothing here is decided until the open
-questions in §12 are answered and a `D-` entry is recorded.
+**Status:** approved, 2026-10-06 (D-50). Q-S1..Q-S4 are answered in §12. Build order is §10.
 **Audience:** the operator (the only user), and whoever builds it (Claude or Cursor).
 
 ---
@@ -372,20 +371,23 @@ S0–S3 is the useful minimum. Each phase is a PR.
   editing, so they can start now.
 - **S2–S3 need AP-8 (masks), AP-9 (slots and links) and AP-10 (store fields) merged**, so the
   Studio writes the final formats once. At the current pace that's the next few PRs.
-- **Proposed change to the program (needs the operator's OK):** do AP-13 (expression art batch
+- **Change to the program (D-50):** do AP-13 (expression art batch
   2) and AP-15 (content waves) **with the Studio** instead of having Cursor hand-write path
   data. Cursor continues AP-8 → AP-12 and AP-16 unchanged. That's where the Studio pays for
   itself: AP-15 alone is about 140 items.
 - **Audit first.** Before S2 starts, audit the merged AP-8..AP-10 work (the usual audit
   pass), because the Studio builds on those formats.
 
-## 12. Open questions
+## 12. Questions
 
-| # | Question | Recommendation |
+Q-S1..Q-S4 were answered by the user on 2026-10-06 (D-50): every recommendation was accepted.
+Q-S5 waits for S5. Q-S6 uses the recommendation as its default.
+
+| # | Question | Answer or recommendation |
 | --- | --- | --- |
-| Q-S1 | AI front end: Claude Code skill only, or also an in-Studio chat panel using the Claude API (needs an API key, billed per use)? | Claude Code skill first (S0–S5). Add the panel only if it feels clumsy |
-| Q-S2 | Who builds the Studio: Claude (this tool is design-heavy and art-judgment-heavy) or Cursor from a spec? | Claude builds S0–S3; Cursor can take S4–S5 from specs |
-| Q-S3 | Tool-only Python dependencies (path booleans and smoothing, e.g. `skia-pathops`; a rasterizer for server-side renders, e.g. `resvg`) in an isolated `tools/studio/requirements.txt`. The app and `asset_pipeline.py` stay dependency-free | Approve, tool-only |
-| Q-S4 | Move AP-13 and AP-15 onto the Studio (§11)? | Yes |
+| Q-S1 | AI front end: Claude Code skill only, or also an in-Studio chat panel using the Claude API (needs an API key, billed per use)? | **Decided:** Claude Code skill first (S0–S5). Add the panel only if it feels clumsy |
+| Q-S2 | Who builds the Studio: Claude (this tool is design-heavy and art-judgment-heavy) or Cursor from a spec? | **Decided:** Claude builds S0–S3; Cursor can take S4–S5 from specs |
+| Q-S3 | Tool-only Python dependencies (path booleans and smoothing, e.g. `skia-pathops`; a rasterizer for server-side renders, e.g. `resvg`) in an isolated `tools/studio/requirements.txt`. The app and `asset_pipeline.py` stay dependency-free | **Decided:** approved, tool-only, each one listed in `requirements.txt` |
+| Q-S4 | Move AP-13 and AP-15 onto the Studio (§11)? | **Decided:** yes. They're 🎨 rows in the status table |
 | Q-S5 | Price bands per category and rarity | Set at S5, after C.3 pricing exists |
-| Q-S6 | May the Studio merge its own green, art-only PRs (like D-49), or does the operator merge every art PR? | Operator merges art PRs until S3 has shipped ~20 items, then revisit |
+| Q-S6 | May the Studio merge its own green, art-only PRs (like D-49), or does the operator merge every art PR? | **Default:** the operator merges art PRs until about 20 Studio items have shipped, then revisit |
