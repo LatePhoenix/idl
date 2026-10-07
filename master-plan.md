@@ -538,6 +538,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-3 framing | Bust at 512 and head at widget size, before the body is drawn: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `vector/widget/neutral_compact.png`. | |
 | 2026-10-06 | AP-3 body | Shoulders and the default crew tee. Bust: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `contact_512_dark.png`, `contact_48.png`. Head: `contact_head_48.png`, `contact_head_48_dark.png`, `vector/widget/neutral_compact.png`, `vector/widget/neutral_standard.png`. | |
 | 2026-10-06 | AP-4 sheets | Category contact sheets, bust and head, light and dark: `app/src/test/snapshots/packs/emoji_core/hair_512.png`, `facial_hair_512.png`, `face_eye_512.png`, `face_mouth_512.png`, `hair_48.png`, `hair_48_dark.png`. | |
+| 2026-10-06 | AP-5 | Mood mappings that are a judgment call: `docs/avatar/EXPRESSION_CATALOG.md` section "Needs a look" (`face_with_bags_under_eyes`, `zany_face`, `smirking_face`, `shushing_face`, `sleeping_face`). | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -547,7 +548,7 @@ format from Phase 2 stay (D-39). Every item ships original art (`license: propri
 | --- | --- | --- | --- | --- |
 | AV.1 | Decisions and design docs: D-41, D-42, D-43; scope file; ROADMAP, ARCHITECTURE and LICENSING notes | ✅ | | Done by Claude, 2026-10-05 |
 | AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ✅ | | `emoji_core` v2. Report `docs/handoff/reports/2026-10-05-teardrop-base.md` |
-| AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ⬜ | | Spec below |
+| AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ✅ | | Shipped as AP-5 |
 | AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ⬜ | | Spec needed. Contract changes once |
 | AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Each batch: goldens at 48 / 96 / 512 and a contact sheet; free forever (invariant 6) |
 | AV.6 | Editor (Avatar Phases 4–5 merged): category strip, grid, colors, undo/redo, seeded randomize, 48 px preview, save through `prepareForWrite`, export PNG and recipe JSON (ROADMAP 6–7) | ⬜ | AV.4 | Spec needed |
@@ -1106,3 +1107,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-4 picture format v2: strokes, tags and mask syntax. Masks are applied in AP-8. 246 tests, 0 failed, 1 skipped. Lint 0 errors, 42 warnings. Device check passed on emulator-5554. | `docs/handoff/reports/2026-10-06-ap-4-picture-v2.md` |
 | 2026-10-06 | Cursor | AP-4 pipeline: SVG sources for emoji_core and `tools/asset_pipeline.py check`. 8 pipeline tests. 246 JVM, 0 failed, 1 skipped. Lint 0/42. Contact sheets are the next PR. | `docs/handoff/reports/2026-10-06-ap-4-pipeline.md` |
 | 2026-10-06 | Cursor | AP-4 contact sheets: every emoji_core vector category at 48, 96, and 512, light and dark. 247 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-4-sheets.md` |
+| 2026-10-06 | Cursor | AP-5 expression catalog: 110 faces, 15 priority-1 moods, shape counts for AP-6 and AP-13. 249 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-5-expression-catalog.md` |

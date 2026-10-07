@@ -53,4 +53,8 @@ Asset ids and recipes must not contain "noto" or a Unicode code point. `hair_bob
 
 ## 6. Unicode data
 
-`config/emoji_face_scope.json` is an original filter list. It names subgroups and code points. It does not copy `emoji-test.txt`. Unicode's terms cover that data file if a later tool vendors a snapshot: https://www.unicode.org/terms_of_use.html and https://www.unicode.org/license.txt. Vendoring the full test file, if we do it, gets its own notice and a pinned URL (`/emoji/18.0/`, not `/emoji/latest/`).
+`config/unicode/emoji-test-18.0.txt` is Unicode Emoji 18.0 test data, dated 2026-04-30 in the file header. It is used only to generate `config/expression_catalog.json`. The art is original (D-42); this file is not a glyph source.
+
+Unicode and the Unicode Logo are trademarks of Unicode, Inc. The file is covered by the Unicode License: https://www.unicode.org/license.txt and https://www.unicode.org/terms_of_use.html.
+
+The scope file's intended directory `/Public/emoji/18.0/` is not published. The pinned bytes are from `https://www.unicode.org/Public/18.0.0/emoji/emoji-test.txt`, which is the file whose header date matches `emojiTestDate`. Do not replace it with `/emoji/latest/`.

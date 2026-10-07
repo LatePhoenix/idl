@@ -1,6 +1,6 @@
 {
   "unicodeVersion": "18.0",
-  "emojiTestUrl": "https://www.unicode.org/Public/emoji/18.0/emoji-test.txt",
+  "emojiTestUrl": "https://www.unicode.org/Public/18.0.0/emoji/emoji-test.txt",
   "emojiTestDate": "2026-04-30",
   "notes": "D-42: the expression catalog covers every emotion in includeSubgroups, drawn as original art on the teardrop face. face-hand faces keep their hand as an overlay. Finished glyphs in face-hat and face-glasses are decomposed into items plus an expression, not used as templates. cat-face and monkey-face repeat the same emotions on other heads and are deferred to later families. Costume heads are deferred. Hearts, emotion symbols, food, flags, and objects are out of scope.",
   "includeSubgroups": [
