@@ -119,6 +119,30 @@ class EditorSessionTest {
         assertEquals(listOf("stubble"), session.wornIds())
     }
 
+    @Test fun `a locked try-on is described with the item label`() {
+        val visor = vector("face_visor", AssetCategory.FACE_ACCESSORY, tier = AssetTier.PREMIUM)
+            .copy(accessibilityLabel = "Face visor")
+        val registry = sandbox(extra = listOf(visor))
+        val session = EditorSession(
+            AvatarConfiguration(baseAssetId = "base_a", paletteAssetId = "pal_a"),
+            registry,
+        )
+        assertTrue(session.wear("face_visor"))
+        val locked = LocalEntitlements(registry)
+        assertEquals("Unlock Face visor to save this avatar", saveRefusal(session.configuration, registry, locked))
+        locked.grant("face_visor")
+        assertEquals(null, saveRefusal(session.configuration, registry, locked))
+    }
+
+    @Test fun `onboarding samples are three teardrop avatars`() {
+        val registry = coreRegistry()
+        val samples = EditorDefaults.onboardingSamples(registry)
+        assertEquals(3, samples.size)
+        samples.forEach { assertEquals("base_teardrop", it.baseAssetId) }
+        assertTrue(samples[0].itemIds["hair"].orEmpty().contains("hair_bob"))
+        assertEquals("glasses_round_wire", samples[2].signatureFaceAccessoryAssetId)
+    }
+
     private fun vector(
         id: String,
         category: AssetCategory,

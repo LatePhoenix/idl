@@ -7,6 +7,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,15 +18,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -36,136 +42,417 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.idl.AppContainer
 import app.idl.avatar.AvatarImage
-import app.idl.domain.AvatarConfig
-import app.idl.domain.AvatarPalette
-import app.idl.domain.BodyAccessory
-import app.idl.domain.avatar.AvatarWrite
+import app.idl.domain.avatar.AssetCategory
+import app.idl.domain.avatar.AssetDef
+import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.AssetTier
+import app.idl.domain.avatar.AvatarConfiguration
+import app.idl.domain.avatar.EditorDefaults
+import app.idl.domain.avatar.EditorSession
+import app.idl.domain.avatar.Entitlements
 import app.idl.domain.avatar.LoadedAvatar
-import app.idl.domain.Expression
-import app.idl.domain.FaceAccessory
-import app.idl.domain.FaceStyle
-import app.idl.domain.FrameStyle
-import app.idl.domain.HeadAccessory
-import app.idl.domain.Prop
-import app.idl.domain.Scene
-import app.idl.ui.components.ChoiceChips
+import app.idl.domain.avatar.RenderTarget
+import app.idl.domain.avatar.saveRefusal
 import app.idl.ui.components.IdlTopBar
-import app.idl.ui.components.SectionTitle
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() {
-    val config = MutableStateFlow(AvatarConfig())
-    val notice = MutableStateFlow<String?>(null)
+internal enum class EditorTab(
+    val title: String,
+    val categories: List<AssetCategory>,
+    val palette: String?,
+    val colorSlot: String?,
+    val unlinkSlots: List<String> = emptyList(),
+) {
+    SKIN("Skin", emptyList(), "skin", "face.primary"),
+    HAIR("Hair", listOf(AssetCategory.HAIR), "hair", "hair.primary", listOf("hair.highlight", "brow.primary")),
+    FACIAL_HAIR("Facial hair", listOf(AssetCategory.FACIAL_HAIR), "hair", "beard.primary", listOf("beard.primary")),
+    EYES("Eyes", emptyList(), "eye", "eye.primary"),
+    FACE("Face details", listOf(AssetCategory.SIGNATURE_FEATURE), null, null),
+    EYEWEAR("Eyewear", listOf(AssetCategory.FACE_ACCESSORY), null, null),
+    HEADWEAR("Headwear", listOf(AssetCategory.HEAD_ACCESSORY), null, null),
+    JEWELRY("Jewelry", listOf(AssetCategory.JEWELRY), null, null),
+    TOPS("Tops", listOf(AssetCategory.TOP), "clothing", "top.primary"),
+    OUTERWEAR("Outerwear", listOf(AssetCategory.OUTERWEAR), "clothing", "outerwear.primary"),
+    PROPS("Props", listOf(AssetCategory.FOREGROUND_PROP, AssetCategory.BODY_ACCESSORY), null, null),
+    BACKGROUND("Background", listOf(AssetCategory.SCENE), null, null),
+    FRAME("Frame", listOf(AssetCategory.FRAME), null, null),
+    EXPRESSION("Expression", emptyList(), null, null),
+}
+
+internal data class EditorUi(
+    val configuration: AvatarConfiguration,
+    val displayed: AvatarConfiguration,
+    val canUndo: Boolean,
+    val canRedo: Boolean,
+    val showingOpened: Boolean,
+    val notice: String?,
+    val tab: EditorTab,
+    val blocked: Boolean,
+)
+
+internal class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() {
+    val ui = MutableStateFlow<EditorUi?>(null)
+    private var session: EditorSession? = null
     private var userId: String? = null
+    private var tab = EditorTab.HAIR
+    private var notice: String? = null
     private var blocked = false
 
     init {
         viewModelScope.launch {
             val me = c.session.me.filterNotNull().first()
             userId = me.userId
+            val registry = c.assetRegistry
             when (val loaded = c.avatars.loadForEdit(me.userId)) {
-                LoadedAvatar.Missing -> config.value = starterFor(me.username)
+                LoadedAvatar.Missing -> session = EditorSession(EditorDefaults.starter(registry), registry)
                 LoadedAvatar.NeedsAppUpdate -> {
                     blocked = true
-                    notice.value = AvatarWrite.NeedsAppUpdate.message.replaceFirstChar { it.uppercase() }
+                    notice = "Update the app to edit this avatar"
                 }
-                is LoadedAvatar.Editable -> config.value = loaded.config
+                is LoadedAvatar.Editable -> session = EditorSession(loaded.recipe, registry)
             }
+            publish()
         }
     }
 
-    fun update(cfg: AvatarConfig) { config.value = cfg }
+    fun selectTab(next: EditorTab) {
+        tab = next
+        publish()
+    }
+
+    fun wear(id: String) {
+        session?.wear(id)
+        notice = null
+        publish()
+    }
+
+    fun setExpression(id: String) {
+        session?.setExpression(id)
+        notice = null
+        publish()
+    }
+
+    fun setColor(slot: String, hex: String) {
+        session?.setColor(slot, hex)
+        notice = null
+        publish()
+    }
+
+    fun toggleLink(slot: String) {
+        val current = session?.configuration ?: return
+        session?.setUnlinked(slot, slot !in current.unlinkedSlots)
+        publish()
+    }
+
+    fun clearCategory() {
+        tab.categories.forEach { session?.clearCategory(it) }
+        notice = null
+        publish()
+    }
+
+    fun undo() {
+        session?.undo()
+        publish()
+    }
+
+    fun redo() {
+        session?.redo()
+        publish()
+    }
+
+    fun randomize() {
+        session?.randomize(System.nanoTime())
+        notice = null
+        publish()
+    }
+
+    fun resetAll() {
+        session?.resetAll()
+        notice = null
+        publish()
+    }
+
+    fun toggleBefore() {
+        session?.toggleBefore()
+        publish()
+    }
 
     fun save(then: () -> Unit) = viewModelScope.launch {
         val id = userId ?: return@launch
+        val current = session ?: return@launch
         if (blocked) return@launch
-        val saved = c.avatars.save(id, config.value)
-        val err = saved.exceptionOrNull()?.message
-        if (err == AvatarWrite.NeedsAppUpdate.message || err?.startsWith("unlock ") == true) {
-            notice.value = err.replaceFirstChar { it.uppercase() }
+        val refusal = saveRefusal(current.configuration, c.assetRegistry, c.entitlements)
+        if (refusal != null) {
+            notice = refusal
+            publish()
             return@launch
         }
-        then()
+        val saved = c.avatars.saveRecipe(id, current.configuration)
+        saved.onSuccess { then() }.onFailure {
+            notice = it.message
+            publish()
+        }
     }
 
-    companion object {
-        fun starterFor(seed: String): AvatarConfig {
-            val h = seed.hashCode() and 0x7FFFFFFF
-            return AvatarConfig(
-                bodyColor = AvatarPalette.body[h % AvatarPalette.body.size],
-                themeColor = AvatarPalette.theme[h % AvatarPalette.theme.size],
-                expression = Expression.HAPPY,
+    private fun publish() {
+        val current = session
+        if (current == null) {
+            if (!blocked) {
+                ui.value = null
+                return
+            }
+            val starter = EditorDefaults.starter(c.assetRegistry)
+            ui.value = EditorUi(
+                configuration = starter,
+                displayed = starter,
+                canUndo = false,
+                canRedo = false,
+                showingOpened = false,
+                notice = notice,
+                tab = tab,
+                blocked = true,
             )
+            return
         }
+        val shown = if (current.showingOpened) current.opened else current.configuration
+        ui.value = EditorUi(
+            configuration = current.configuration,
+            displayed = shown,
+            canUndo = current.canUndo,
+            canRedo = current.canRedo,
+            showingOpened = current.showingOpened,
+            notice = notice,
+            tab = tab,
+            blocked = blocked,
+        )
     }
 }
 
 @Composable
-fun AvatarStudioScreen(
+internal fun AvatarStudioScreen(
     c: AppContainer,
     firstRun: Boolean,
     onDone: () -> Unit,
     vm: AvatarStudioViewModel = viewModel { AvatarStudioViewModel(c) },
 ) {
-    val cfg by vm.config.collectAsState()
-    val notice by vm.notice.collectAsState()
-    Scaffold(topBar = { IdlTopBar(if (firstRun) "Build your iDL" else "Avatar Studio", onBack = if (firstRun) null else onDone) }) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize()) {
-            Box(Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.Center) {
-                AvatarImage(cfg, "Your avatar preview", size = 168.dp)
+    val state by vm.ui.collectAsState()
+    val loaded = state
+    Scaffold(topBar = { IdlTopBar(if (firstRun) "Build your iDL" else "Avatar", onBack = if (firstRun) null else onDone) }) { pad ->
+        if (loaded == null) {
+            Box(Modifier.padding(pad).fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Loading your avatar")
             }
-            Column(
-                Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-            ) {
-                notice?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
-                SectionTitle("Color")
-                Swatches(AvatarPalette.body, cfg.bodyColor) { vm.update(cfg.copy(bodyColor = it)) }
-                SectionTitle("Resting expression")
-                ChoiceChips(Expression.entries, cfg.expression, { it.label }, { it?.let { e -> vm.update(cfg.copy(expression = e)) } }, allowNone = false)
-                SectionTitle("Face")
-                ChoiceChips(FaceStyle.entries, cfg.faceStyle, { it.label }, { it?.let { f -> vm.update(cfg.copy(faceStyle = f)) } }, allowNone = false)
-                SectionTitle("Head")
-                ChoiceChips(HeadAccessory.entries, cfg.headAccessory, { it.label }, { it?.let { h -> vm.update(cfg.copy(headAccessory = h)) } }, allowNone = false)
-                SectionTitle("Eyewear")
-                ChoiceChips(FaceAccessory.entries, cfg.faceAccessory, { it.label }, { it?.let { f -> vm.update(cfg.copy(faceAccessory = f)) } }, allowNone = false)
-                SectionTitle("Outfit")
-                ChoiceChips(BodyAccessory.entries, cfg.bodyAccessory, { it.label }, { it?.let { b -> vm.update(cfg.copy(bodyAccessory = b)) } }, allowNone = false)
-                SectionTitle("Favorite prop")
-                ChoiceChips(Prop.entries, cfg.handProp, { if (it.emoji.isEmpty()) it.label else "${it.emoji} ${it.label}" }, { it?.let { p -> vm.update(cfg.copy(handProp = p)) } }, allowNone = false)
-                SectionTitle("Scene")
-                ChoiceChips(Scene.entries, cfg.scene, { it.label }, { it?.let { s -> vm.update(cfg.copy(scene = s)) } }, allowNone = false)
-                SectionTitle("Theme")
-                Swatches(AvatarPalette.theme, cfg.themeColor) { vm.update(cfg.copy(themeColor = it)) }
-                SectionTitle("Frame")
-                ChoiceChips(FrameStyle.entries, cfg.frameStyle, { it.label }, { it?.let { f -> vm.update(cfg.copy(frameStyle = f)) } }, allowNone = false)
+        } else {
+            EditorBody(
+                state = loaded,
+                registry = c.assetRegistry,
+                entitlements = c.entitlements,
+                firstRun = firstRun,
+                modifier = Modifier.padding(pad),
+                onTab = vm::selectTab,
+                onWear = vm::wear,
+                onExpression = vm::setExpression,
+                onColor = vm::setColor,
+                onToggleLink = vm::toggleLink,
+                onClear = vm::clearCategory,
+                onUndo = vm::undo,
+                onRedo = vm::redo,
+                onRandom = vm::randomize,
+                onReset = vm::resetAll,
+                onBefore = vm::toggleBefore,
+                onSave = { vm.save(onDone) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun EditorBody(
+    state: EditorUi,
+    registry: AssetRegistry,
+    entitlements: Entitlements,
+    firstRun: Boolean,
+    modifier: Modifier = Modifier,
+    onTab: (EditorTab) -> Unit,
+    onWear: (String) -> Unit,
+    onExpression: (String) -> Unit,
+    onColor: (String, String) -> Unit,
+    onToggleLink: (String) -> Unit,
+    onClear: () -> Unit,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit,
+    onRandom: () -> Unit,
+    onReset: () -> Unit,
+    onBefore: () -> Unit,
+    onSave: () -> Unit,
+) {
+    Column(modifier.fillMaxSize()) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            AvatarImage(
+                state.displayed,
+                "Avatar preview",
+                size = 180.dp,
+                target = RenderTarget.PROFILE,
+            )
+            AvatarImage(
+                state.displayed,
+                "Avatar at widget size",
+                size = 48.dp,
+                target = RenderTarget.COMPACT_WIDGET,
+            )
+        }
+        Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            EditorTab.entries.forEach { tab ->
+                FilterChip(
+                    selected = tab == state.tab,
+                    onClick = { onTab(tab) },
+                    label = { Text(tab.title) },
+                    modifier = Modifier.testTag("tab:${tab.title}"),
+                )
             }
-            Button(onClick = { vm.save(onDone) }, enabled = notice == null, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Text(if (firstRun) "This is me" else "Save")
+        }
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("notice")) }
+            ColorRow(state, registry, onColor, onToggleLink)
+            if (state.tab == EditorTab.EXPRESSION) {
+                ExpressionGrid(state, registry, onExpression)
+            } else {
+                ItemGrid(state, registry, entitlements, onWear, onClear)
+            }
+        }
+        Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            TextButton(onClick = onUndo, enabled = state.canUndo && !state.blocked, modifier = Modifier.testTag("undo")) { Text("Undo") }
+            TextButton(onClick = onRedo, enabled = state.canRedo && !state.blocked, modifier = Modifier.testTag("redo")) { Text("Redo") }
+            TextButton(onClick = onRandom, enabled = !state.blocked, modifier = Modifier.testTag("randomize")) { Text("Random") }
+            TextButton(onClick = onClear, enabled = state.tab.categories.isNotEmpty() && !state.blocked, modifier = Modifier.testTag("reset-category")) { Text("Clear") }
+            TextButton(onClick = onReset, enabled = !state.blocked, modifier = Modifier.testTag("reset-all")) { Text("Reset") }
+            TextButton(onClick = onBefore, enabled = !state.blocked, modifier = Modifier.testTag("before-after")) {
+                Text(if (state.showingOpened) "After" else "Before")
+            }
+        }
+        Button(
+            onClick = onSave,
+            enabled = !state.blocked,
+            modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("save"),
+        ) {
+            Text(if (firstRun) "This is me" else "Save")
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ColorRow(
+    state: EditorUi,
+    registry: AssetRegistry,
+    onColor: (String, String) -> Unit,
+    onToggleLink: (String) -> Unit,
+) {
+    val tab = state.tab
+    val slot = tab.colorSlot
+    val swatches = tab.palette?.let { registry.defaults.palettes[it] }.orEmpty()
+    if (slot != null && swatches.isNotEmpty()) {
+        val selected = state.configuration.colorOverrides[slot]
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            swatches.forEach { swatch ->
+                val on = selected.equals(swatch.hex, ignoreCase = true)
+                Box(
+                    Modifier
+                        .size(36.dp)
+                        .border(if (on) 3.dp else 1.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, CircleShape)
+                        .padding(4.dp)
+                        .background(parseHex(swatch.hex), CircleShape)
+                        .clickable { onColor(slot, swatch.hex) }
+                        .semantics { role = Role.RadioButton; this.selected = on; contentDescription = swatch.name }
+                        .testTag("swatch:${swatch.id}"),
+                )
+            }
+        }
+    }
+    if (tab.unlinkSlots.isNotEmpty()) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            tab.unlinkSlots.forEach { link ->
+                val linked = link !in state.configuration.unlinkedSlots
+                FilterChip(
+                    selected = linked,
+                    onClick = { onToggleLink(link) },
+                    label = { Text(if (linked) "Linked ${link.substringBefore('.')}" else "Unlinked ${link.substringBefore('.')}") },
+                    modifier = Modifier.semantics { contentDescription = if (linked) "Linked $link" else "Unlinked $link" },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ItemGrid(
+    state: EditorUi,
+    registry: AssetRegistry,
+    entitlements: Entitlements,
+    onWear: (String) -> Unit,
+    onClear: () -> Unit,
+) {
+    val sessionChoices = EditorSession(state.configuration, registry)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (state.tab.categories.any { !it.multiple }) {
+            FilterChip(
+                selected = state.tab.categories.none { category -> sessionChoices.wornIds().any { registry.asset(it)?.category == category } },
+                onClick = onClear,
+                label = { Text("None") },
+                modifier = Modifier.testTag("item:none"),
+            )
+        }
+        state.tab.categories.forEach { category ->
+            sessionChoices.choices(category).forEach { asset ->
+                ItemChip(asset, selected = asset.id in sessionChoices.wornIds(), locked = asset.tier == AssetTier.PREMIUM && !entitlements.owns(asset.id), onWear = onWear)
             }
         }
     }
 }
 
 @Composable
-private fun Swatches(colors: List<Int>, selected: Int, onPick: (Int) -> Unit) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        colors.forEachIndexed { i, c ->
-            val isSel = c == selected
-            Box(
-                Modifier
-                    .size(40.dp)
-                    .border(if (isSel) 3.dp else 1.dp, if (isSel) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, CircleShape)
-                    .padding(4.dp)
-                    .background(Color(c), CircleShape)
-                    .clickable { onPick(c) }
-                    .semantics { role = Role.RadioButton; this.selected = isSel; contentDescription = "Color ${i + 1}" },
+private fun ItemChip(asset: AssetDef, selected: Boolean, locked: Boolean, onWear: (String) -> Unit) {
+    val label = if (locked) "${asset.accessibilityLabel}, locked" else asset.accessibilityLabel
+    FilterChip(
+        selected = selected,
+        onClick = { onWear(asset.id) },
+        label = { Text(if (locked) "${asset.accessibilityLabel} · lock" else asset.accessibilityLabel) },
+        modifier = Modifier
+            .semantics { contentDescription = label }
+            .testTag("item:${asset.id}"),
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ExpressionGrid(state: EditorUi, registry: AssetRegistry, onExpression: (String) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        registry.allExpressions.sortedBy { it.label }.forEach { expression ->
+            FilterChip(
+                selected = expression.id == state.configuration.restingExpressionId,
+                onClick = { onExpression(expression.id) },
+                label = { Text(expression.label) },
+                modifier = Modifier
+                    .semantics { contentDescription = expression.label }
+                    .testTag("expression:${expression.id}"),
             )
         }
     }
 }
+
+private fun parseHex(hex: String): Color = Color(hex.toColorInt())
