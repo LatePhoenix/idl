@@ -287,7 +287,12 @@ Rules:
 ## 5. Status table
 
 Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · ⏸ blocked (see the report) ·
-🎨 made with the Art Studio by Claude (D-50, [`ART_STUDIO.md`](ART_STUDIO.md)). **Cursor skips 🎨 rows.**
+🎨 art made with the Art Studio, following `docs/avatar/STUDIO_AGENT_GUIDE.md` (written in ST-1) ·
+👤 the user's row: Cursor never does it.
+
+**Rows are in execution order (re-planned 2026-10-07).** Take the first ⬜ row whose dependencies are ✅.
+ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
+row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -300,12 +305,18 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | AP-7 | Schema 3 saved everywhere, teardrop-only migration (D-41, D-46; was AV.4). **Design note first** | AP-6 | yes | yes | ✅ |
 | AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ✅ |
 | AP-9 | Color system: OKLCH, links, palettes | AP-4 | | | ✅ |
+| ST-1 | Art Studio S1: kits, drafts, lint, PNG renders, agent guide | | | | ⬜ |
+| AD-1 | Style exploration sheets for the user (Q17) | ST-1 | | | ⬜ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ⬜ |
+| ST-2 | Art Studio S2: real resolver, try-on, legibility parity (F-33) | ST-1 | | | ⬜ |
+| ST-3 | Art Studio S3: promote and retire | ST-2 | | | ⬜ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
 | AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |
-| AP-13 | Expression art batch 2: the rest of the catalog | AP-6, AP-8 | | | 🎨 ⬜ |
+| AD-2 | 👤 The user picks the art direction from the AD-1 sheets (Q17, Q16) | AD-1 | | | ⬜ 👤 |
+| AD-3 | Apply the art direction: record the decision, restyle shipped art if needed | AD-2, ST-3 | yes | | ⬜ |
+| AP-13 | Expression art batch 2: the rest of the catalog 🎨 | AP-6, AP-8, AD-3 | | | ⬜ |
+| AP-15 | Content waves (AP-15.1–15.9) 🎨 | AP-11, AD-3 | per wave | | ⬜ |
 | AP-14 | Status face picker: any expression as a status. **Design note first** | AP-13, AP-11 | yes | yes | ⬜ |
-| AP-15 | Content waves (AP-15.1–15.9) | AP-11 | per wave | | 🎨 ⬜ |
 | AP-16 | Hardening, performance, accessibility, final report | all above | yes | yes | ⬜ |
 
 ---
@@ -566,7 +577,7 @@ Device screenshots of real home-screen widgets.
 
 ### AP-13 · Expression art batch 2: the rest of the catalog
 
-🎨 **Made with the Art Studio (D-50).** Cursor skips this row. The spec below still defines done.
+🎨 **Made with the Art Studio by Cursor after AD-3 (D-50 as amended 2026-10-07).** The spec below still defines done.
 
 Branch per subgroup, `avatar/ap-13-<subgroup>`. One PR per catalog subgroup, in catalog order.
 Each PR draws the new shapes it needs, wires its expressions, extends the contact sheet, and
@@ -594,7 +605,7 @@ Status Deck flow, device screenshots.
 
 ### AP-15 · Content waves
 
-🎨 **Made with the Art Studio (D-50).** Cursor skips this row. The waves below still define done.
+🎨 **Made with the Art Studio by Cursor after AD-3 (D-50 as amended 2026-10-07).** The waves below still define done.
 
 One branch and PR per wave: `avatar/ap-15-<n>-<category>`. Each wave follows
 [`AUTHORING.md`](AUTHORING.md) and the style guide, passes the pack, legibility and combination

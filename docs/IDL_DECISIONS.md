@@ -306,7 +306,12 @@ kits, checks it with the style lint and the legibility metric, and opens art PRs
 - The Studio may use tool-only Python dependencies, listed in `tools/studio/requirements.txt` and
   installed in its own virtual environment. The app and `tools/asset_pipeline.py` stay
   dependency-free.
-- Claude builds phases S0–S3. Cursor may take S4–S5 from specs.
+- Claude builds phases S0–S3. Cursor may take S4–S5 from specs. **Amended 2026-10-07 (user):**
+  Claude built S0. Cursor builds S1–S3 from `docs/handoff/STUDIO_TASK.md`, and Claude audits.
+  **Amended again 2026-10-07 (the user wants Cursor to run to the end on its own):** Cursor also makes
+  the 🎨 art (AP-13, AP-15) with the Studio, after the user picks the art direction (AD-2). The user
+  merges the **first** art PR after AD-2 (the pilot). After that, Cursor merges its own green art PRs
+  under D-49, and art review stays asynchronous through the review queue.
 - Until about 20 Studio items have shipped, the user merges art PRs (Q-S6 default).
 The Studio never ships in the app. The Base lab is a sandbox; D-45 and D-46 stand.
 

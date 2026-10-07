@@ -8,8 +8,8 @@ required checkpoint report.
 
 **Current work: the avatar program.** Implement `docs/avatar/AVATAR_PROGRAM.md` from start to
 finish, one item at a time, following `docs/handoff/CURSOR_RUNBOOK.md` exactly (D-49). The next
-item is the first ⬜ row in the program's §5 status table whose dependencies are all ✅, skipping
-rows marked 🎨 (Claude makes those with the Art Studio, D-50). At the
+item is the first ⬜ row in the program's §5 status table whose dependencies are all ✅ (rows are in
+execution order; ST and AD rows are specified in `docs/handoff/STUDIO_TASK.md`; never do a 👤 row). At the
 start of every session, run the runbook's §1 steps before anything else.
 
 You may open, self-review and merge your own pull requests under runbook §6. Stop only for the

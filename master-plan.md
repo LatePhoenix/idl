@@ -488,6 +488,30 @@ in one PR.
 - **Verify:** a JVM test with two packs that ship the same relative file name loads each pack's own picture.
 - **Done in AP-2.** `AssetRegistry` records each manifest's directory. `VectorPictureCache` opens `<directory><render.file>`. `PackPictureCacheTest` loads both pictures.
 
+
+#### F-32 · The brimmed cap sits on the forehead · P2 (Claude, Studio S1, 2026-10-07)
+- `hat_brim_cap` (AP-8): the crown spans about y 180–360 and the brim reaches y ~400. The head's crown is at
+  y 96, so the cap looks too small, covers raised brows, and breaks the style guide's lower-edge limit (y 330).
+- **Fix:** redraw it with the Studio after ST-1 (it's the headwear kit's lint test case), or retire it with a mapping.
+  Waits for the user's art direction.
+
+#### F-33 · LegibilityTest counts dark pixels anywhere · P2 (Claude, Studio S1, 2026-10-07)
+- It sums non-skin pixels over the whole 48 px canvas, so dark hair or a hat over the eyes can raise the
+  count and pass. It doesn't check that the eyes and mouth are still visible.
+- **Fix (ST-2):** measure feature pixels inside the eye and mouth zones (see `tools/studio/engine/legibility.py`).
+- **Verify:** a fixture that covers the eyes with a dark shape fails; the shipped items pass.
+
+#### F-34 · Raised brows sit above the hairline limit · P3, needs the user (Q16)
+- The style guide lets front hair reach y 330 at the centre, but raised brows reach y ~271. Hair that follows
+  the guide can hide raised brows (surprise, worry).
+- **Options:** (a) brows draw above front hair; (b) lower the raised-brow shapes; (c) raise the hairline limit.
+
+#### F-35 · Happy faces use the procedural blush · P3 (Claude, Studio S0, 2026-10-07)
+- The emoji pack's smiling expressions list `overlay_blush`, a `core_proto` procedural asset. The vector
+  `overlay_cheek_blush` isn't used by any expression.
+- **Fix:** point those expressions at `overlay_cheek_blush` if that's intended, and check the privacy and widget
+  rules for decoration overlays still hold. **Verify:** the expression contact sheets.
+
 ---
 
 ## 4. Roadmap
@@ -513,7 +537,9 @@ PostgREST tests) can be done at any time.
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
-Rows marked 🎨 (AP-13, AP-15) are made with the Art Studio by Claude (D-50); skip them.
+Rows marked 🎨 (AP-13, AP-15) are art made with the Art Studio after AD-3 (D-50 as amended). **Re-planned 2026-10-07:** the status table is in execution order: ST-1 (Studio), AD-1 (style
+exploration sheets), AP-10, ST-2, ST-3, AP-11, AP-12, AD-2 👤 (the user picks the look), AD-3, AP-13, AP-15, AP-14, AP-16.
+Cursor runs it under D-49 and stops only at AD-2 if nothing else is left.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 
@@ -833,7 +859,7 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-50). The most relevant t
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
 - **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
-- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 move to it, Cursor skips them (2026-10-06, user)
+- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 are made with it (2026-10-06, user; amended 2026-10-07: Cursor builds S1–S3 and makes the art after AD-2)
 
 ---
 
@@ -863,6 +889,13 @@ Answered 2026-10-04 (feature ideas, §7.1):
 | Q13 Redraw the hair? | **Yes**, on the new teardrop base (2026-10-05) | D-42, AV.2 |
 | Q14 What is always free? | **The generous baseline** Claude recommended (2026-10-06) | D-48 |
 | Q15 How much body shows, for shirts? | **(c)** bust in the app, head and collar on widgets (2026-10-06) | D-47 |
+
+Open (2026-10-07):
+
+| Q | Context | Options |
+| --- | --- | --- |
+| Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
+| Q17 The avatar's look | The user is unhappy with the current art. AD-1 produces comparison sheets in `docs/art/exploration/v3/`; the answer is AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | Options A–G from AD-1 |
 
 Open:
 
@@ -1118,3 +1151,5 @@ win once Track 0 is done.
 | 2026-10-06 | User/Claude | Art Studio designed: `docs/avatar/ART_STUDIO.md`; D-50 recorded (Claude Code skill front end, AP-13/AP-15 move to the Studio, tool-only Python deps, Claude builds S0–S3) | branch `tools/art-studio-design` |
 | 2026-10-06 | Claude | Art Studio S0: read-only viewer (`tools/studio/`): Catalog, Workbench, Expressions; preview renderer mirrors the app; 7 engine tests | branch `tools/studio-s0` |
 | 2026-10-07 | Cursor | AP-9: OKLCH shadow/highlight, pack slotLinks + palettes, ContrastWarnings, RENDER_VERSION 3. 286 JVM, lint 0/42. | `docs/handoff/reports/2026-10-07-ap-9-color.md` |
+| 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |
+| 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
