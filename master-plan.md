@@ -4,11 +4,15 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last full review: **2026-10-05 by Claude** (everything through `origin/main` `7a175a6`, PR #23).
+Last status refresh: **2026-10-07** (Cursor handoff before ST-2). `origin/main` is at
+`8989a39` (merge of AP-10 / PR #52). Earlier full review: 2026-10-05 by Claude through PR #23.
 
-**Next work: the avatar program, [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md)
-§5,** run by Cursor on its own under [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md)
-(D-49). §4.0 below points there.
+**Handoff / paused (2026-10-07):** Cursor stopped before ST-2 at the user's request. Parked on
+`main`; keep-working loop killed; no open agent PRs. Resume with **ST-2** (deps ST-1 ✅) from
+[`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 and
+[`docs/handoff/STUDIO_TASK.md`](docs/handoff/STUDIO_TASK.md), under
+[`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md) (D-49). See
+`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`.
 
 ---
 
@@ -43,17 +47,18 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 
 ---
 
-## 1. Current state (2026-10-05)
+## 1. Current state (2026-10-07)
 
 ### 1.1 Branches and CI
 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `5e84e57` (merge of PR #30, 2026-10-06). Start new work from an up-to-date `origin/main` |
-| Open PRs | None |
-| Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`. Safe to delete |
-| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job |
+| `origin/main` | `8989a39` (merge of PR #52 / AP-10, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None (parked; Cursor handoff before ST-2) |
+| Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
+| Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
+| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
 
 ### 1.2 Verified numbers (Claude, 2026-10-05)
 
@@ -534,12 +539,19 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
+**Paused before ST-2 (2026-10-07).** Cursor stopped at the user's request after AD-1 ✅ (#51) and
+AP-10 ✅ (#52). When work resumes, the next ready row is **ST-2** ⬜ (deps ST-1 ✅). Do not mark
+ST-2 🔨 until implementation starts. Handoff:
+[`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
+
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
-Rows marked 🎨 (AP-13, AP-15) are art made with the Art Studio after AD-3 (D-50 as amended). **Re-planned 2026-10-07:** the status table is in execution order: ST-1 (Studio), AD-1 (style
-exploration sheets), AP-10, ST-2, ST-3, AP-11, AP-12, AD-2 👤 (the user picks the look), AD-3, AP-13, AP-15, AP-14, AP-16.
-Cursor runs it under D-49 and stops only at AD-2 if nothing else is left.
+Rows marked 🎨 (AP-13, AP-15) are art made with the Art Studio after AD-3 (D-50 as amended).
+**Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → **ST-2** → ST-3 → AP-11 → AP-12 →
+AD-2 👤 (Q17) → AD-3 → AP-13 → AP-15 → AP-14 → AP-16.
+Cursor runs it under D-49 and stops only at AD-2 if nothing else is left (or when the user
+pauses, as now).
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 
@@ -1157,5 +1169,6 @@ win once Track 0 is done.
 | 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |
 | 2026-10-07 | User/Claude | Re-plan for autonomous Cursor runs: execution-ordered status table with ST-1..3, AD-1 (style sheets), AD-2 👤 (Q17), AD-3 (restyle); AP-11/AP-12 unpaused; Cursor makes 🎨 art after AD-3; D-50 amended (the user merges the pilot art PR) | `docs/handoff/STUDIO_TASK.md` |
 | 2026-10-07 | Cursor | ST-1 Art Studio S1: OKLCH render, CLI (setup/guides/kit/draft/lint/render/geom), drafts UI, agent guide, tests, beanie + curly acceptance sheets | `docs/handoff/reports/2026-10-07-st-1-studio.md` |
-| 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |
-| 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |
+| 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | PR #51, tag `avatar-ad-1`, `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |
+| 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | PR #52, tag `avatar-ap-10`, `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |
+| 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | PR #53, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |

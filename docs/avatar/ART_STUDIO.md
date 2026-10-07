@@ -344,9 +344,9 @@ Small, and mostly already planned:
 
 | Change | Where | Status |
 | --- | --- | --- |
-| Masks, tags, `clipBy` | AP-8 | in progress |
-| OKLCH derivation, links, palettes | AP-9 | done (preview uses the same OKLCH path as `ColorSlots`) |
-| Store fields, `Entitlements`, D-48 guard | AP-10 | planned |
+| Masks, tags, `clipBy` | AP-8 | ✅ |
+| OKLCH derivation, links, palettes | AP-9 | ✅ (preview uses the same OKLCH path as `ColorSlots`) |
+| Store fields, `Entitlements`, D-48 guard | AP-10 | ✅ (PR #52) |
 | `studioResolve` JavaExec entry point (recipe JSON in, resolved draw list JSON out) | new, test source set | Studio S2 |
 | Legibility measure callable from outside the test | small refactor of AP-8's helper | Studio S2 |
 
@@ -374,8 +374,8 @@ Until then, Claude sees renders through the Studio page in the browser pane.
 - **Don't wait for the whole program, and don't collide with it.** S0 and S1 live entirely in
   `tools/studio/`, `.claude/skills/` and this doc. They touch no app code and no files Cursor is
   editing, so they can start now.
-- **S2–S3 need AP-8 (masks), AP-9 (slots and links) and AP-10 (store fields) merged**, so the
-  Studio writes the final formats once. At the current pace that's the next few PRs.
+- **S2–S3 need AP-8 (masks), AP-9 (slots and links) and AP-10 (store fields) merged** — all ✅
+  as of 2026-10-07 — so the Studio writes the final formats once. Next Studio row: ST-2.
 - **Change to the program (D-50):** do AP-13 (expression art batch
   2) and AP-15 (content waves) **with the Studio** instead of having Cursor hand-write path
   data. Cursor continues AP-8 → AP-12 and AP-16 unchanged. That's where the Studio pays for
