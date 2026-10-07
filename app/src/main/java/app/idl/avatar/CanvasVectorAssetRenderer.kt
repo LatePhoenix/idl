@@ -2,6 +2,7 @@ package app.idl.avatar
 
 import android.graphics.Canvas
 import android.graphics.LinearGradient
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
@@ -34,6 +35,7 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
             picture.parts.map { pathOf(it.commands, it.fillRule) },
             picture.clipPaths.associate { it.id to pathOf(it.commands, "nonzero") },
             partIndex = null,
+            publishedMasks = emptyMap(),
         )
     }
 
@@ -47,6 +49,7 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
         partPaths: List<Path>,
         clipPaths: Map<String, Path>,
         partIndex: Int?,
+        publishedMasks: Map<String, Path> = emptyMap(),
     ) {
         val indexes = if (partIndex == null) picture.parts.indices else listOf(partIndex)
         canvas.withSave {
@@ -65,6 +68,15 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
                         val clipPath = clipPaths[clip.id] ?: return@let
                         if (clip.mode == "difference") clipOutPath(clipPath) else clipPath(clipPath)
                     }
+                    // Cross-asset masks are already in viewBox space with the publisher's transforms.
+                    // Map them into the subscriber's local space so clip lines up after item transforms.
+                    val undo = inverseMatrix(defaultTransform, transform)
+                    for (clip in part.clipBy) {
+                        val published = publishedMasks[clip.mask] ?: continue
+                        val local = Path(published)
+                        local.transform(undo)
+                        if (clip.mode == "difference") clipOutPath(local) else clipPath(local)
+                    }
                     paint.shader = null
                     paint.alpha = 255
                     when {
@@ -79,7 +91,6 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
                         }
                     }
                     drawPath(path, paint)
-                    // clipBy is validated on the picture and applied across assets in AP-8.
                     part.stroke?.let { stroke ->
                         paint.style = Paint.Style.STROKE
                         paint.strokeWidth = stroke.width
@@ -95,11 +106,39 @@ class CanvasVectorAssetRenderer : VectorAssetRenderer {
         }
     }
 
+    /** Bakes item transforms into a path in viewBox space (AP-8 published masks). */
+    fun bakeTransform(path: Path, defaultTransform: ItemTransform, transform: ItemTransform): Path {
+        val out = Path(path)
+        out.transform(matrixOf(defaultTransform, transform))
+        return out
+    }
+
     private fun apply(canvas: Canvas, transform: ItemTransform) {
         if (transform.flipHorizontal) canvas.scale(-1f, 1f, 512f, 0f)
         canvas.scale(transform.scale, transform.scale, 512f, 512f)
         canvas.rotate(transform.rotationDeg, 512f, 512f)
         canvas.translate(transform.translateX, transform.translateY)
+    }
+
+    private fun matrixOf(defaultTransform: ItemTransform, transform: ItemTransform): Matrix {
+        val matrix = Matrix()
+        apply(matrix, transform)
+        apply(matrix, defaultTransform)
+        return matrix
+    }
+
+    private fun inverseMatrix(defaultTransform: ItemTransform, transform: ItemTransform): Matrix {
+        val matrix = matrixOf(defaultTransform, transform)
+        val inverse = Matrix()
+        check(matrix.invert(inverse)) { "item transform is not invertible" }
+        return inverse
+    }
+
+    private fun apply(matrix: Matrix, transform: ItemTransform) {
+        if (transform.flipHorizontal) matrix.postScale(-1f, 1f, 512f, 0f)
+        matrix.postScale(transform.scale, transform.scale, 512f, 512f)
+        matrix.postRotate(transform.rotationDeg, 512f, 512f)
+        matrix.postTranslate(transform.translateX, transform.translateY)
     }
 
     private fun linear(gradient: app.idl.domain.avatar.LinearGradient, colors: Map<String, Int>): LinearGradient {

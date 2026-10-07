@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "id": "hat_brim_cap",
+  "contentVersion": 1,
+  "viewBox": 1024,
+  "parts": [
+    {
+      "id": "crown",
+      "zBand": 90,
+      "fill": {
+        "slot": "hat.primary"
+      },
+      "commands": "M 320 280 C 360 180 664 180 704 280 C 720 320 700 360 512 360 C 324 360 304 320 320 280 Z"
+    },
+    {
+      "id": "brim",
+      "zBand": 90,
+      "fill": {
+        "slot": "hat.secondary"
+      },
+      "commands": "M 200 360 C 280 330 744 330 824 360 C 780 400 244 400 200 360 Z",
+      "publishMask": "occlude.hair_top"
+    }
+  ]
+}

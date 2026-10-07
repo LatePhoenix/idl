@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
+     data-schema-version="2" data-id="hat_brim_cap"
+     data-content-version="1">
+  <path data-part="crown" data-z="90" data-slot="hat.primary" d="M 320 280 C 360 180 664 180 704 280 C 720 320 700 360 512 360 C 324 360 304 320 320 280 Z"/>
+  <path data-part="brim" data-z="90" data-slot="hat.secondary" data-publish-mask="occlude.hair_top" d="M 200 360 C 280 330 744 330 824 360 C 780 400 244 400 200 360 Z"/>
+</svg>

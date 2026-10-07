@@ -36,7 +36,7 @@ enum class AssetCategory(val defaultZ: Int, val multiple: Boolean = false, val d
     /** Identity hair. [defaultZ] is unused by the procedural painter; vector parts carry their own band. */
     HAIR(25),
     /** Identity facial hair. Same rule as [HAIR]. */
-    FACIAL_HAIR(35),
+    FACIAL_HAIR(35, multiple = true),
     /** Earrings, piercings, necklaces. Vector parts carry the band. */
     JEWELRY(95, multiple = true),
     /** Shirts, tees, sweaters. Vector parts sit on band 36. */
