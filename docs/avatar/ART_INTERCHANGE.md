@@ -1,6 +1,6 @@
 # Art interchange: iDL Art Studio → iDL app
 
-**Status:** draft for the user's OK, 2026-10-07. **Audience:** the agent working on
+**Status:** accepted 2026-10-07 (D-51). **Audience:** the agent working on
 `Z:\ai-tools\idl-art-studio` (repo `LatePhoenix/idl-art-studio`, the "ai-tools" thread) and the agents
 working on this repo. The art studio treats this file as **read-only**. Changes to it go through a PR here.
 
@@ -205,10 +205,9 @@ through a migration (F-39).
 
 ## 10. Open points for the user
 
-- **D-50 changes.** D-50 says the in-repo Studio makes the art as hand-written SVG. Using the art
-  studio's generated line art becomes a new decision (proposed D-51), and ST-2 / ST-3 shrink to the
-  importer and review sheets in §9.
+- **Decided (D-51).** Item art comes from the studio through this contract; ST-2 is the importer
+  (§9), ST-3 keeps retire. Expression art stays in-repo SVG.
 - **Licensing.** Every item ships as `proprietary-idl` original art. Generated art records its model
-  and seed in `provenance`. Whether that's enough is your call (not legal advice).
+  and seed in `provenance`. Whether that's enough is your call (Q18, not legal advice).
 - **Style (AD-2, Q17).** Line art plus flat fills fits the current style guide. The look of the line
   (weight, roundness) becomes the main style choice.

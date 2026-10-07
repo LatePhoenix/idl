@@ -98,6 +98,10 @@ Branch `tools/studio-s1-cursor`.
 
 ## ST-2 · S2: real resolver, try-on, legibility parity
 
+> **Re-scoped by D-51 (2026-10-07):** ST-2 is now the art importer and review sheets in
+> `docs/avatar/ART_INTERCHANGE.md` §9. Keep the legibility parity fix (F-33) below; the resolver and
+> try-on parts apply only where the review sheets need them.
+
 Branch `tools/studio-s2`.
 
 1. A `studioResolve` Gradle `JavaExec` task on the **unit-test** runtime classpath. Recipe JSON goes
@@ -114,6 +118,8 @@ Branch `tools/studio-s2`.
 fail the new `LegibilityTest` is blocked by `studio lint` first.
 
 ## ST-3 · S3: promote and retire
+
+> **Re-scoped by D-51 (2026-10-07):** promote is the importer (ST-2). ST-3 keeps retire only.
 
 Branch `tools/studio-s3`.
 
