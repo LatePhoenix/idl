@@ -14,7 +14,7 @@ WEB = Path(__file__).resolve().parents[1] / "web"
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "iDLStudio/0"
+    server_version = "iDLStudio/1"
 
     def do_GET(self) -> None:  # noqa: N802 (http.server naming)
         url = urlparse(self.path)
@@ -23,9 +23,29 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(repo.state())
             elif url.path == "/api/source":
                 self._source(parse_qs(url.query))
+            elif url.path == "/api/drafts":
+                self._drafts_list()
+            elif url.path.startswith("/api/drafts/"):
+                self._draft_one(url.path[len("/api/drafts/"):])
+            elif url.path == "/api/guides":
+                self._guides()
             else:
                 self._static(url.path)
         except Exception as error:  # the UI shows the message; the server keeps running
+            self._send(500, "text/plain; charset=utf-8", f"{type(error).__name__}: {error}".encode())
+
+    def do_POST(self) -> None:  # noqa: N802
+        url = urlparse(self.path)
+        length = int(self.headers.get("Content-Length", "0") or 0)
+        body = self.rfile.read(length) if length else b"{}"
+        try:
+            payload = json.loads(body.decode() or "{}")
+            if url.path.startswith("/api/drafts/") and url.path.endswith("/revert"):
+                draft_id = url.path[len("/api/drafts/"):-len("/revert")]
+                self._draft_revert(draft_id, int(payload["n"]))
+            else:
+                self._send(404, "text/plain; charset=utf-8", b"not found")
+        except Exception as error:
             self._send(500, "text/plain; charset=utf-8", f"{type(error).__name__}: {error}".encode())
 
     def _source(self, query: dict[str, list[str]]) -> None:
@@ -40,6 +60,36 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, "text/plain; charset=utf-8", b"no SVG source")
             return
         self._send(200, "text/plain; charset=utf-8", path.read_bytes())
+
+    def _drafts_list(self) -> None:
+        from . import drafts
+        self._json(drafts.all_drafts())
+
+    def _draft_one(self, draft_id: str) -> None:
+        from . import compose, drafts, lint as lint_mod
+        if not drafts.exists(draft_id):
+            self._send(404, "text/plain; charset=utf-8", b"unknown draft")
+            return
+        meta = drafts.load(draft_id)
+        out: dict = {"meta": meta, "svg": None, "picture": None, "lint": [], "error": None}
+        if meta.get("current"):
+            try:
+                out["svg"] = drafts.svg_text(draft_id)
+                out["picture"] = drafts.compile_draft(draft_id)
+                library = compose.Library(drafts.assets_for_preview())
+                out["lint"] = lint_mod.lint(out["picture"], meta, library)
+            except Exception as error:
+                out["error"] = str(error)
+        self._json(out)
+
+    def _draft_revert(self, draft_id: str, n: int) -> None:
+        from . import drafts
+        meta = drafts.revert(draft_id, n)
+        self._json(meta)
+
+    def _guides(self) -> None:
+        from . import guides
+        self._json({"guides": guides.guides(), "overlaySvg": guides.overlay_svg()})
 
     def _static(self, path: str) -> None:
         relative = "index.html" if path in ("", "/") else path.lstrip("/")

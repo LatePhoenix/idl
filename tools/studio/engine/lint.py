@@ -80,7 +80,7 @@ def style(picture: dict, meta: dict) -> list[dict]:
     g = guides.guides()
     head = g["head_outline"]["d"]
     parts = picture["parts"]
-    drawn = [p for p in parts if p.get("opacity", 1) > 0]
+    drawn = [p for p in parts if float(p.get("opacity", 1)) > 0]
     by_name = {p["id"]: p for p in parts}
 
     for part in parts:
@@ -155,8 +155,9 @@ def style(picture: dict, meta: dict) -> list[dict]:
     elif category == "face_accessory":
         limit = kit["rules"]["tintedMaxLensOpacity"] if meta.get("tinted") else kit["rules"]["maxLensOpacity"]
         for part in drawn:
-            if part["fill"].get("slot") == "glasses.lens" and part.get("opacity", 1) > limit:
-                out.append(_issue("error", "lens", f"lens opacity {part.get('opacity', 1)} > {limit}{' (tinted)' if meta.get('tinted') else ''}", part["id"]))
+            opacity = float(part.get("opacity", 1))
+            if part["fill"].get("slot") == "glasses.lens" and opacity > limit:
+                out.append(_issue("error", "lens", f"lens opacity {opacity} > {limit}{' (tinted)' if meta.get('tinted') else ''}", part["id"]))
         frames = [p for p in drawn if p["fill"].get("slot") == "glasses.frame" or (p.get("stroke") or {}).get("slot") == "glasses.frame"]
         if frames:
             l, t, r, b = paths.bounds(paths.union(*[p["commands"] for p in frames]))
