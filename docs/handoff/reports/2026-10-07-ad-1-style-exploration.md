@@ -61,4 +61,7 @@ Results: Studio tests **28 OK**; tools tests **8 OK**; `asset_pipeline.py check`
 
 ## Commits
 
-See `git log --oneline` on this branch after the final commit.
+```
+d5d6c27 Add AD-1 style exploration sheets A–G and mark AD-1 done.
+0b6aa98 Mark AD-1 in progress for style exploration sheets.
+```
