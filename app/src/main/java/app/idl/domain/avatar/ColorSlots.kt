@@ -1,9 +1,11 @@
 package app.idl.domain.avatar
 
 /**
- * Resolves semantic color slots for the vector assets in a draw list.
- * Shadow is the primary mixed 25% toward black. Highlight is the primary mixed 30% toward white.
- * The mix is per channel, the same arithmetic the procedural painter uses.
+ * Resolves semantic color slots for the vector assets in a draw list (AP-9 / §3.5).
+ *
+ * Order for each slot: recipe override → slot link (pack defaults) → OKLCH-derived
+ * shadow/highlight from a recipe-overridden primary → asset default → neutral.
+ * A slot in [AvatarConfiguration.unlinkedSlots] skips derivation and links.
  */
 object ColorSlots {
     const val NEUTRAL: Int = 0xFF9E9E9E.toInt()
@@ -17,29 +19,73 @@ object ColorSlots {
                 declared.putIfAbsent(slot, hex)
             }
         }
-        val resolved = linkedMapOf<String, Int>()
-        for (slot in declared.keys.sorted()) {
-            val override = config.colorOverrides[slot]?.let(::parseHex)
-            val color = when {
-                override != null -> override
-                else -> derived(slot, config) ?: parseHex(declared.getValue(slot)) ?: NEUTRAL
-            }
-            resolved[slot] = color
+        val links = registry.defaults.slotLinks
+        val slots = (declared.keys + config.colorOverrides.keys + links.keys).toSortedSet()
+        val memo = linkedMapOf<String, Int>()
+        val visiting = mutableSetOf<String>()
+        for (slot in slots) {
+            resolveOne(slot, declared, config, links, memo, visiting)
         }
-        return resolved
+        return memo
     }
 
-    private fun derived(slot: String, config: AvatarConfiguration): Int? {
-        val suffix = when {
-            slot.endsWith(".shadow") -> ".shadow"
-            slot.endsWith(".highlight") -> ".highlight"
+    private fun resolveOne(
+        slot: String,
+        declared: Map<String, String>,
+        config: AvatarConfiguration,
+        links: Map<String, String>,
+        memo: MutableMap<String, Int>,
+        visiting: MutableSet<String>,
+    ): Int {
+        memo[slot]?.let { return it }
+        if (!visiting.add(slot)) return NEUTRAL
+        try {
+            val override = config.colorOverrides[slot]?.let(::parseHex)
+            if (override != null) {
+                memo[slot] = override
+                return override
+            }
+            if (slot !in config.unlinkedSlots) {
+                val source = links[slot]
+                if (source != null) {
+                    val linked = resolveOne(source, declared, config, links, memo, visiting)
+                    memo[slot] = linked
+                    return linked
+                }
+                val derived = derivedFromPrimary(slot, declared, config, links, memo, visiting)
+                if (derived != null) {
+                    memo[slot] = derived
+                    return derived
+                }
+            }
+            val fallback = parseHex(declared[slot] ?: "") ?: NEUTRAL
+            memo[slot] = fallback
+            return fallback
+        } finally {
+            visiting.remove(slot)
+        }
+    }
+
+    /**
+     * Shadow and highlight follow their primary only when the user set that primary
+     * (same trigger as the old per-channel mix). Authored defaults stay until then.
+     */
+    private fun derivedFromPrimary(
+        slot: String,
+        declared: Map<String, String>,
+        config: AvatarConfiguration,
+        links: Map<String, String>,
+        memo: MutableMap<String, Int>,
+        visiting: MutableSet<String>,
+    ): Int? {
+        val primarySlot = when {
+            slot.endsWith(".shadow") -> slot.removeSuffix(".shadow") + ".primary"
+            slot.endsWith(".highlight") -> slot.removeSuffix(".highlight") + ".primary"
             else -> return null
         }
-        if (slot in config.unlinkedSlots) return null
-        val primary = config.colorOverrides[slot.removeSuffix(suffix) + ".primary"]?.let(::parseHex) ?: return null
-        val toward = if (suffix == ".shadow") 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
-        val amount = if (suffix == ".shadow") 0.25f else 0.30f
-        return mix(primary, toward, amount)
+        if (config.colorOverrides[primarySlot]?.let(::parseHex) == null) return null
+        val primary = resolveOne(primarySlot, declared, config, links, memo, visiting)
+        return if (slot.endsWith(".shadow")) Oklch.deriveShadow(primary) else Oklch.deriveHighlight(primary)
     }
 
     /** `#RRGGBB` or `#AARRGGBB`. Anything else is ignored. */
@@ -51,7 +97,7 @@ object ColorSlots {
         return if (hex.length == 6) (0xFF000000 or value).toInt() else value.toInt()
     }
 
-    /** Per-channel mix. Alpha of the result is opaque, matching [app.idl.avatar.AvatarRenderer]. */
+    /** Per-channel mix. Kept for procedural painters; vector derivation uses [Oklch]. */
     fun mix(a: Int, b: Int, t: Float): Int {
         fun ch(shift: Int) = (((a shr shift) and 0xFF) * (1 - t) + ((b shr shift) and 0xFF) * t).toInt().coerceIn(0, 255)
         return (0xFF shl 24) or (ch(16) shl 16) or (ch(8) shl 8) or ch(0)

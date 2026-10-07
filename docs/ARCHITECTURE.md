@@ -115,7 +115,12 @@ Slots used by the first packs:
 
 `face.primary`, `face.shadow`, `face.highlight`, `outline`, `eye.iris`, `eye.white`, `mouth`, `hair.primary`, `hair.shadow`, `beard.primary`, `beard.shadow`, `glasses.frame`, `glasses.lens`, `metal.primary`, `gem.primary`, `accessory.primary`, `accessory.secondary`.
 
-Quick mode offers curated swatches. Advanced mode offers HSV, hex, recents, favorites, alpha where the slot allows it, and reset. Highlight and shadow defaults are derived in OKLCH from the primary, then clamped to sRGB. The user can unlink a derived slot. A contrast warning is non-blocking.
+Quick mode offers curated swatches from pack `defaults.palettes` (AP-9). Advanced mode offers
+HSV, hex, recents, favorites, alpha where the slot allows it, and reset. When the user sets a
+primary, its shadow and highlight derive in OKLCH (L −0.12 / chroma ×1.05 and L +0.10 /
+chroma ×0.9), then clamp to sRGB. Pack `slotLinks` make `brow.primary` and `beard.primary`
+follow `hair.primary` unless overridden or unlinked. A contrast warning is non-blocking
+(`ContrastWarnings`).
 
 Core expressions and the default face stay free (invariant 6). Charge may later gate extra accessories (D-30). It does not gate the emotional set.
 
