@@ -400,5 +400,56 @@ class ImportArtApplyTest(unittest.TestCase):
         return self.paths.packs / "emoji_core" / "v2" / "pictures" / f"{asset_id}.json"
 
 
+class ImportArtSheetsTest(unittest.TestCase):
+    def setUp(self):
+        manifest = json.loads(
+            (ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core" / "v2" / "manifest.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assets = manifest["assets"]
+
+    def test_glasses_are_shown_beside_the_hat(self):
+        self.assertEqual(import_art.sheet_neighbors(self.assets, "glasses_round_wire"), ["hat_brim_cap"])
+        self.assertEqual(import_art.sheet_neighbors(self.assets, "hat_brim_cap"), ["glasses_round_wire"])
+
+    def test_hair_is_shown_beside_hats(self):
+        self.assertIn("hat_brim_cap", import_art.sheet_neighbors(self.assets, "hair_bob"))
+
+    def test_a_top_has_no_hat_or_glasses_neighbor(self):
+        self.assertEqual(import_art.sheet_neighbors(self.assets, "top_crew_tee"), [])
+
+    def test_expressions_are_neutral_smile_and_open(self):
+        labels = [label for label, _expression, _mouth in import_art.SHEET_EXPRESSIONS]
+        self.assertEqual(labels, ["neutral", "smile", "open"])
+
+    def test_sheets_usage(self):
+        self.assertEqual(import_art.main(["import_art.py", "sheets"]), 2)
+
+    def test_sheets_command_writes_a_png_when_skia_is_installed(self):
+        venv_python = ROOT / "tools" / "studio" / ".venv" / "Scripts" / "python.exe"
+        if not venv_python.is_file():
+            venv_python = ROOT / "tools" / "studio" / ".venv" / "bin" / "python"
+        if not venv_python.is_file():
+            self.skipTest("studio venv is not installed; CI does not render sheets")
+        with tempfile.TemporaryDirectory() as tmp:
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "studio" / "studio.py"),
+                    "sheets",
+                    "glasses_round_wire",
+                    "--out",
+                    tmp,
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            png = Path(tmp) / "review.png"
+            self.assertGreater(png.stat().st_size, 1000)
+
+
 if __name__ == "__main__":
     unittest.main()
