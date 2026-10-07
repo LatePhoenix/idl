@@ -1171,4 +1171,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | ST-1 Art Studio S1: OKLCH render, CLI (setup/guides/kit/draft/lint/render/geom), drafts UI, agent guide, tests, beanie + curly acceptance sheets | `docs/handoff/reports/2026-10-07-st-1-studio.md` |
 | 2026-10-07 | Cursor | AD-1 style exploration sheets A–G (sandbox explore SVGs + v3 sheets/overview); recommend F for Q17 | PR #51, tag `avatar-ad-1`, `docs/handoff/reports/2026-10-07-ad-1-style-exploration.md` |
 | 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | PR #52, tag `avatar-ap-10`, `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |
-| 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | this PR, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |
+| 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | PR #53, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |
