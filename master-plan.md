@@ -591,7 +591,9 @@ ST-2 🔨 until implementation starts. Handoff:
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
-Rows marked 🎨 (AP-13, AP-15) are art made with the Art Studio after AD-3 (D-50 as amended).
+Rows marked 🎨 (AP-13, AP-15) are art made after AD-3. **D-51 (2026-10-07):** AP-15 item art comes from the
+external `idl-art-studio` through the importer (ST-2, contract `docs/avatar/ART_INTERCHANGE.md`); AP-13 expression
+art stays in-repo SVG.
 **Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → **ST-2** → ST-3 → AP-11 → AP-12 →
 AD-2 👤 (Q17) → AD-3 → AP-13 → AP-15 → AP-14 → AP-16.
 Cursor runs it under D-49 and stops only at AD-2 if nothing else is left (or when the user
@@ -873,7 +875,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-50). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-51). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -918,7 +920,8 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-50). The most relevant t
 - **D-47** Bust framing in the app, head-and-collar framing on widgets (2026-10-06, user; Q15 = c)
 - **D-48** Generous free baseline: every expression and color, 12+ hairstyles, basics in each category (2026-10-06, user; Q14)
 - **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
-- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 are made with it (2026-10-06, user; amended 2026-10-07: Cursor builds S1–S3 and makes the art after AD-2)
+- **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 are made with it (2026-10-06, user; amended 2026-10-07: Cursor builds S1–S3 and makes the art after AD-2). Item art part superseded by D-51
+- **D-51** Item art (hair, accessories, clothes, props) comes from the external `idl-art-studio` as line art plus slot-labelled regions, through `art/incoming/` and an app-side importer; contract `docs/avatar/ART_INTERCHANGE.md`. ST-2 becomes the importer, ST-3 keeps retire. Expressions stay in-repo SVG (2026-10-07, user)
 
 ---
 
@@ -954,7 +957,8 @@ Open (2026-10-07):
 | Q | Context | Options |
 | --- | --- | --- |
 | Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
-| Q17 The avatar's look | The user is unhappy with the current art. AD-1 sheets are in `docs/art/exploration/v3/` (see README). Answer under AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | **A** Current (shipped baseline) · **B** Bold and flat (40–48 outlines, no face gradient) · **C** Big-eye soft (larger/lower eyes, smaller mouth) · **D** Cel-shaded (two-tone + rim light) · **E** Sticker (light border + dark outline) · **F** Readable volume (proposal: keep gradient, fix hair for 48 px) · **G** Rounder head (reopens D-45/D-46). Agent leans **F**; hybrids ok (e.g. F + E’s border). |
+| Q17 The avatar's look | The user is unhappy with the current art. D-51: answer from the `idl-art-studio` line-art samples too. AD-1 sheets are in `docs/art/exploration/v3/` (see README). Answer under AD-2. The restyle (AD-3), AP-13 and AP-15 wait for it | **A** Current (shipped baseline) · **B** Bold and flat (40–48 outlines, no face gradient) · **C** Big-eye soft (larger/lower eyes, smaller mouth) · **D** Cel-shaded (two-tone + rim light) · **E** Sticker (light border + dark outline) · **F** Readable volume (proposal: keep gradient, fix hair for 48 px) · **G** Rounder head (reopens D-45/D-46). Agent leans **F**; hybrids ok (e.g. F + E’s border). |
+| Q18 Licensing of generated item art | D-51: item art is generated with local models (SDXL + ControlNet) and ships as `license: proprietary-idl` with per-item provenance | (a) provenance is enough · (b) also check each model's license terms before the first art PR · (c) get legal advice before shipping generated art |
 
 Open:
 
@@ -1217,3 +1221,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | AP-10 store-ready: Entitlements, NeedsEntitlement, D-48 guard, sample PREMIUM | PR #52, tag `avatar-ap-10`, `docs/handoff/reports/2026-10-07-ap-10-store-ready.md` |
 | 2026-10-07 | Cursor | Handoff / paused before ST-2 (user request): status docs + Claude handoff note; ST-2 not started | PR #53, `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md` |
 | 2026-10-07 | Claude | Audit of #50–#53 (ST-1, AD-1, AP-10, handoff): check.sh green (296 tests, lint 0), Studio 28/28. F-36 fixed (legacy pixel/neon-city avatars locked by AP-10's premium samples); F-37–F-40 recorded; AD-1 sheets flagged before AD-2 (F-38) | `docs/handoff/reports/2026-10-07-audit-st1-ad1-ap10.md` |
+| 2026-10-07 | User/Claude | D-51: item art comes from the external `idl-art-studio` as line art + slot-labelled regions; contract `docs/avatar/ART_INTERCHANGE.md`; ST-2 re-scoped to the importer, ST-3 to retire; Q18 licensing | PR #55 |

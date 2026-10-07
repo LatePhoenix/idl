@@ -314,6 +314,30 @@ kits, checks it with the style lint and the legibility metric, and opens art PRs
   under D-49, and art review stays asynchronous through the review queue.
 - Until about 20 Studio items have shipped, the user merges art PRs (Q-S6 default).
 The Studio never ships in the app. The Base lab is a sandbox; D-45 and D-46 stand.
+**Partly superseded by D-51 (2026-10-07):** item art no longer comes from hand-written SVG in the
+in-repo Studio.
+
+**D-51 · Item art comes from the external iDL Art Studio as line art (user, 2026-10-07).** Avatar
+customizations and accessories (hair, facial hair, headwear, eyewear, jewelry, tops, outerwear, props,
+and later backgrounds and frames) are generated in the separate repo `LatePhoenix/idl-art-studio`
+(`Z:\ai-tools\idl-art-studio`, local ComfyUI). The contract is `docs/avatar/ART_INTERCHANGE.md`:
+- The studio makes **black line art**, closes it into regions and labels each region with a color
+  slot. The app does all coloring through slots (AP-9), and later textures (pattern fills clipped to
+  regions, a separate spec). One drawing covers every colorway.
+- The studio's rig uses the app's head and face geometry (spec §2–§3). The app's 1024 grid, slots,
+  bands and ids stay the app's to define.
+- The studio writes only `art/incoming/<assetId>/` in this repo and never runs git here. An app-side
+  importer (`tools/import_art.py`) validates, imports, renders review sheets and opens the PR.
+- Replaces from D-50: "Claude writes pipeline SVG" and "Cursor makes the 🎨 art with the Studio" for
+  item art. AP-15 content waves come through the importer. Expression parts (AP-13: eyes, brows,
+  mouths, overlays) stay hand-authored SVG in this repo unless the user moves them too.
+- The in-repo `tools/studio/` stays as the review and checking tool (render sheets, lint, legibility).
+  ST-2 becomes the importer plus review sheets; ST-3 keeps only retire.
+- Art PRs: the user merges them until about 20 imported items have shipped (D-50's Q-S6 rule carries
+  over); after that, review stays asynchronous through the review queue.
+- Each item records its provenance (tool commit, model, ControlNet, seed, prompt). Licensing of
+  generated art is open (Q18).
+- Q17 (art direction) is answered from the studio's line-art samples, not only the AD-1 sheets.
 
 ## High-risk decisions to watch
 
