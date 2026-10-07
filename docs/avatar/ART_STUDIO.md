@@ -345,7 +345,7 @@ Small, and mostly already planned:
 | Change | Where | Status |
 | --- | --- | --- |
 | Masks, tags, `clipBy` | AP-8 | in progress |
-| OKLCH derivation, links, palettes | AP-9 | planned |
+| OKLCH derivation, links, palettes | AP-9 | done (preview uses the same OKLCH path as `ColorSlots`) |
 | Store fields, `Entitlements`, D-48 guard | AP-10 | planned |
 | `studioResolve` JavaExec entry point (recipe JSON in, resolved draw list JSON out) | new, test source set | Studio S2 |
 | Legibility measure callable from outside the test | small refactor of AP-8's helper | Studio S2 |

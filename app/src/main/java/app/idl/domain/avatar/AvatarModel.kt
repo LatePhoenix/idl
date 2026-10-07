@@ -111,7 +111,7 @@ data class AvatarConfiguration(
 
     companion object {
         const val SCHEMA_VERSION = 3
-        const val RENDER_VERSION = 2
+        const val RENDER_VERSION = 3
         const val DEFAULT_PACK_ID = "core_proto"
 
         /** Decode a stored or received recipe and upgrade schema 2 to [SCHEMA_VERSION]. */

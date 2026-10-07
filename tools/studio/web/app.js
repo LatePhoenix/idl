@@ -280,12 +280,13 @@ function renderWorkbench() {
     el('button', { onclick: () => { bench = defaultRecipe(); saveBench(); renderWorkbench(); } }, 'Reset'),
     el('button', { onclick: () => navigator.clipboard?.writeText(JSON.stringify(recipeJson(), null, 2)) }, 'Copy recipe JSON')));
 
+  const slotLinks = vectorPack().defaults?.slotLinks || {};
   const preview = el('div', {},
-    el('h3', {}, 'Head framing (widgets)'), sizeSheet(list, { framing: 'head', frameStyle: bench.frameStyle, overrides: bench.overrides }),
-    el('h3', {}, 'Bust framing (profile, editor, export)'), sizeSheet(list, { framing: 'bust', frameStyle: bench.frameStyle, overrides: bench.overrides }),
+    el('h3', {}, 'Head framing (widgets)'), sizeSheet(list, { framing: 'head', frameStyle: bench.frameStyle, overrides: bench.overrides, slotLinks }),
+    el('h3', {}, 'Bust framing (profile, editor, export)'), sizeSheet(list, { framing: 'bust', frameStyle: bench.frameStyle, overrides: bench.overrides, slotLinks }),
     el('h3', {}, '512'),
     el('div', { class: 'row' },
-      el('div', { class: 'wall light' }, avatarCanvas(512, list, { framing: bench.framing, frameStyle: bench.frameStyle, overrides: bench.overrides })),
+      el('div', { class: 'wall light' }, avatarCanvas(512, list, { framing: bench.framing, frameStyle: bench.frameStyle, overrides: bench.overrides, slotLinks })),
       el('div', {}, ['head', 'bust'].map((f) => el('button', { class: f === bench.framing ? 'on' : '', onclick: () => update({ framing: f }) }, f)))),
     el('h3', {}, 'Layers in draw order'),
     el('div', { class: 'muted' }, list.map((a) => a.id).join(' · ')),

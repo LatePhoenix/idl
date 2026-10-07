@@ -110,8 +110,8 @@ class VectorResolverTest {
         assertEquals(0xFF010203.toInt(), overridden.colorSlots.getValue("hair.shadow"))
 
         val derived = resolver.resolve(request(colored(mapOf("hair.primary" to "#336699"))))
-        assertEquals(ColorSlots.mix(primary, 0xFF000000.toInt(), 0.25f), derived.colorSlots.getValue("hair.shadow"))
-        assertEquals(ColorSlots.mix(primary, 0xFFFFFFFF.toInt(), 0.30f), derived.colorSlots.getValue("hair.highlight"))
+        assertEquals(Oklch.deriveShadow(primary), derived.colorSlots.getValue("hair.shadow"))
+        assertEquals(Oklch.deriveHighlight(primary), derived.colorSlots.getValue("hair.highlight"))
 
         val invalid = resolver.resolve(request(colored(mapOf("hair.primary" to "nope"))))
         assertEquals(0xFF112233.toInt(), invalid.colorSlots.getValue("hair.primary"))
