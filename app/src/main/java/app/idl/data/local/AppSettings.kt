@@ -23,6 +23,7 @@ class AppSettings(private val context: Context) {
         val notifyPresence = booleanPreferencesKey("notify_presence")
         val notifyRequests = booleanPreferencesKey("notify_requests")
         val simulateOffline = booleanPreferencesKey("debug_simulate_offline")
+        val unlockAllItems = booleanPreferencesKey("debug_unlock_all_items")
         val askedNotificationPermission = booleanPreferencesKey("asked_notification_permission")
         val wallpaperContrast = stringPreferencesKey("wallpaper_contrast")
     }
@@ -37,6 +38,8 @@ class AppSettings(private val context: Context) {
     }
 
     val simulateOffline: Flow<Boolean> = context.dataStore.data.map { it[Keys.simulateOffline] ?: false }
+    /** Debug-only: treat every premium catalog item as owned (AP-10 / D-48). */
+    val unlockAllItems: Flow<Boolean> = context.dataStore.data.map { it[Keys.unlockAllItems] ?: false }
     val askedNotificationPermission: Flow<Boolean> = context.dataStore.data.map { it[Keys.askedNotificationPermission] ?: false }
 
     val wallpaperContrast: Flow<WallpaperContrastPreference> = context.dataStore.data.map {
@@ -49,6 +52,7 @@ class AppSettings(private val context: Context) {
     suspend fun setNotifyPresence(v: Boolean) = set(Keys.notifyPresence, v)
     suspend fun setNotifyRequests(v: Boolean) = set(Keys.notifyRequests, v)
     suspend fun setSimulateOffline(v: Boolean) = set(Keys.simulateOffline, v)
+    suspend fun setUnlockAllItems(v: Boolean) = set(Keys.unlockAllItems, v)
     suspend fun setAskedNotificationPermission() = set(Keys.askedNotificationPermission, true)
     suspend fun wallpaperContrastNow() = wallpaperContrast.first()
     suspend fun setWallpaperContrast(value: WallpaperContrastPreference) = set(Keys.wallpaperContrast, value.name.lowercase())

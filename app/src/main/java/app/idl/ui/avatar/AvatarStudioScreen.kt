@@ -83,8 +83,9 @@ class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() {
         val id = userId ?: return@launch
         if (blocked) return@launch
         val saved = c.avatars.save(id, config.value)
-        if (saved.exceptionOrNull()?.message == AvatarWrite.NeedsAppUpdate.message) {
-            notice.value = AvatarWrite.NeedsAppUpdate.message.replaceFirstChar { it.uppercase() }
+        val err = saved.exceptionOrNull()?.message
+        if (err == AvatarWrite.NeedsAppUpdate.message || err?.startsWith("unlock ") == true) {
+            notice.value = err.replaceFirstChar { it.uppercase() }
             return@launch
         }
         then()

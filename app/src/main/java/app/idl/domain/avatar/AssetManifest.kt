@@ -90,6 +90,12 @@ data class AssetDef(
     val render: AssetRender = AssetRender(),
     val collection: String = "core",
     val tier: AssetTier = AssetTier.FREE,
+    /** Charge price when [tier] is [AssetTier.PREMIUM]; null means free / not for sale. */
+    val price: Int? = null,
+    /** Drop or season label, e.g. `core`, `2026_winter`. */
+    val releaseTag: String = "core",
+    /** When false, the store and pickers hide the item (still renderable if already saved). */
+    val storeVisible: Boolean = true,
     /** Base asset IDs this works on; empty means every base. */
     val compatibleBases: List<String> = emptyList(),
     /** Treated symmetrically: if either side lists the other, they conflict. */

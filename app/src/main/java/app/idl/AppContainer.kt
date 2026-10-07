@@ -8,6 +8,7 @@ import app.idl.data.local.AppSettings
 import app.idl.domain.avatar.AssetPacks
 import app.idl.domain.avatar.AssetRegistry
 import app.idl.domain.avatar.ExpressionCatalog
+import app.idl.domain.avatar.LocalEntitlements
 import app.idl.data.local.IdlDatabase
 import app.idl.data.push.MockPushSource
 import app.idl.data.push.PushHandler
@@ -54,6 +55,8 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val assetRegistry: AssetRegistry by lazy {
         AssetPacks.registry { path -> app.assets.open(path).bufferedReader().use { it.readText() } }
     }
+    /** Demo entitlements; [LocalEntitlements.unlockAll] follows the debug setting. */
+    val entitlements: LocalEntitlements by lazy { LocalEntitlements(assetRegistry) }
     val vectorPictures = VectorPictureCache(
         packDirectory = { asset -> assetRegistry.packDirectory(asset.id) },
     ) { path ->
@@ -88,7 +91,7 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
     val scheduler = WorkSyncScheduler(app)
 
     val session = SessionRepository(db, dao, backend, auth, widgets, renders, registry = { assetRegistry })
-    val avatars = AvatarRepository(dao, backend, widgets, registry = { assetRegistry })
+    val avatars = AvatarRepository(dao, backend, widgets, registry = { assetRegistry }, entitlements = { entitlements })
     val presence = PresenceRepository(dao, backend, clock, widgets, scheduler, renders)
     val friends = FriendsRepository(dao, backend, presence, widgets, renders)
     val reactions = ReactionRepository(dao, backend, clock)
@@ -105,6 +108,9 @@ class AppContainer(context: Context, val clock: IdlClock = IdlClock.SYSTEM) {
         }
         fakeBackend?.let { fake ->
             scope.launch { settings.simulateOffline.distinctUntilChanged().collect { fake.simulateOffline = it } }
+        }
+        scope.launch {
+            settings.unlockAllItems.distinctUntilChanged().collect { entitlements.unlockAll = it }
         }
         IdlLog.i("app.start", "backend" to if (isRemote) "supabase" else "fake")
         SystemWallpaperContrast(app).listen {
