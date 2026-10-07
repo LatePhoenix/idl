@@ -49,6 +49,7 @@ fun AvatarImage(
     size: Dp = 96.dp,
     badges: AvatarBadges? = null,
     presence: VisiblePresence = VisiblePresence.NONE,
+    target: RenderTarget? = null,
 ) {
     val container = LocalContext.current.container
     Canvas(
@@ -59,7 +60,7 @@ fun AvatarImage(
         drawIntoCanvas { canvas ->
             val registry = container.assetRegistry
             val sizePx = this.size.minDimension
-            val target = when {
+            val chosen = target ?: when {
                 sizePx >= 256f -> RenderTarget.PROFILE
                 sizePx >= 96f -> RenderTarget.FRIEND_TILE
                 else -> RenderTarget.COMPACT_WIDGET
@@ -68,7 +69,7 @@ fun AvatarImage(
                 AvatarRenderRequest(
                     configuration = configuration,
                     presence = presence,
-                    target = target,
+                    target = chosen,
                     sizePx = sizePx.toInt().coerceAtLeast(1),
                 ),
             )

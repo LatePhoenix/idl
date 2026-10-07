@@ -37,10 +37,7 @@ import app.idl.AppContainer
 import app.idl.R
 import app.idl.avatar.AvatarImage
 import app.idl.data.repo.idlError
-import app.idl.domain.AvatarConfig
-import app.idl.domain.AvatarPalette
-import app.idl.domain.BaseForm
-import app.idl.domain.Expression
+import app.idl.domain.avatar.EditorDefaults
 import app.idl.domain.Usernames
 import kotlinx.coroutines.launch
 
@@ -88,10 +85,11 @@ fun OnboardingScreen(c: AppContainer, onCreated: () -> Unit, onReturning: () -> 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            val samples = remember { EditorDefaults.onboardingSamples(c.assetRegistry) }
             Row(horizontalArrangement = Arrangement.spacedBy((-12).dp), modifier = Modifier.padding(top = 32.dp)) {
-                AvatarImage(AvatarConfig(BaseForm.FOX, AvatarPalette.body[10], expression = Expression.HAPPY, themeColor = AvatarPalette.theme[2]), "", size = 72.dp)
-                AvatarImage(AvatarConfig(BaseForm.GHOST, AvatarPalette.body[8], expression = Expression.SLEEPY), "", size = 88.dp)
-                AvatarImage(AvatarConfig(BaseForm.ROBOT, AvatarPalette.body[9], expression = Expression.FOCUSED, themeColor = AvatarPalette.theme[1]), "", size = 72.dp)
+                samples.forEachIndexed { index, sample ->
+                    AvatarImage(sample, "Example avatar ${index + 1}", size = if (index == 1) 88.dp else 72.dp)
+                }
             }
             Image(
                 painterResource(R.drawable.wordmark),

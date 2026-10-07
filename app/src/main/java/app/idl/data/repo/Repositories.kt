@@ -201,6 +201,27 @@ class AvatarRepository(
             }
         }
     }
+
+    /** Save a schema 3 recipe from the editor. Premium items the user does not own are refused. */
+    suspend fun saveRecipe(userId: String, recipe: AvatarConfiguration): Result<AvatarConfiguration> {
+        val reg = registry()
+        val stored = dao.avatarNow(userId)?.json
+        if (stored != null && StoredAvatar.read(stored, reg) == null) {
+            return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
+        }
+        return when (val write = recipe.prepareForWrite(reg.baseFamilies, reg, entitlements())) {
+            is AvatarWrite.NeedsAppUpdate ->
+                Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
+            is AvatarWrite.NeedsEntitlement ->
+                Result.failure(IllegalStateException(write.message))
+            is AvatarWrite.Ready -> {
+                val ready = write.configuration
+                dao.upsertAvatar(AvatarEntity(userId, IdlJson.encodeToString(AvatarConfiguration.serializer(), ready)))
+                widgets.selfChanged()
+                attempt { backend.putAvatar(ready) }.map { ready }
+            }
+        }
+    }
 }
 
 class PresenceRepository(
