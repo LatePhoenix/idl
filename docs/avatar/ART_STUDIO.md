@@ -355,7 +355,7 @@ Small, and mostly already planned:
 | # | Phase | Delivers | Acceptance | Status |
 | --- | --- | --- | --- | --- |
 | S0 | Viewer | Engine skeleton, `list/show`, Catalog, Workbench and Expressions views (read-only), browser preview | Every shipped asset renders in the Studio at 48/96/512 and matches its contact sheet by eye | ✅ `tools/studio/` |
-| S1 | Kits and drafts | Kits for hair, headwear, eyewear, facial hair; guides; geometry helpers; drafts and revisions; style lint; `render` to PNG from the CLI | An agent following the guide (Claude Code skill or Cursor rule) makes a beanie and a hairstyle that pass lint, from one prompt each | ⬜ ST-1 |
+| S1 | Kits and drafts | Kits for hair, headwear, eyewear, facial hair; guides; geometry helpers; drafts and revisions; style lint; `render` to PNG from the CLI | An agent following the guide (Claude Code skill or Cursor rule) makes a beanie and a hairstyle that pass lint, from one prompt each | ✅ ST-1 |
 | S2 | Real resolve and legibility | `studioResolve`, try-on matrix, legibility metric, parity test | Try-on matches the app's occlusion; a draft that fails `LegibilityTest` is blocked in the Studio first | ⬜ |
 | S3 | Promote and PR | `promote`, `retire`, branch, check, PR with sheets, review-queue rows | One prompt → a green PR that adds an item, with no hand edits | ⬜ |
 | S4 | Expressions and families | Expressions grid, shape blast radius, parametric hair/glasses/hat generators, texture matrix | All missing catalog shapes drafted; one hair style shipped in 4 textures | ⬜ |

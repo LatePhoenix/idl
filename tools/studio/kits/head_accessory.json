@@ -1,0 +1,93 @@
+{
+  "category": "head_accessory",
+  "label": "Headwear",
+  "idPrefix": "hat_",
+  "schemaVersion": 2,
+  "bands": [
+    20,
+    90
+  ],
+  "colorSlots": {
+    "hat.primary": "#3A5A8C",
+    "hat.secondary": "#2A4068",
+    "hat.shadow": "#2B4369",
+    "hat.highlight": "#6F8CB8",
+    "outline": "#7A4E00"
+  },
+  "skeleton": [
+    {
+      "part": "hair_mask",
+      "band": 90,
+      "slot": "hat.primary",
+      "opacity": 0,
+      "publishMask": "occlude.hair_top",
+      "required": true,
+      "about": "Invisible (opacity 0). Covers everything above the hat's lower edge so hair_top that would poke out above or through the hat is hidden. Usually: the crown shape grown by ~10, plus the area above it."
+    },
+    {
+      "part": "back",
+      "band": 20,
+      "slot": "hat.secondary",
+      "required": false,
+      "about": "Parts behind the head (a beanie's back, a hood's back, a brim seen behind the head)."
+    },
+    {
+      "part": "crown",
+      "band": 90,
+      "slot": "hat.primary",
+      "required": true,
+      "about": "The body of the hat. It sits ON the head: it covers the crown point and is wider than the head where it meets it."
+    },
+    {
+      "part": "band",
+      "band": 90,
+      "slot": "hat.secondary",
+      "required": false,
+      "about": "Cuff, ribbon or band near the lower edge."
+    },
+    {
+      "part": "brim",
+      "band": 90,
+      "slot": "hat.secondary",
+      "required": false,
+      "about": "Brim or visor."
+    },
+    {
+      "part": "shade",
+      "band": 90,
+      "slot": "hat.shadow",
+      "required": true,
+      "about": "One shade shape, lower right."
+    },
+    {
+      "part": "highlight",
+      "band": 90,
+      "slot": "hat.highlight",
+      "required": false,
+      "about": "Optional highlight, upper left."
+    }
+  ],
+  "tryOn": [
+    [
+      "hair_bob"
+    ],
+    [
+      "hair_long_straight"
+    ],
+    [
+      "hair_short_crop"
+    ],
+    [
+      "glasses_round_wire",
+      "hair_bob"
+    ]
+  ],
+  "tips": [
+    "The head's crown is at y 96 and the head is 760 wide at y 476. A hat that fits must reach the head's sides: compare with head_rows (at y 300 the head spans x 172..852).",
+    "Lower edge at or above y 330 at the centre (hairline_max), except items whose job is to cover the eyes.",
+    "Hats are bigger than they look: at 48 px a believable beanie covers y ~40..330 and spans x ~150..874.",
+    "Use offset(head_top_cap, 24) as a starting crown for close-fitting hats (beanies, caps).",
+    "Give the hat a readable silhouette at 48 px: a pom-pom, a brim or a cuff makes it read as a hat and not as hair."
+  ],
+  "styleGuide": "docs/avatar/ART_STYLE_GUIDE.md"
+}

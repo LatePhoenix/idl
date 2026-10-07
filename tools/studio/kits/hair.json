@@ -1,0 +1,96 @@
+{
+  "category": "hair",
+  "label": "Hair",
+  "idPrefix": "hair_",
+  "schemaVersion": 2,
+  "bands": [
+    20,
+    70
+  ],
+  "colorSlots": {
+    "hair.primary": "#5B3A29",
+    "hair.shadow": "#3E271B",
+    "hair.highlight": "#8C7569"
+  },
+  "skeleton": [
+    {
+      "part": "back",
+      "band": 20,
+      "slot": "hair.shadow",
+      "tags": [
+        "hair_back"
+      ],
+      "required": false,
+      "about": "Hair behind the head and shoulders (long hair, volume at the sides). Only the part outside head_outline shows. Never a full circle behind the head."
+    },
+    {
+      "part": "side",
+      "band": 70,
+      "slot": "hair.primary",
+      "tags": [
+        "hair_side"
+      ],
+      "required": false,
+      "about": "Hair over the sides of the face, outside expression_zone (sideburns, curtains, bob sides)."
+    },
+    {
+      "part": "top",
+      "band": 70,
+      "slot": "hair.primary",
+      "tags": [
+        "hair_top"
+      ],
+      "clipBy": [
+        "occlude.hair_top:difference"
+      ],
+      "required": true,
+      "about": "The hair cap over the crown with a curved hairline and a visible part. Hats hide it through the occlude.hair_top mask."
+    },
+    {
+      "part": "shade",
+      "band": 70,
+      "slot": "hair.shadow",
+      "tags": [
+        "hair_top"
+      ],
+      "clipBy": [
+        "occlude.hair_top:difference"
+      ],
+      "required": true,
+      "about": "One shade shape, lower right of the top part (light comes from the upper left)."
+    },
+    {
+      "part": "highlight",
+      "band": 70,
+      "slot": "hair.highlight",
+      "tags": [
+        "hair_top"
+      ],
+      "clipBy": [
+        "occlude.hair_top:difference"
+      ],
+      "required": true,
+      "about": "At least one visible strand or sheen, upper left. It carries the user's highlight color."
+    }
+  ],
+  "tryOn": [
+    [
+      "hat_brim_cap"
+    ],
+    [
+      "glasses_round_wire"
+    ],
+    [
+      "beard_full"
+    ]
+  ],
+  "tips": [
+    "Start the top part from guides head_top_cap or offset(head_outline, 20..40) intersected with the area above the hairline, then carve the hairline as a curve, not a straight band.",
+    "The hairline sits at or above y 330 at the centre (hairline_max). Raised brows reach y ~271, so bangs that drop below ~300 hide raised brows: keep them high or accept the warning knowingly.",
+    "Volume: let the top extend 20-60 units outside head_outline around the crown so it reads as hair at 48 px, not as a painted scalp.",
+    "Every texture works with every style (D-48). Curly and coily styles read through a bumpy silhouette (smooth_closed with many points), not through tiny curls.",
+    "Long hair falls behind the shoulders on band 20; it can extend into the body region (y up to 1536).",
+    "Avoid anything that looks like a hood, helmet or headband at 48 px: break the silhouette with a part line, a fringe edge or volume."
+  ],
+  "styleGuide": "docs/avatar/ART_STYLE_GUIDE.md"
+}

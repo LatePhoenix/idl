@@ -1,0 +1,4 @@
+# Art Studio tool-only dependencies (D-50). Never used by the app or asset_pipeline.py.
+# Install: python tools/studio/studio.py setup
+skia-python==144.0.post2
+numpy==2.5.3

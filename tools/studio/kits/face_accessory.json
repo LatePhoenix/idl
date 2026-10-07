@@ -1,0 +1,59 @@
+{
+  "category": "face_accessory",
+  "label": "Eyewear",
+  "idPrefix": "glasses_",
+  "schemaVersion": 2,
+  "bands": [
+    80
+  ],
+  "colorSlots": {
+    "glasses.frame": "#2B2B2B",
+    "glasses.lens": "#6FA8DC"
+  },
+  "skeleton": [
+    {
+      "part": "lenses",
+      "band": 80,
+      "slot": "glasses.lens",
+      "opacity": 0.35,
+      "required": true,
+      "about": "Lens fills centred on eye_centres. Opacity at most 0.35 (clear) or 0.75 (sunglasses)."
+    },
+    {
+      "part": "frames",
+      "band": 80,
+      "slot": "glasses.frame",
+      "required": true,
+      "about": "Rims (evenodd rings or a stroke) plus a bridge centred on x 512. Rim thickness at least 24."
+    },
+    {
+      "part": "arms",
+      "band": 80,
+      "slot": "glasses.frame",
+      "required": false,
+      "about": "Short arms from the outer rims to the temples (anchors temple_left/right)."
+    }
+  ],
+  "rules": {
+    "maxLensOpacity": 0.35,
+    "tintedMaxLensOpacity": 0.75
+  },
+  "tryOn": [
+    [
+      "hair_bob"
+    ],
+    [
+      "hair_short_crop"
+    ],
+    [
+      "hat_brim_cap",
+      "hair_bob"
+    ]
+  ],
+  "tips": [
+    "Eye centres are (375, 420) and (650, 420); open eyes are about 72x100. Lenses must contain them with a margin of 20+.",
+    "Set the draft metadata tinted=true for sunglasses; the lens limit becomes 0.75.",
+    "The frame is the silhouette at 48 px. Round, square, cat-eye and so on differ in the rim shape; keep rims 24-40 thick."
+  ],
+  "styleGuide": "docs/avatar/ART_STYLE_GUIDE.md"
+}
