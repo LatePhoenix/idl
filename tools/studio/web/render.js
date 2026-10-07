@@ -25,32 +25,100 @@ function parseHex(raw) {
   return { a: parseInt(hex.slice(0, 2), 16), r: parseInt(hex.slice(2, 4), 16), g: parseInt(hex.slice(4, 6), 16), b: parseInt(hex.slice(6, 8), 16) };
 }
 
-function mix(c, toward, t) {
-  const ch = (a, b) => Math.max(0, Math.min(255, Math.trunc(a * (1 - t) + b * t)));
-  return { r: ch(c.r, toward.r), g: ch(c.g, toward.g), b: ch(c.b, toward.b), a: 255 };
+function srgbToLinear(c) {
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
-/** ColorSlots.resolve: manifest defaults in layer order, overrides, then derived shadow and highlight. */
-export function resolveColors(assets, overrides = {}, unlinked = []) {
+function linearToSrgb(c) {
+  const clipped = Math.max(0, Math.min(1, c));
+  const encoded = clipped <= 0.0031308 ? 12.92 * clipped : 1.055 * clipped ** (1 / 2.4) - 0.055;
+  return Math.max(0, Math.min(255, Math.trunc(encoded * 255)));
+}
+
+function fromArgb(c) {
+  const r = srgbToLinear(c.r / 255);
+  const g = srgbToLinear(c.g / 255);
+  const b = srgbToLinear(c.b / 255);
+  const l_ = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m_ = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s_ = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+  const bLab = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+  const C = Math.sqrt(a * a + bLab * bLab);
+  let H = (Math.atan2(bLab, a) * 180) / Math.PI;
+  if (H < 0) H += 360;
+  return { l: L, c: C, h: H };
+}
+
+function toOpaque(ok) {
+  const hRad = (ok.h * Math.PI) / 180;
+  const a = ok.c * Math.cos(hRad);
+  const bLab = ok.c * Math.sin(hRad);
+  const l_ = ok.l + 0.3963377774 * a + 0.2158037573 * bLab;
+  const m_ = ok.l - 0.1055613458 * a - 0.0638541728 * bLab;
+  const s_ = ok.l - 0.0894841775 * a - 1.2914855480 * bLab;
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+  return {
+    r: linearToSrgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+    g: linearToSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    b: linearToSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
+    a: 255,
+  };
+}
+
+function deriveShadow(primary) {
+  const src = fromArgb(primary);
+  return toOpaque({ l: Math.max(0, Math.min(1, src.l - 0.12)), c: src.c * 1.05, h: src.h });
+}
+
+function deriveHighlight(primary) {
+  const src = fromArgb(primary);
+  return toOpaque({ l: Math.max(0, Math.min(1, src.l + 0.10)), c: src.c * 0.9, h: src.h });
+}
+
+/**
+ * ColorSlots.resolve (AP-9): overrides, pack slot links, OKLCH-derived shadow/highlight
+ * from an overridden primary, then asset defaults.
+ */
+export function resolveColors(assets, overrides = {}, unlinked = [], slotLinks = {}) {
   const declared = new Map();
   for (const asset of assets) {
     if (!asset.picture) continue;
     for (const [slot, hex] of Object.entries(asset.colorSlots || {})) if (!declared.has(slot)) declared.set(slot, hex);
   }
-  const colors = {};
-  for (const slot of [...declared.keys()].sort()) {
-    const override = parseHex(overrides[slot]);
-    colors[slot] = override || derived(slot, overrides, unlinked) || parseHex(declared.get(slot)) || parseHex(NEUTRAL);
+  const slots = new Set([...declared.keys(), ...Object.keys(overrides), ...Object.keys(slotLinks)]);
+  const memo = {};
+  const visiting = new Set();
+  function resolveOne(slot) {
+    if (memo[slot]) return memo[slot];
+    if (visiting.has(slot)) return parseHex(NEUTRAL);
+    visiting.add(slot);
+    try {
+      const override = parseHex(overrides[slot]);
+      if (override) return (memo[slot] = override);
+      if (!unlinked.includes(slot)) {
+        const source = slotLinks[slot];
+        if (source) return (memo[slot] = resolveOne(source));
+        const suffix = slot.endsWith('.shadow') ? '.shadow' : slot.endsWith('.highlight') ? '.highlight' : null;
+        if (suffix) {
+          const primarySlot = `${slot.slice(0, -suffix.length)}.primary`;
+          const primaryOverride = parseHex(overrides[primarySlot]);
+          if (primaryOverride) {
+            const primary = resolveOne(primarySlot);
+            return (memo[slot] = suffix === '.shadow' ? deriveShadow(primary) : deriveHighlight(primary));
+          }
+        }
+      }
+      return (memo[slot] = parseHex(declared.get(slot)) || parseHex(NEUTRAL));
+    } finally {
+      visiting.delete(slot);
+    }
   }
-  return colors;
-}
-
-function derived(slot, overrides, unlinked) {
-  const suffix = slot.endsWith('.shadow') ? '.shadow' : slot.endsWith('.highlight') ? '.highlight' : null;
-  if (!suffix || unlinked.includes(slot)) return null;
-  const primary = parseHex(overrides[slot.slice(0, -suffix.length) + '.primary']);
-  if (!primary) return null;
-  return suffix === '.shadow' ? mix(primary, { r: 0, g: 0, b: 0 }, 0.25) : mix(primary, { r: 255, g: 255, b: 255 }, 0.30);
+  for (const slot of [...slots].sort()) resolveOne(slot);
+  return memo;
 }
 
 const css = (c, opacity = 1) => `rgba(${c.r},${c.g},${c.b},${((c.a / 255) * opacity).toFixed(4)})`;
@@ -91,11 +159,11 @@ function clipTo(ctx, path, mode) {
 
 /**
  * Draws one avatar into a size×size canvas context.
- * opts: { framing: 'head'|'bust', frameStyle: 'squircle'|'circle'|'none', overrides, unlinked }
+ * opts: { framing: 'head'|'bust', frameStyle: 'squircle'|'circle'|'none', overrides, unlinked, slotLinks }
  */
 export function drawAvatar(ctx, size, assets, opts = {}) {
   const framing = FRAMING[opts.framing || 'head'];
-  const colors = resolveColors(assets, opts.overrides, opts.unlinked);
+  const colors = resolveColors(assets, opts.overrides, opts.unlinked, opts.slotLinks);
   const ops = drawOps(assets);
   // AP-8 masks: a part may publish its path; other parts subscribe with clipBy.
   const masks = new Map();

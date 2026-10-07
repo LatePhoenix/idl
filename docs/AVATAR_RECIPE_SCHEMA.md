@@ -42,7 +42,8 @@ Add fields with defaults so a schema 2 payload still decodes:
 | `background` | object | pack default scene | `transparent`, solid hex, or a named gradient/shape in the pack. |
 | `randomSeed` | long or null | null | Set only when the user randomized. Same seed + pack version repeats. |
 
-`schemaVersion` becomes 3. `renderVersion` bumps only when pixels for the same ids must change; a new field with a default does not bump it.
+`schemaVersion` is 3. `renderVersion` is **3** after AP-9 (OKLCH shadow/highlight derivation).
+It bumps only when pixels for the same ids must change; a new field with a default does not.
 
 Expression remains `restingExpressionId` plus the presence override. It is not copied into `itemIds`.
 

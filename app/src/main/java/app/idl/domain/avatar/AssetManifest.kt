@@ -160,6 +160,14 @@ data class SemanticMapping(
     val overlayAssetIds: List<String> = emptyList(),
 )
 
+/** One curated color chip in a pack palette family (AP-9). */
+@Serializable
+data class ColorSwatch(
+    val id: String,
+    val name: String,
+    val hex: String,
+)
+
 @Serializable
 data class PackDefaults(
     val base: String,
@@ -170,6 +178,13 @@ data class PackDefaults(
     val mouthFamily: String,
     /** Worn when the avatar has no top of its own. Null means no default shirt. */
     val top: String? = null,
+    /**
+     * Target slot → source slot. Unless the user overrides or unlinks the target,
+     * it follows the source (for example `beard.primary` → `hair.primary`).
+     */
+    val slotLinks: Map<String, String> = emptyMap(),
+    /** Curated swatches by family (`skin`, `hair`, `eye`, `clothing`). All free (D-48). */
+    val palettes: Map<String, List<ColorSwatch>> = emptyMap(),
 )
 
 @Serializable
@@ -233,10 +248,22 @@ class AssetRegistry(
     private val semantics: Map<String, SemanticMapping> = manifests.fold(emptyMap()) { acc, m -> acc + m.semantics }
     private val retired: Map<String, String> = manifests.fold(emptyMap()) { acc, m -> acc + m.retired }
 
-    val defaults: PackDefaults = requireNotNull(manifests.firstNotNullOfOrNull { it.defaults }) { "no pack declares defaults" }
+    /**
+     * Core identity defaults come from the first pack that declares them. Slot links and
+     * color palettes merge across packs (later entries win on the same key).
+     */
+    val defaults: PackDefaults = run {
+        val base = requireNotNull(manifests.firstNotNullOfOrNull { it.defaults }) { "no pack declares defaults" }
+        val links = manifests.fold(emptyMap<String, String>()) { acc, m -> acc + (m.defaults?.slotLinks ?: emptyMap()) }
+        val palettes = manifests.fold(emptyMap<String, List<ColorSwatch>>()) { acc, m ->
+            acc + (m.defaults?.palettes ?: emptyMap())
+        }
+        val top = manifests.firstNotNullOfOrNull { it.defaults?.top } ?: base.top
+        base.copy(top = top, slotLinks = links, palettes = palettes)
+    }
 
     /** First pack that names a default top. Later packs can add one without replacing [defaults]. */
-    val defaultTopId: String? = manifests.firstNotNullOfOrNull { it.defaults?.top }
+    val defaultTopId: String? = defaults.top
 
     /** `packId@version` list, sorted; part of the render key. */
     val packVersions: List<String> = manifests.map { "${it.packId}@${it.version}" }.sorted()
