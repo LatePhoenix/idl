@@ -88,12 +88,17 @@ def check() -> None:
                     raise PipelineError(f"{pack} {name} does not match the SVG source")
 
 
-def build_pack(pack: str, packs_root: Path) -> list[Path]:
-    version = version_dir(PACKS / pack)
+def build_pack(
+    pack: str,
+    packs_root: Path,
+    art_root: Path | None = None,
+    version_pack: Path | None = None,
+) -> list[Path]:
+    version = version_dir(version_pack or (PACKS / pack))
     pictures = pictures_dir(packs_root / pack / version.name)
     pictures.mkdir(parents=True, exist_ok=True)
     written = []
-    for svg in source_svgs(pack):
+    for svg in source_svgs(pack, art_root):
         picture = parse_svg(svg.read_text(encoding="utf-8"), svg.name)
         target = pictures / f"{picture['id']}.json"
         target.write_text(emit_picture(picture), encoding="utf-8", newline="\n")
@@ -112,8 +117,8 @@ def validate_pack(pack: str) -> None:
         raise PipelineError(f"{pack} has no SVG sources")
 
 
-def source_svgs(pack: str) -> list[Path]:
-    folder = ART / pack
+def source_svgs(pack: str, art_root: Path | None = None) -> list[Path]:
+    folder = (art_root or ART) / pack
     if not folder.is_dir():
         raise PipelineError(f"missing art pack {pack}")
     return sorted(p for p in folder.glob("*.svg") if p.is_file())

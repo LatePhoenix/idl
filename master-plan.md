@@ -4,12 +4,13 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last status refresh: **2026-10-07** (ST-2 PR 1 in progress). `origin/main` is at
-`980fc2c` (art coordination / D-52, PR #56). Earlier full review: 2026-10-05 by Claude through PR #23.
+Last status refresh: **2026-10-07** (ST-2 PR 2 in progress). `origin/main` is at
+`601dc30` (ST-2 PR 1, #57). Earlier full review: 2026-10-05 by Claude through PR #23.
 
 **ST-2 resumed (2026-10-07).** The pause before ST-2 is over. The importer is specified in
-[`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1 is
-`tools/import_art.py check`. PRs 2–4 follow; PR 5 waits for a real studio export
+[`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1
+(`import_art.py check`) merged as #57. PR 2 is `import_art.py import` on
+`tools/import-art-apply`. PRs 3–4 follow; PR 5 waits for a real studio export
 ([`COORDINATION.md`](COORDINATION.md)). The pause note is
 `docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`.
 
@@ -53,8 +54,8 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `980fc2c` (PR #56, D-52 art coordination, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
-| Open PRs | None on `main`. ST-2 PR 1 is branch `tools/import-art-validate` |
+| `origin/main` | `601dc30` (PR #57, ST-2 drop checks, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None until `tools/import-art-apply` (ST-2 PR 2) is pushed |
 | Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
 | CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
@@ -581,11 +582,11 @@ PostgREST tests) can be done at any time.
 
 ### 4.0 Next up (start here)
 
-**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51) and AP-10 ✅ (#52) are merged. Claude's audit
-(F-36 fixed; F-37–F-40 open, F-38 matters before AD-2) still stands. The current row is **ST-2** 🔨:
-PR 1 validates drops (`tools/import_art.py check`); PRs 2–4 are the import, review sheets and F-33.
-PR 5 waits for a real item in `art/incoming/`. Handoff from the pause:
-[`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
+**ST-2 is in progress (2026-10-07).** AD-1 ✅ (#51) and AP-10 ✅ (#52) are merged. PR 1 of the
+importer merged as #57. Claude's audit (F-36 fixed; F-37–F-40 open, F-38 matters before AD-2)
+still stands. The current row is **ST-2** 🔨: PR 2 copies a valid drop into the pack
+(`tools/import_art.py import`). PRs 3–4 are review sheets and F-33. PR 5 waits for a real item
+in `art/incoming/`.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
@@ -595,8 +596,8 @@ external `idl-art-studio` through the importer (ST-2, contract `docs/avatar/ART_
 art stays in-repo SVG.
 **Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → **ST-2** → ST-3 → AP-11 → AP-12 →
 AD-2 👤 (Q17) → AD-3 → AP-13 → AP-15 → AP-14 → AP-16.
-Cursor runs it under D-49 and stops only at AD-2 if nothing else is left (or when the user
-pauses, as now).
+Cursor runs it under D-49. On 2026-10-07 the user asked Cursor to make art and design
+calls (including Q17) and to lock app functionality before a long restyle.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 

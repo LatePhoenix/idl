@@ -214,5 +214,191 @@ class ImportArtCheckTest(unittest.TestCase):
             return issues
 
 
+class ImportArtApplyTest(unittest.TestCase):
+    """Import into a temp pack. Never writes the real art, manifest, or catalog."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        shutil.copytree(ROOT / "art" / "emoji_core", self.tmp / "art" / "emoji_core")
+        packs = self.tmp / "packs"
+        shutil.copytree(ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core", packs / "emoji_core")
+        shutil.copytree(ROOT / "app" / "src" / "main" / "assets" / "packs" / "core_proto", packs / "core_proto")
+        incoming = self.tmp / "art" / "incoming"
+        incoming.mkdir()
+        self.paths = import_art.RepoPaths(
+            art=self.tmp / "art",
+            packs=packs,
+            catalog_json=self.tmp / "contract" / "asset_catalog.json",
+            catalog_sql=self.tmp / "seed" / "asset_catalog_seed.sql",
+            incoming=incoming,
+        )
+        self.real_catalog = (ROOT / "contract" / "asset_catalog.json").read_bytes()
+        self.real_manifest = (
+            ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core" / "v2" / "manifest.json"
+        ).read_bytes()
+
+    def tearDown(self):
+        self.assertEqual((ROOT / "contract" / "asset_catalog.json").read_bytes(), self.real_catalog)
+        self.assertEqual(
+            (ROOT / "app" / "src" / "main" / "assets" / "packs" / "emoji_core" / "v2" / "manifest.json").read_bytes(),
+            self.real_manifest,
+        )
+        self.assertFalse((ROOT / "art" / "emoji_core" / "hat_cuffed_beanie.svg").exists())
+
+    def test_imports_each_fixture(self):
+        for fixture in ("glasses_round_thick", "hat_cuffed_beanie", "hair_short_tufted"):
+            drop = self.copy_drop(fixture)
+            summary = import_art.import_drop(drop, paths=self.paths)
+            self.assertIn(f"{fixture} version 1", summary)
+            self.assertIn("band ", summary)
+            self.assertFalse(drop.exists())
+            self.assertTrue((self.paths.incoming / ".imported" / f"{fixture}-v1").is_dir())
+            entry = self.asset(fixture)
+            self.assertEqual(entry["contentVersion"], 1)
+            self.assertEqual(entry["render"]["file"], f"pictures/{fixture}.json")
+            self.assertEqual(entry["collection"], "emoji_core")
+            self.assertEqual(entry["license"], "proprietary-idl")
+            self.assertEqual(entry["compatibleBases"], ["base_teardrop"])
+            self.assertNotIn("provenance", entry)
+            picture = json.loads(self.picture(fixture).read_text(encoding="utf-8"))
+            self.assertEqual(picture["id"], fixture)
+            self.assertEqual(picture["contentVersion"], 1)
+            sidecar = json.loads(
+                (self.paths.art / "emoji_core" / f"{fixture}.provenance.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(sidecar["provenance"]["tool"], "idl-art-studio")
+            catalog = json.loads(self.paths.catalog_json.read_text(encoding="utf-8"))
+            self.assertIn(fixture, {row["assetId"] for row in catalog["assets"]})
+        self.assertIn("review:", summary)
+        hat = self.asset("hat_cuffed_beanie")
+        self.assertEqual(hat["colorSlots"]["hat.primary"], "#3A6EA5")
+        self.assertEqual(
+            hat["colorSlots"]["hat.shadow"],
+            import_art.derive_hex("#3A6EA5", "shadow"),
+        )
+        self.assertNotIn("hat.highlight", hat["colorSlots"])
+        hair = self.asset("hair_short_tufted")
+        self.assertEqual(hair["colorSlots"]["hair.shadow"], import_art.derive_hex("#4A3426", "shadow"))
+        self.assertEqual(hair["colorSlots"]["hair.highlight"], import_art.derive_hex("#4A3426", "highlight"))
+
+    def test_same_version_refuses_and_bump_updates_in_place(self):
+        first = self.copy_drop("glasses_round_thick")
+        import_art.import_drop(first, paths=self.paths)
+        second = self.copy_drop("glasses_round_thick")
+        with self.assertRaises(import_art.DropRejected) as caught:
+            import_art.import_drop(second, paths=self.paths)
+        self.assertIn("not newer", str(caught.exception))
+        self.assertTrue(second.is_dir())
+        self.assertEqual(self.asset("glasses_round_thick")["contentVersion"], 1)
+
+        manifest = json.loads(self.manifest_path().read_text(encoding="utf-8"))
+        for asset in manifest["assets"]:
+            if asset["id"] == "glasses_round_thick":
+                asset["conflictsWith"] = ["glasses_round_wire"]
+        self.manifest_path().write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+        bumped = self.copy_drop("glasses_round_thick")
+        svg = bumped / "glasses_round_thick.svg"
+        svg.write_text(
+            svg.read_text(encoding="utf-8").replace('data-content-version="1"', 'data-content-version="2"', 1),
+            encoding="utf-8",
+        )
+        summary = import_art.import_drop(bumped, paths=self.paths)
+        self.assertIn("version 2", summary)
+        updated = self.asset("glasses_round_thick")
+        self.assertEqual(updated["contentVersion"], 2)
+        self.assertEqual(updated["conflictsWith"], ["glasses_round_wire"])
+        picture = json.loads(self.picture("glasses_round_thick").read_text(encoding="utf-8"))
+        self.assertEqual(picture["contentVersion"], 2)
+        sidecar = json.loads(
+            (self.paths.art / "emoji_core" / "glasses_round_thick.provenance.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(sidecar["contentVersion"], 2)
+        self.assertTrue((self.paths.incoming / ".imported" / "glasses_round_thick-v2").is_dir())
+
+    def test_rejected_drop_does_not_write(self):
+        drop = self.copy_drop("glasses_round_thick")
+        svg = drop / "glasses_round_thick.svg"
+        svg.write_text(
+            svg.read_text(encoding="utf-8").replace('data-schema-version="2"', 'data-schema-version="9"', 1),
+            encoding="utf-8",
+        )
+        with self.assertRaises(import_art.DropRejected):
+            import_art.import_drop(drop, paths=self.paths)
+        self.assertFalse((self.paths.art / "emoji_core" / "glasses_round_thick.svg").exists())
+        self.assertFalse(self.paths.catalog_json.exists())
+        self.assertTrue(drop.is_dir())
+
+    def test_cli_import_uses_default_paths(self):
+        drop = self.copy_drop("glasses_round_thick")
+        original = import_art.default_paths
+        import_art.default_paths = lambda: self.paths
+        try:
+            code = import_art.main(["import_art.py", "import", str(drop), "--pack", "emoji_core"])
+            usage = import_art.main(["import_art.py", "import"])
+        finally:
+            import_art.default_paths = original
+        self.assertEqual(code, 0)
+        self.assertEqual(usage, 2)
+        self.assertEqual(self.asset("glasses_round_thick")["id"], "glasses_round_thick")
+
+    def test_pack_id_must_be_snake_case(self):
+        drop = self.copy_drop("glasses_round_thick")
+        meta_path = drop / "meta.json"
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["pack"] = "../escape"
+        meta_path.write_text(json.dumps(meta), encoding="utf-8")
+        with self.assertRaises(import_art.DropRejected) as caught:
+            import_art.import_drop(drop, paths=self.paths)
+        self.assertIn("snake case", str(caught.exception))
+        self.assertFalse((self.tmp / "escape").exists())
+        self.assertTrue(drop.is_dir())
+
+    def test_build_failure_restores_the_pack(self):
+        drop = self.copy_drop("glasses_round_thick")
+        manifest_before = self.manifest_path().read_bytes()
+        picture = self.paths.packs / "emoji_core" / "v2" / "pictures" / "glasses_round_thick.json"
+
+        def boom(*_args, **_kwargs):
+            picture.write_text("partial", encoding="utf-8")
+            raise import_art.pipeline.PipelineError("boom")
+
+        original = import_art.pipeline.build_pack
+        import_art.pipeline.build_pack = boom
+        try:
+            with self.assertRaises(import_art.pipeline.PipelineError):
+                import_art.import_drop(drop, paths=self.paths)
+        finally:
+            import_art.pipeline.build_pack = original
+        self.assertFalse((self.paths.art / "emoji_core" / "glasses_round_thick.svg").exists())
+        self.assertFalse(picture.exists())
+        self.assertEqual(self.manifest_path().read_bytes(), manifest_before)
+        self.assertFalse(self.paths.catalog_json.exists())
+        self.assertTrue(drop.is_dir())
+
+    def test_shadow_hex_matches_oklch_port(self):
+        # Same constants as OklchTest `hat primary derives the importer shadow and highlight`.
+        self.assertEqual(import_art.derive_hex("#3A6EA5", "shadow"), "#104B82")
+        self.assertEqual(import_art.derive_hex("#3A6EA5", "highlight"), "#5D8CBF")
+
+    def copy_drop(self, fixture: str) -> Path:
+        dest = self.paths.incoming / fixture
+        if dest.exists():
+            shutil.rmtree(dest)
+        shutil.copytree(FIXTURES / fixture, dest)
+        return dest
+
+    def asset(self, asset_id: str) -> dict:
+        manifest = json.loads(self.manifest_path().read_text(encoding="utf-8"))
+        return next(item for item in manifest["assets"] if item["id"] == asset_id)
+
+    def manifest_path(self) -> Path:
+        return self.paths.packs / "emoji_core" / "v2" / "manifest.json"
+
+    def picture(self, asset_id: str) -> Path:
+        return self.paths.packs / "emoji_core" / "v2" / "pictures" / f"{asset_id}.json"
+
+
 if __name__ == "__main__":
     unittest.main()

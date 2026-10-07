@@ -41,6 +41,12 @@ class OklchTest {
         assertEquals(Oklch.deriveHighlight(primary), Oklch.deriveHighlight(primary))
     }
 
+    @Test fun `hat primary derives the importer shadow and highlight`() {
+        // Shared with tools/import_art.py derive_hex("#3A6EA5").
+        assertEquals(0xFF104B82.toInt(), Oklch.deriveShadow(0xFF3A6EA5.toInt()))
+        assertEquals(0xFF5D8CBF.toInt(), Oklch.deriveHighlight(0xFF3A6EA5.toInt()))
+    }
+
     @Test fun `derivation formula matches the documented deltas`() {
         val primary = 0xFFC68642.toInt()
         val src = Oklch.fromArgb(primary)

@@ -294,9 +294,9 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
-**In progress (2026-10-07):** ST-2, the art importer (`docs/handoff/ART_IMPORT_TASK.md`). PR 1 is
-`import_art.py check`. PRs 2–4 follow on their own branches. PR 5 waits for a real studio export.
-The pause handoff is [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](../handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
+**In progress (2026-10-07):** ST-2, the art importer (`docs/handoff/ART_IMPORT_TASK.md`). PR 1
+(`import_art.py check`) merged as #57. PR 2 is `import_art.py import`. PRs 3–4 follow on their
+own branches. PR 5 waits for a real studio export.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
