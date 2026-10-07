@@ -23,7 +23,11 @@ The design note and the pure-Kotlin editor session. The screen, quick creator, a
 
 ## Commands
 
-Filled after `scripts/check.ps1`.
+| Command | Result |
+| --- | --- |
+| `./gradlew testDebugUnitTest --tests app.idl.domain.avatar.EditorSessionTest --offline` | BUILD SUCCESSFUL |
+| `scripts/check.ps1` | 47 Python tests OK. Catalog OK. Gradle: 305 tests, 0 failed, 1 skipped. Lint: 0 errors, 42 warnings. **All checks passed.** |
+| Device / SQL | not run. This slice has no screen and no server change. |
 
 ## Deviations
 
