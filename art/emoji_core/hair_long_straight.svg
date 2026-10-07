@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"
-     data-schema-version="1" data-id="hair_long_straight"
-     data-content-version="2">
-  <path data-part="back" data-z="20" data-slot="hair.shadow" d="M 512 34 C 590 34 630 78 600 118 C 575 148 449 148 424 118 C 394 78 434 34 512 34 Z M 855 260 C 930 420 990 700 880 1040 L 600 1040 C 430 960 560 860 700 720 C 800 520 830 360 845 280 Z M 169 260 C 94 420 34 700 144 1040 L 424 1040 C 594 960 464 860 324 720 C 224 520 194 360 179 280 Z"/>
-  <path data-part="bangs" data-z="70" data-slot="hair.primary" d="M 300 324 C 320 176 400 138 468 202 C 498 234 486 300 444 324 C 380 340 322 336 300 324 Z M 724 324 C 704 176 624 138 556 202 C 526 234 538 300 580 324 C 644 340 702 336 724 324 Z"/>
-  <path data-part="highlight" data-z="80" data-slot="hair.highlight" d="M 548 196 C 600 230 655 268 700 312 C 668 328 600 286 542 230 Z"/>
+     data-schema-version="2" data-id="hair_long_straight"
+     data-content-version="3">
+  <path data-part="back" data-z="20" data-tags="hair_back" data-slot="hair.shadow" d="M 512 34 C 590 34 630 78 600 118 C 575 148 449 148 424 118 C 394 78 434 34 512 34 Z M 855 260 C 930 420 990 700 880 1040 L 600 1040 C 430 960 560 860 700 720 C 800 520 830 360 845 280 Z M 169 260 C 94 420 34 700 144 1040 L 424 1040 C 594 960 464 860 324 720 C 224 520 194 360 179 280 Z"/>
+  <path data-part="bangs" data-z="70" data-tags="hair_top" data-slot="hair.primary" d="M 300 324 C 320 176 400 138 468 202 C 498 234 486 300 444 324 C 380 340 322 336 300 324 Z M 724 324 C 704 176 624 138 556 202 C 526 234 538 300 580 324 C 644 340 702 336 724 324 Z"/>
+  <path data-part="highlight" data-z="80" data-tags="hair_top" data-slot="hair.highlight" d="M 548 196 C 600 230 655 268 700 312 C 668 328 600 286 542 230 Z"/>
 </svg>

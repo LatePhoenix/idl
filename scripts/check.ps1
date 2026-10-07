@@ -64,7 +64,12 @@ if ($Sql) {
         exit 1
     }
     $gitBash = "C:\Program Files\Git\bin\bash.exe"
-    $bash = if (Test-Path $gitBash) { $gitBash } else { (Get-Command bash -ErrorAction SilentlyContinue)?.Source }
+    if (Test-Path $gitBash) {
+        $bash = $gitBash
+    } else {
+        $cmd = Get-Command bash -ErrorAction SilentlyContinue
+        $bash = if ($cmd) { $cmd.Source } else { $null }
+    }
     if (-not $bash) {
         Write-Error "bash is not on PATH. Install Git for Windows, or run scripts/check.sh."
         exit 1

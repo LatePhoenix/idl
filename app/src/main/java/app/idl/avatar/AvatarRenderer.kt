@@ -188,6 +188,7 @@ object AvatarRenderer {
         }
         val painter = Painter(canvas, frame.config, size, contrast)
         val vectors = CanvasVectorAssetRenderer()
+        val publishedMasks = publishedMaskPaths(ops, registry, vectors, resolved, ::load)
         val (framed, chrome) = ops.partition { !it.chrome }
         // Framing is the vector character viewport. Procedural bases keep the full 1024 square
         // so a vector part still lines up with the placeholder head.
@@ -197,11 +198,33 @@ object AvatarRenderer {
             // The procedural scene clips to the frame. Without it (a vector scene, or none), clip here
             // so vector parts and the procedural layers above them keep the frame shape.
             if (framed.none { it is DrawOp.Procedural && it.category == AssetCategory.SCENE }) painter.frameClip()
-            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming, ::load) }
+            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming, publishedMasks, ::load) }
         } finally {
             canvas.restoreToCount(checkpoint)
         }
-        chrome.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming = false, ::load) }
+        chrome.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming = false, publishedMasks, ::load) }
+    }
+
+    private fun publishedMaskPaths(
+        ops: List<DrawOp>,
+        registry: AssetRegistry,
+        vectors: CanvasVectorAssetRenderer,
+        resolved: ResolvedAvatar,
+        load: (String) -> VectorPictureCache.PicturePaths?,
+    ): Map<String, android.graphics.Path> {
+        val sources = app.idl.domain.avatar.PublishedMasks.collect(ops) { id -> load(id)?.picture }
+        val out = linkedMapOf<String, android.graphics.Path>()
+        for ((name, source) in sources) {
+            val paths = load(source.assetId) ?: continue
+            val partPath = paths.parts.getOrNull(source.partIndex) ?: continue
+            val worn = registry.asset(source.assetId)
+            out[name] = vectors.bakeTransform(
+                partPath,
+                worn?.defaultTransform ?: ItemTransform(),
+                resolved.itemTransforms[source.assetId] ?: ItemTransform(),
+            )
+        }
+        return out
     }
 
     fun draw(
@@ -233,6 +256,7 @@ object AvatarRenderer {
         registry: AssetRegistry,
         size: Float,
         useFraming: Boolean,
+        publishedMasks: Map<String, android.graphics.Path>,
         load: (String) -> VectorPictureCache.PicturePaths?,
     ) {
         when (op) {
@@ -278,6 +302,7 @@ object AvatarRenderer {
                         paths.parts,
                         paths.clips,
                         op.partIndex,
+                        publishedMasks,
                     )
                 } finally {
                     canvas.restoreToCount(checkpoint)
