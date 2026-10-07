@@ -294,8 +294,7 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
-**Next (2026-10-07):** AP-11, the editor. ST-2's tool PRs and ST-3 (retire) are done. ST-2 PR 5,
-the pilot real-art import, waits for a file in `art/incoming/`.
+**Next (2026-10-07):** AP-11, the editor screen. Art direction is recorded (D-53). The restyle waits until the editor and widgets are in. ST-2 PR 5, the pilot real-art import, waits for a file in `art/incoming/`.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -315,7 +314,7 @@ the pilot real-art import, waits for a file in `art/incoming/`.
 | ST-3 | Art Studio S3: retire (promote is the importer, D-51) | ST-2 | | | ✅ |
 | AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
 | AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |
-| AD-2 | 👤 The user picks the art direction from the AD-1 sheets (Q17, Q16) | AD-1 | | | ⬜ 👤 |
+| AD-2 | Art direction picked (Q17, Q16). Delegated 2026-10-07. Recorded as D-53. Restyle is AD-3, after the editor and widgets | AD-1 | | | ✅ |
 | AD-3 | Apply the art direction: record the decision, restyle shipped art if needed | AD-2, ST-3 | yes | | ⬜ |
 | AP-13 | Expression art batch 2: the rest of the catalog 🎨 | AP-6, AP-8, AD-3 | | | ⬜ |
 | AP-15 | Content waves (AP-15.1–15.9) 🎨 | AP-11, AD-3 | per wave | | ⬜ |

@@ -353,6 +353,24 @@ building the studio side of `docs/avatar/ART_INTERCHANGE.md` (D-51); the user as
 - **Hat height:** no overflow. Hats stay inside −16..1040 like other band-90 parts (44 px above the
   crown in studio space). Tall hats wait until a framing shows them.
 
+**D-53 · Art direction is readable volume, with a sticker edge on widgets only (user delegated the pick, 2026-10-07).**
+The user is not happy with the shipped avatars and asked for a pick so the program is not waiting on them.
+Current pictures stay placeholders. The restyle (AD-3) waits until the editor (AP-11) and the widget
+cutover (AP-12) are in.
+- **Q17: F, plus E's light border on widget framing only.** Keep the teardrop head (D-45, D-46 stand; G is
+  not the pick). Keep the soft face. Target a 40-unit outline, slightly larger eyes (about 1.12×), and hair
+  with crown volume, a centre part, and highlight strands that survive 48 px. Hair is drawn outside the
+  skull: crown above the outline, fringe over the forehead, sides outside the cheeks (F-38 — the AD-1
+  sheets did not do this). A light sticker edge is for head framing on widgets, for wallpaper contrast.
+  The in-app bust does not get that border.
+- **Q16: (a).** Raised brows draw over front hair. Do not lower the brow shapes, and do not raise the
+  hairline limit to hide them.
+- Not chosen: A (the current look), B (flat and harsh), C (the mouth disappears at 48 px), D (the shade
+  split reads as a stain at 48 px).
+- `ART_STYLE_GUIDE.md` still describes the placeholder art. AD-3 updates the guide's numbers, the kits,
+  and the shipped pictures together. Until then, lint stays on the current numbers so placeholder art
+  keeps passing.
+
 ## High-risk decisions to watch
 
 1. **Server-side privacy function** correctness — a bug leaks fields to all friends. Mitigated

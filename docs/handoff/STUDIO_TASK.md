@@ -173,23 +173,23 @@ compare directions before more art is made. Give them pictures, not descriptions
    queue, and put options A–G into Q17. Docs only, so merge it under D-49 and **continue with the next row**.
    Don't wait for the user's answer.
 
-## AD-2 · 👤 The user picks the art direction
+## AD-2 · The user picks the art direction
 
-Not Cursor's row. The user answers Q17 (and Q16) in `master-plan.md` §6, for example "C, with E's
-border, and fix the brows with option (a)". When every remaining row depends on AD-2, stop under
-runbook §7 and tell the user what to decide, pointing at `docs/art/exploration/v3/README.md`.
+Answered 2026-10-07. The user delegated the pick and asked to treat shipped art as a placeholder.
+Recorded as D-53: **F, with E's light border on widget framing only**, and Q16 **(a)** brows over
+front hair. The head stays the teardrop. AD-3 applies it after the editor and the widgets.
 
 ## AD-3 · Apply the art direction
 
-Branch `art/ad-3-<direction>`. Once Q17 is answered:
+Branch `art/ad-3-readable-volume`. D-53 is already recorded. Do not open a second decision.
 
-1. Record it as a new `D-` entry in `docs/IDL_DECISIONS.md` and update `ART_STYLE_GUIDE.md` to match:
-   line weights, shading, proportions and the hair rules. If the user picked a new head (G), that reopens
-   D-45 and D-46; record the user's words.
+1. Update `ART_STYLE_GUIDE.md` to the D-53 numbers: 40-unit outlines, slightly larger eyes, hair
+   outside the skull, and raised brows over front hair. The head stays the teardrop (D-45 and D-46
+   stand). Widget framing gets the light sticker edge. The in-app bust does not.
 2. Update the kits (`tools/studio/kits/*.json`) and the lint numbers to the new guide.
-3. Restyle every shipped picture in the new direction with the Studio. **Keep every asset id**, bump
-   `contentVersion`, and re-record the goldens so saved avatars never break (invariant 5). A head change
-   also needs the guides re-derived and every fitted item checked by lint and try-on.
+3. Restyle every shipped picture in that direction with the Studio. **Keep every asset id**, bump
+   `contentVersion`, and re-record the goldens so saved avatars never break (invariant 5). Hair must
+   sit outside the skull (F-38). Fit every item with lint and try-on.
 4. This is the **pilot art PR**: the user merges it (D-50 as amended). Then AP-13 and AP-15 follow, made with
    the Studio, and Cursor merges those art PRs itself.
 
