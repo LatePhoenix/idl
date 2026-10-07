@@ -294,6 +294,9 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
+**Paused 2026-10-07 (user request):** AD-1 ✅ (#51), AP-10 ✅ (#52). Next ready row is **ST-2** ⬜
+(not started). Handoff: [`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`](../handoff/reports/2026-10-07-cursor-handoff-before-st-2.md).
+
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
 | AP-1 | Brand silhouette is the avatar head (D-45) | | yes | | ✅ |
