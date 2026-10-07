@@ -4,7 +4,8 @@ Standard library only. Spec: docs/avatar/ART_INTERCHANGE.md §4–§9 (D-51, D-5
 Task: docs/handoff/ART_IMPORT_TASK.md.
 
 Commands:
-  check <dir>     interchange checks; exit 1 when any problem is found
+  check <dir>                 interchange checks; exit 1 when any problem is found
+  import <dir> [--pack id]    copy a valid drop into the pack, rebuild, and archive it
 """
 
 from __future__ import annotations
@@ -12,13 +13,16 @@ from __future__ import annotations
 import json
 import math
 import re
+import shutil
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import asset_pipeline as pipeline
+import gen_asset_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 KB = 1024
@@ -71,10 +75,18 @@ class ImportError(Exception):
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 3 or argv[1] != "check":
-        print("usage: import_art.py check <dir>", file=sys.stderr)
+    if len(argv) < 2 or argv[1] not in {"check", "import"}:
+        print("usage: import_art.py check <dir> | import <dir> [--pack id]", file=sys.stderr)
         return 2
-    directory = Path(argv[2])
+    if argv[1] == "check":
+        if len(argv) != 3:
+            print("usage: import_art.py check <dir>", file=sys.stderr)
+            return 2
+        return _check_cli(Path(argv[2]))
+    return _import_cli(argv[2:])
+
+
+def _check_cli(directory: Path) -> int:
     try:
         issues, warnings = check_drop(directory)
     except OSError as error:
@@ -88,6 +100,34 @@ def main(argv: list[str]) -> int:
             print(issue, file=sys.stderr)
         return 1
     print(f"{directory.name} ok")
+    return 0
+
+
+def _import_cli(argv: list[str]) -> int:
+    if not argv or argv[0].startswith("-"):
+        print("usage: import_art.py import <dir> [--pack id]", file=sys.stderr)
+        return 2
+    directory = Path(argv[0])
+    pack = None
+    index = 1
+    while index < len(argv):
+        if argv[index] == "--pack" and index + 1 < len(argv):
+            pack = argv[index + 1]
+            index += 2
+            continue
+        print("usage: import_art.py import <dir> [--pack id]", file=sys.stderr)
+        return 2
+    try:
+        summary = import_drop(directory, pack=pack, paths=default_paths())
+    except DropRejected as error:
+        for issue in error.issues:
+            print(issue, file=sys.stderr)
+        return 1
+    except (OSError, pipeline.PipelineError) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    print(REVIEW_REMINDER)
+    print(summary)
     return 0
 
 
@@ -623,6 +663,266 @@ def _edt_sep(seeds: list[float], q: int, vertex: int) -> float:
 
 def _sorted(issues: list[ImportError]) -> list[ImportError]:
     return sorted(issues, key=lambda issue: (issue.part, issue.message))
+
+
+class DropRejected(Exception):
+    def __init__(self, issues: list[ImportError]) -> None:
+        super().__init__("\n".join(str(issue) for issue in issues))
+        self.issues = issues
+
+
+@dataclass(frozen=True)
+class RepoPaths:
+    art: Path
+    packs: Path
+    catalog_json: Path
+    catalog_sql: Path
+    incoming: Path
+
+
+def default_paths() -> RepoPaths:
+    return RepoPaths(
+        art=ROOT / "art",
+        packs=ROOT / "app" / "src" / "main" / "assets" / "packs",
+        catalog_json=ROOT / "contract" / "asset_catalog.json",
+        catalog_sql=ROOT / "supabase" / "seed" / "asset_catalog_seed.sql",
+        incoming=ROOT / "art" / "incoming",
+    )
+
+
+def import_drop(directory: Path, pack: str | None = None, paths: RepoPaths | None = None) -> str:
+    """Copy a valid drop into the pack. Refuses without writing when check finds a problem."""
+    paths = paths or default_paths()
+    issues, warnings = check_drop(directory)
+    for warning in warnings:
+        print(f"warning: {warning}")
+    if issues:
+        raise DropRejected(issues)
+
+    asset_id = directory.name
+    meta = json.loads((directory / "meta.json").read_text(encoding="utf-8"))
+    pack_id = pack or str(meta["pack"])
+    svg_text = (directory / f"{asset_id}.svg").read_text(encoding="utf-8")
+    picture = pipeline.parse_svg(svg_text, f"{asset_id}.svg")
+    version = int(picture["contentVersion"])
+    shipped = _shipped_version(paths, pack_id, asset_id)
+    if shipped is not None and version <= shipped:
+        raise DropRejected(
+            [ImportError(f"content version {version} is not newer than shipped version {shipped}")]
+        )
+
+    slots = _fill_color_slots(meta["colorSlots"], _picture_slots(picture))
+    entry = _manifest_entry(meta, pack_id, asset_id, version, slots)
+    _write_asset(paths, pack_id, asset_id, svg_text, entry, meta, version)
+    pipeline.build_pack(pack_id, paths.packs, art_root=paths.art, version_pack=paths.packs / pack_id)
+    gen_asset_catalog.write(
+        gen_asset_catalog.build(paths.packs),
+        json_path=paths.catalog_json,
+        sql_path=paths.catalog_sql,
+    )
+    archive = paths.incoming / ".imported" / f"{asset_id}-v{version}"
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    shutil.move(str(directory), str(archive))
+    return _summary(asset_id, version, slots, picture, meta)
+
+
+def _shipped_version(paths: RepoPaths, pack_id: str, asset_id: str) -> int | None:
+    versions: list[int] = []
+    svg = paths.art / pack_id / f"{asset_id}.svg"
+    if svg.is_file():
+        root = ET.fromstring(svg.read_text(encoding="utf-8"))
+        versions.append(int(root.attrib["data-content-version"]))
+    manifest_path = _manifest_path(paths, pack_id)
+    if manifest_path.is_file():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        for asset in manifest.get("assets", []):
+            if asset.get("id") == asset_id:
+                versions.append(int(asset.get("contentVersion", 1)))
+    return max(versions) if versions else None
+
+
+def _manifest_path(paths: RepoPaths, pack_id: str) -> Path:
+    return pipeline.version_dir(paths.packs / pack_id) / "manifest.json"
+
+
+def _picture_slots(picture: dict) -> set[str]:
+    slots: set[str] = set()
+    for part in picture["parts"]:
+        fill = part.get("fill") or {}
+        if "slot" in fill:
+            slots.add(fill["slot"])
+        stroke = part.get("stroke") or {}
+        if "slot" in stroke:
+            slots.add(stroke["slot"])
+    return slots
+
+
+def _fill_color_slots(declared: dict, used: set[str]) -> dict:
+    slots = dict(declared)
+    missing = [slot for slot in sorted(used) if _derived_slot(slot) and slot not in slots]
+    ordered = [slot for slot in missing if slot.endswith(".shadow")]
+    ordered += [slot for slot in missing if slot.endswith(".highlight")]
+    for slot in ordered:
+        family = slot.rsplit(".", 1)[0]
+        primary_name = family + ".primary"
+        primary = slots.get(primary_name)
+        if not isinstance(primary, str):
+            raise DropRejected([ImportError(f"cannot derive {slot}; {primary_name} is missing")])
+        kind = "shadow" if slot.endswith(".shadow") else "highlight"
+        slots[slot] = derive_hex(primary, kind)
+    return slots
+
+
+def _manifest_entry(meta: dict, pack_id: str, asset_id: str, version: int, slots: dict) -> dict:
+    entry = {
+        "id": asset_id,
+        "category": meta["category"],
+        "accessibilityLabel": meta["accessibilityLabel"],
+        "render": {"type": "vector", "file": f"pictures/{asset_id}.json"},
+        "collection": pack_id,
+        "license": "proprietary-idl",
+        "contentVersion": version,
+        "colorSlots": slots,
+        "compatibleBases": ["base_teardrop"],
+    }
+    if meta.get("tags"):
+        entry["tags"] = list(meta["tags"])
+    if meta.get("tier"):
+        entry["tier"] = meta["tier"]
+    return entry
+
+
+def _write_asset(
+    paths: RepoPaths,
+    pack_id: str,
+    asset_id: str,
+    svg_text: str,
+    entry: dict,
+    meta: dict,
+    version: int,
+) -> None:
+    art_dir = paths.art / pack_id
+    art_dir.mkdir(parents=True, exist_ok=True)
+    (art_dir / f"{asset_id}.svg").write_text(svg_text, encoding="utf-8", newline="\n")
+    sidecar = {
+        "id": asset_id,
+        "contentVersion": version,
+        "provenance": meta["provenance"],
+    }
+    (art_dir / f"{asset_id}.provenance.json").write_text(
+        json.dumps(sidecar, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    manifest_path = _manifest_path(paths, pack_id)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    _upsert_asset(manifest, entry)
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
+def _upsert_asset(manifest: dict, entry: dict) -> None:
+    assets = manifest.setdefault("assets", [])
+    for index, asset in enumerate(assets):
+        if asset.get("id") != entry["id"]:
+            continue
+        updated = {}
+        for key in asset:
+            updated[key] = entry[key] if key in entry else asset[key]
+        for key, value in entry.items():
+            if key not in updated:
+                updated[key] = value
+        assets[index] = updated
+        return
+    assets.append(entry)
+
+
+def _summary(asset_id: str, version: int, slots: dict, picture: dict, meta: dict) -> str:
+    slot_text = ", ".join(f"{name}={value}" for name, value in slots.items())
+    bands: dict[int, list[str]] = defaultdict(list)
+    for part in picture["parts"]:
+        bands[int(part["zBand"])].append(str(part["id"]))
+    band_lines = [
+        f"band {band}: {', '.join(sorted(names))}" for band, names in sorted(bands.items())
+    ]
+    notes = meta.get("reviewNotes") or []
+    note_text = "; ".join(str(note) for note in notes) if isinstance(notes, list) else str(notes)
+    lines = [f"{asset_id} version {version}", f"slots: {slot_text}", *band_lines]
+    if note_text:
+        lines.append(f"review: {note_text}")
+    return "\n".join(lines)
+
+
+def derive_hex(primary: str, kind: str) -> str:
+    """Shadow and highlight hex, matching domain Oklch.kt including sRGB truncation."""
+    argb = _hex_to_argb(primary)
+    derived = _derive_shadow(argb) if kind == "shadow" else _derive_highlight(argb)
+    return f"#{(derived >> 16) & 0xFF:02X}{(derived >> 8) & 0xFF:02X}{derived & 0xFF:02X}"
+
+
+def _hex_to_argb(hex_color: str) -> int:
+    return int(hex_color[1:7], 16)
+
+
+def _cbrt(value: float) -> float:
+    return math.copysign(abs(value) ** (1.0 / 3.0), value)
+
+
+def _srgb_to_linear(channel: float) -> float:
+    if channel <= 0.04045:
+        return channel / 12.92
+    return ((channel + 0.055) / 1.055) ** 2.4
+
+
+def _linear_to_srgb(channel: float) -> int:
+    clipped = min(1.0, max(0.0, channel))
+    if clipped <= 0.0031308:
+        encoded = 12.92 * clipped
+    else:
+        encoded = 1.055 * (clipped ** (1.0 / 2.4)) - 0.055
+    return min(255, max(0, int(encoded * 255.0)))
+
+
+def _from_argb(argb: int) -> tuple[float, float, float]:
+    red = _srgb_to_linear(((argb >> 16) & 0xFF) / 255.0)
+    green = _srgb_to_linear(((argb >> 8) & 0xFF) / 255.0)
+    blue = _srgb_to_linear((argb & 0xFF) / 255.0)
+    l_ = _cbrt(0.4122214708 * red + 0.5363325363 * green + 0.0514459929 * blue)
+    m_ = _cbrt(0.2119034982 * red + 0.6806995451 * green + 0.1073969566 * blue)
+    s_ = _cbrt(0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue)
+    lightness = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+    a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+    b_lab = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    chroma = math.sqrt(a * a + b_lab * b_lab)
+    hue = math.degrees(math.atan2(b_lab, a))
+    if hue < 0:
+        hue += 360.0
+    return lightness, chroma, hue
+
+
+def _to_argb(lightness: float, chroma: float, hue: float) -> int:
+    h_rad = math.radians(hue)
+    a = chroma * math.cos(h_rad)
+    b_lab = chroma * math.sin(h_rad)
+    l_ = lightness + 0.3963377774 * a + 0.2158037573 * b_lab
+    m_ = lightness - 0.1055613458 * a - 0.0638541728 * b_lab
+    s_ = lightness - 0.0894841775 * a - 1.2914855480 * b_lab
+    long_l = l_ * l_ * l_
+    long_m = m_ * m_ * m_
+    long_s = s_ * s_ * s_
+    red = _linear_to_srgb(4.0767416621 * long_l - 3.3077115913 * long_m + 0.2309699292 * long_s)
+    green = _linear_to_srgb(-1.2684380046 * long_l + 2.6097574011 * long_m - 0.3413193965 * long_s)
+    blue = _linear_to_srgb(-0.0041960863 * long_l - 0.7034186147 * long_m + 1.7076147010 * long_s)
+    return (red << 16) | (green << 8) | blue
+
+
+def _derive_shadow(argb: int) -> int:
+    lightness, chroma, hue = _from_argb(argb)
+    return _to_argb(min(1.0, max(0.0, lightness - 0.12)), chroma * 1.05, hue)
+
+
+def _derive_highlight(argb: int) -> int:
+    lightness, chroma, hue = _from_argb(argb)
+    return _to_argb(min(1.0, max(0.0, lightness + 0.10)), chroma * 0.9, hue)
 
 
 if __name__ == "__main__":

@@ -20,17 +20,17 @@ OUT_JSON = ROOT / "contract" / "asset_catalog.json"
 OUT_SQL = ROOT / "supabase" / "seed" / "asset_catalog_seed.sql"
 
 
-def load_manifest(pack_id: str, version: int) -> dict:
-    path = PACKS / pack_id / f"v{version}" / "manifest.json"
+def load_manifest(pack_id: str, version: int, packs: Path | None = None) -> dict:
+    path = (packs or PACKS) / pack_id / f"v{version}" / "manifest.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build() -> dict:
+def build(packs: Path | None = None) -> dict:
     assets: list[dict] = []
     retired: dict[str, str] = {}
     seen: set[str] = set()
     for pack_id, version in SHIPPED:
-        manifest = load_manifest(pack_id, version)
+        manifest = load_manifest(pack_id, version, packs)
         for asset in manifest.get("assets", []):
             asset_id = asset["id"]
             if asset_id in seen:
@@ -80,11 +80,13 @@ def sql_seed(catalog: dict) -> str:
     return "\n".join(lines)
 
 
-def write(catalog: dict) -> None:
-    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    OUT_SQL.parent.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8")
-    OUT_SQL.write_text(sql_seed(catalog), encoding="utf-8")
+def write(catalog: dict, json_path: Path | None = None, sql_path: Path | None = None) -> None:
+    json_out = json_path or OUT_JSON
+    sql_out = sql_path or OUT_SQL
+    json_out.parent.mkdir(parents=True, exist_ok=True)
+    sql_out.parent.mkdir(parents=True, exist_ok=True)
+    json_out.write_text(json.dumps(catalog, indent=2) + "\n", encoding="utf-8", newline="\n")
+    sql_out.write_text(sql_seed(catalog), encoding="utf-8", newline="\n")
 
 
 def check() -> None:
