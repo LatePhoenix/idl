@@ -1,0 +1,16 @@
+---
+description: Art Studio operator tool — kits, drafts, lint, geometry
+globs: tools/studio/**,art/**
+alwaysApply: false
+---
+
+- Follow `docs/avatar/STUDIO_AGENT_GUIDE.md` and `docs/avatar/ART_STUDIO.md` (D-50).
+- S0 (`serve`, `list`, `show`) stays stdlib-only. Skia commands use `tools/studio/.venv`
+  via `python tools/studio/studio.py setup`. Never add skia/numpy to the app or CI deps.
+- Drafts write only under `.studio/` until ST-3 `promote`. Do not hand-edit generated
+  picture JSON under `app/src/main/assets/packs/`.
+- Build shapes with `geom` and guides (`@guide:`, `@part:`, `@file:`), not freehand
+  coordinates outside the guide set.
+- Content: `docs/avatar/ART_STYLE_GUIDE.md` §6 — no text, logos, brands or trademarks.
+- After `draft write`, check lint has no errors and put sheets in the PR
+  (`docs/handoff/sheets/`) plus a `master-plan.md` §4.1 review-queue row.
