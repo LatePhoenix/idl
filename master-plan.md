@@ -539,6 +539,7 @@ blocks merging; feedback becomes a new fix item.
 | 2026-10-06 | AP-3 body | Shoulders and the default crew tee. Bust: `app/src/test/snapshots/vector/neutral_512.png`, `contact_512.png`, `contact_512_dark.png`, `contact_48.png`. Head: `contact_head_48.png`, `contact_head_48_dark.png`, `vector/widget/neutral_compact.png`, `vector/widget/neutral_standard.png`. | |
 | 2026-10-06 | AP-4 sheets | Category contact sheets, bust and head, light and dark: `app/src/test/snapshots/packs/emoji_core/hair_512.png`, `facial_hair_512.png`, `face_eye_512.png`, `face_mouth_512.png`, `hair_48.png`, `hair_48_dark.png`. | |
 | 2026-10-06 | AP-5 | Mood mappings that are a judgment call: `docs/avatar/EXPRESSION_CATALOG.md` section "Needs a look" (`face_with_bags_under_eyes`, `zany_face`, `smirking_face`, `shushing_face`, `sleeping_face`). | |
+| 2026-10-06 | AP-6 faces | The 15 priority mood faces at 512 and 48: `app/src/test/snapshots/vector/mood_faces_512.png`, `mood_faces_48.png`, and the dark pair. Part sheets: `app/src/test/snapshots/packs/emoji_core/face_eye_512.png`, `face_brow_512.png`, `face_mouth_512.png`, `expression_overlay_512.png`. | |
 
 Goal: an original, teardrop-shaped emoji face that can express every standard smiley-face emotion
 and be customized as far as the 48 px widget can still read. The renderer, compositor and recipe
@@ -550,7 +551,7 @@ format from Phase 2 stay (D-39). Every item ships original art (`license: propri
 | AV.2 | Teardrop base, re-placed expression parts, hair and facial hair redrawn for it (Q13), round face retired; F-30 | ✅ | | `emoji_core` v2. Report `docs/handoff/reports/2026-10-05-teardrop-base.md` |
 | AV.3 | Expression catalog: every emotion in the scope file, mapped to parts, moods and overlays | ✅ | | Shipped as AP-5 |
 | AV.4 | Schema 3 saved everywhere (D-41): Room migration, server migration, `put_avatar` validation, `presence_view` v2 with client composition (Avatar Phase 3 core), golden vectors, F-29 wiring, F-19 | ⬜ | | Spec needed. Contract changes once |
-| AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Each batch: goldens at 48 / 96 / 512 and a contact sheet; free forever (invariant 6) |
+| AV.5 | Expression art in batches: (1) the 16 `Mood` defaults, (2) the rest of the catalog | ⬜ | AV.2, AV.3 | Batch 1 shipped as AP-6 (15 moods; the enum has 15). Batch 2 is AP-13. |
 | AV.6 | Editor (Avatar Phases 4–5 merged): category strip, grid, colors, undo/redo, seeded randomize, 48 px preview, save through `prepareForWrite`, export PNG and recipe JSON (ROADMAP 6–7) | ⬜ | AV.4 | Spec needed |
 | AV.7 | Content waves, in this order: hair (10+), facial hair (6+), headwear, eyewear, jewelry and piercings, tops (after Q15), mouth and hand props, backgrounds, frames | ⬜ | AV.2; tops need Q15 | Each wave: original art, validator, goldens, 48 px review. Free baseline per Q14 |
 | AV.8 | Widget cutover to vector art (ROADMAP step 10) | ⬜ | AV.4, AV.5 batch 1 | Must keep availability and activity glyphs |
@@ -1109,3 +1110,4 @@ win once Track 0 is done.
 | 2026-10-06 | Cursor | AP-4 contact sheets: every emoji_core vector category at 48, 96, and 512, light and dark. 247 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-4-sheets.md` |
 | 2026-10-06 | Cursor | AP-5 expression catalog: 110 faces, 15 priority-1 moods, shape counts for AP-6 and AP-13. 249 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-5-expression-catalog.md` |
 | 2026-10-06 | Cursor | AP-6 system: a visible mood uses the catalog face when the pack defines it. Hidden mood stays neutral. Art is the next PR. 250 JVM, 0 failed, 1 skipped. Lint 0/42. | `docs/handoff/reports/2026-10-06-ap-6-expression-system.md` |
+| 2026-10-06 | Cursor | AP-6 art: 15 priority mood faces on the teardrop. Hidden mood stays neutral eyes and mouth. 254 JVM, 0 failed, 1 skipped. Lint 0/42. Device 21, 0 failed. | `docs/handoff/reports/2026-10-06-ap-6-expression-art.md` |
