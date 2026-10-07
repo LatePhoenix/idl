@@ -488,6 +488,30 @@ in one PR.
 - **Verify:** a JVM test with two packs that ship the same relative file name loads each pack's own picture.
 - **Done in AP-2.** `AssetRegistry` records each manifest's directory. `VectorPictureCache` opens `<directory><render.file>`. `PackPictureCacheTest` loads both pictures.
 
+
+#### F-32 · The brimmed cap sits on the forehead · P2 (Claude, Studio S1, 2026-10-07)
+- `hat_brim_cap` (AP-8): the crown spans about y 180–360 and the brim reaches y ~400. The head's crown is at
+  y 96, so the cap looks too small, covers raised brows, and breaks the style guide's lower-edge limit (y 330).
+- **Fix:** redraw it with the Studio after ST-1 (it's the headwear kit's lint test case), or retire it with a mapping.
+  Waits for the user's art direction.
+
+#### F-33 · LegibilityTest counts dark pixels anywhere · P2 (Claude, Studio S1, 2026-10-07)
+- It sums non-skin pixels over the whole 48 px canvas, so dark hair or a hat over the eyes can raise the
+  count and pass. It doesn't check that the eyes and mouth are still visible.
+- **Fix (ST-2):** measure feature pixels inside the eye and mouth zones (see `tools/studio/engine/legibility.py`).
+- **Verify:** a fixture that covers the eyes with a dark shape fails; the shipped items pass.
+
+#### F-34 · Raised brows sit above the hairline limit · P3, needs the user (Q16)
+- The style guide lets front hair reach y 330 at the centre, but raised brows reach y ~271. Hair that follows
+  the guide can hide raised brows (surprise, worry).
+- **Options:** (a) brows draw above front hair; (b) lower the raised-brow shapes; (c) raise the hairline limit.
+
+#### F-35 · Happy faces use the procedural blush · P3 (Claude, Studio S0, 2026-10-07)
+- The emoji pack's smiling expressions list `overlay_blush`, a `core_proto` procedural asset. The vector
+  `overlay_cheek_blush` isn't used by any expression.
+- **Fix:** point those expressions at `overlay_cheek_blush` if that's intended, and check the privacy and widget
+  rules for decoration overlays still hold. **Verify:** the expression contact sheets.
+
 ---
 
 ## 4. Roadmap
@@ -513,7 +537,9 @@ PostgREST tests) can be done at any time.
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
 dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff/CURSOR_RUNBOOK.md).
-Rows marked 🎨 (AP-13, AP-15) are made with the Art Studio by Claude (D-50); skip them.
+Rows marked 🎨 (AP-13, AP-15) are made with the Art Studio (D-50); skip them. **Next for Cursor (2026-10-07):**
+ST-1..ST-3, the Art Studio, from `docs/handoff/STUDIO_TASK.md`; then AP-10. AP-11 and AP-12 are ⏸ while the user
+rethinks the avatar's look (Q17).
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
 the program is done or the user schedules them.
 
@@ -864,6 +890,13 @@ Answered 2026-10-04 (feature ideas, §7.1):
 | Q14 What is always free? | **The generous baseline** Claude recommended (2026-10-06) | D-48 |
 | Q15 How much body shows, for shirts? | **(c)** bust in the app, head and collar on widgets (2026-10-06) | D-47 |
 
+Open (2026-10-07):
+
+| Q | Context | Options |
+| --- | --- | --- |
+| Q16 Raised brows vs the hairline | F-34 | (a) brows over front hair · (b) lower raised brows · (c) raise the hairline limit |
+| Q17 The avatar's look | The user is rethinking the art direction before more art or editor work. AP-11, AP-12, AP-13 and AP-15 wait | User's call |
+
 Open:
 
 11. **Widget tap action (Q8 follow-up):** what should tapping a friend's home-screen widget
@@ -1118,3 +1151,4 @@ win once Track 0 is done.
 | 2026-10-06 | User/Claude | Art Studio designed: `docs/avatar/ART_STUDIO.md`; D-50 recorded (Claude Code skill front end, AP-13/AP-15 move to the Studio, tool-only Python deps, Claude builds S0–S3) | branch `tools/art-studio-design` |
 | 2026-10-06 | Claude | Art Studio S0: read-only viewer (`tools/studio/`): Catalog, Workbench, Expressions; preview renderer mirrors the app; 7 engine tests | branch `tools/studio-s0` |
 | 2026-10-07 | Cursor | AP-9: OKLCH shadow/highlight, pack slotLinks + palettes, ContrastWarnings, RENDER_VERSION 3. 286 JVM, lint 0/42. | `docs/handoff/reports/2026-10-07-ap-9-color.md` |
+| 2026-10-07 | User/Claude | Studio handoff: Cursor builds S1–S3 (D-50 amended) from `docs/handoff/STUDIO_TASK.md` as ST-1..ST-3; AP-11/AP-12 ⏸ (Q17); findings F-32–F-35; Q16, Q17 | `docs/handoff/reports/2026-10-07-studio-s1-paused.md` |

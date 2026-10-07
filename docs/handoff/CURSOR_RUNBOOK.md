@@ -25,7 +25,8 @@ gh pr list --author "@me" --state open
    (§6.4).
 3. Otherwise read `master-plan.md` §0–§1, then the status table in `AVATAR_PROGRAM.md` §5. The
    next item is the first ⬜ row whose dependencies are all ✅. Skip rows marked 🎨: Claude makes
-   them with the Art Studio (D-50). AP-16 waits until they're ✅.
+   them with the Art Studio (D-50). AP-16 waits until they're ✅. ST rows (the Art Studio itself) are
+   specified in `docs/handoff/STUDIO_TASK.md`, not in `AVATAR_PROGRAM.md` §6.
 4. Read that item's spec in full, plus every document it cites. Read the code it touches before
    you change it.
 

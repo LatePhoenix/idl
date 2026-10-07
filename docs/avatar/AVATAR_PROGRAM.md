@@ -288,6 +288,8 @@ Rules:
 
 Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · ⏸ blocked (see the report) ·
 🎨 made with the Art Studio by Claude (D-50, [`ART_STUDIO.md`](ART_STUDIO.md)). **Cursor skips 🎨 rows.**
+ST rows are the Art Studio, specified in [`STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). AP-11 and AP-12 are ⏸ because the
+user is rethinking the avatar's look (2026-10-07). They resume when the user says so.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -300,9 +302,12 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 | AP-7 | Schema 3 saved everywhere, teardrop-only migration (D-41, D-46; was AV.4). **Design note first** | AP-6 | yes | yes | ✅ |
 | AP-8 | Occlusion, layering and legibility engine | AP-4 | | | ✅ |
 | AP-9 | Color system: OKLCH, links, palettes | AP-4 | | | ✅ |
+| ST-1 | Art Studio S1: kits, drafts, lint, PNG renders, agent guide ([`STUDIO_TASK.md`](../handoff/STUDIO_TASK.md)) | | | | ⬜ |
+| ST-2 | Art Studio S2: real resolver, try-on, legibility parity (F-33) | ST-1 | | | ⬜ |
+| ST-3 | Art Studio S3: promote and retire | ST-2 | | | ⬜ |
 | AP-10 | Store-ready plumbing and the D-48 guard | AP-7 | | | ⬜ |
-| AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⬜ |
-| AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⬜ |
+| AP-11 | Editor: quick creator, full editor, export (was AV.6). **Design note first** | AP-7, AP-8, AP-9, AP-10 | yes | | ⏸ |
+| AP-12 | Widget cutover and polish (was AV.8, F-09) | AP-7, AP-6 | yes | | ⏸ |
 | AP-13 | Expression art batch 2: the rest of the catalog | AP-6, AP-8 | | | 🎨 ⬜ |
 | AP-14 | Status face picker: any expression as a status. **Design note first** | AP-13, AP-11 | yes | yes | ⬜ |
 | AP-15 | Content waves (AP-15.1–15.9) | AP-11 | per wave | | 🎨 ⬜ |
