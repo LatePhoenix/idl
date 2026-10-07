@@ -28,10 +28,10 @@ class PlaceholderFrameTest {
         assertTrue(frame.sceneDetail)
     }
 
-    @Test fun `a migrated fox is still a fox`() {
+    @Test fun `a migrated fox is a teardrop and keeps the expression`() {
         val v2 = LegacyAvatarMigration.migrate(AvatarConfig(baseForm = BaseForm.FOX, expression = Expression.SLEEPY), registry)
         val frame = PlaceholderFrames.from(resolver.resolve(AvatarRenderRequest(v2, sizePx = 256)), registry)
-        assertEquals(BaseForm.FOX, frame.config.baseForm)
+        assertEquals("base_teardrop", v2.baseAssetId)
         assertEquals(Expression.SLEEPY, frame.config.expression)
     }
 

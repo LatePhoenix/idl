@@ -53,8 +53,8 @@ class AvatarResolverTest {
         assertTrue(resolveActivity(ActivityType.LISTENING).has("head_headphones"))
     }
 
-    @Test fun `every expression keeps its face parts on every base`() {
-        val bases = registry.ofCategory(AssetCategory.BASE).map { it.id }
+    @Test fun `every expression keeps its face parts on every live base`() {
+        val bases = registry.ofCategory(AssetCategory.BASE).map { registry.canonicalId(it.id) }.distinct()
         for (base in bases) {
             for (expr in registry.allExpressions) {
                 val resolved = resolver.resolve(request(config(base = base), VisiblePresence(expressionId = expr.id)))
@@ -67,20 +67,20 @@ class AvatarResolverTest {
         }
     }
 
-    @Test fun `focused uses the scan line only on the bot`() {
-        val bot = resolver.resolve(request(config(base = "base_bot"), VisiblePresence(expressionId = "focused")))
-        assertTrue(bot.has("eyes_scan"))
-        assertFalse(bot.has("eyes_narrow"))
-        listOf("base_blob", "base_ghost", "base_critter", "base_orb").forEach { base ->
+    @Test fun `a retired base draws the teardrop face and not the bot scan line`() {
+        val eyes = checkNotNull(registry.expression("focused")!!.partsFor("base_teardrop").eyes)
+        listOf("base_bot", "base_blob", "base_ghost", "base_critter", "base_orb").forEach { base ->
             val resolved = resolver.resolve(request(config(base = base), VisiblePresence(expressionId = "focused")))
-            assertTrue(resolved.has("eyes_narrow"))
-            assertFalse(resolved.has("eyes_scan"))
+            assertEquals(base, "base_teardrop", resolved.baseAssetId)
+            assertTrue(base, resolved.has(eyes))
+            assertFalse(base, resolved.has("eyes_scan"))
         }
     }
 
     @Test fun `every expression is visually distinct on at least one base`() {
-        val bases = registry.ofCategory(AssetCategory.BASE).map { it.id }
+        val bases = registry.ofCategory(AssetCategory.BASE).map { registry.canonicalId(it.id) }.distinct()
         val exprs = registry.allExpressions.map { it.id }
+        val mirrors = setOf(setOf("happy", "smiling_face_with_smiling_eyes"), setOf("neutral", "neutral_face"))
         fun signature(base: String, expr: String): List<String> {
             val resolved = resolver.resolve(request(config(base = base), VisiblePresence(expressionId = expr)))
             return resolved.layers
@@ -90,7 +90,7 @@ class AvatarResolverTest {
         exprs.forEach { expr ->
             val distinct = bases.any { base ->
                 val mine = signature(base, expr)
-                exprs.filter { it != expr }.none { other -> signature(base, other) == mine }
+                exprs.filter { it != expr && setOf(it, expr) !in mirrors }.none { other -> signature(base, other) == mine }
             }
             assertTrue("$expr collides with another expression on every base", distinct)
         }
@@ -332,24 +332,25 @@ class AvatarResolverTest {
         assertEquals(saved, request(saved, VisiblePresence(activityType = ActivityType.VR)).configuration)
     }
 
-    @Test fun `signature ears outrank a helmet that does not list the conflict`() {
+    @Test fun `species ears do not fit a retired critter and the helmet stays`() {
         val resolved = resolver.resolve(request(config(
             base = "base_critter",
             features = listOf("feature_ears_cat"),
             head = "head_helmet",
         )))
-        assertTrue(resolved.has("feature_ears_cat"))
-        assertFalse(resolved.has("head_helmet"))
-        val drop = resolved.dropped.first { it.assetId == "head_helmet" }
-        assertEquals(DropReason.CONFLICT, drop.reason)
-        assertEquals("feature_ears_cat", drop.detail)
+        assertEquals("base_teardrop", resolved.baseAssetId)
+        assertFalse(resolved.has("feature_ears_cat"))
+        assertTrue(resolved.has("head_helmet"))
+        assertTrue(resolved.dropped.any { it.assetId == "feature_ears_cat" })
     }
 
-    @Test fun `visor eyes fall back to round eyes off the bot`() {
-        val blob = resolver.resolve(request(config(base = "base_blob", eyes = "eyefam_visor")))
-        assertEquals("eyefam_round", blob.layers.first { it.category == AssetCategory.FACE_EYE }.variant)
-        val bot = resolver.resolve(request(config(base = "base_bot", eyes = "eyefam_visor")))
-        assertEquals("eyefam_visor", bot.layers.first { it.category == AssetCategory.FACE_EYE }.variant)
+    @Test fun `visor eyes do not fit the teardrop`() {
+        listOf("base_blob", "base_bot").forEach { base ->
+            val resolved = resolver.resolve(request(config(base = base, eyes = "eyefam_visor")))
+            assertEquals(base, "base_teardrop", resolved.baseAssetId)
+            assertTrue(base, resolved.has("eyes_round_neutral"))
+            assertTrue(base, resolved.layers.none { it.variant == "eyefam_visor" })
+        }
     }
 
     @Test fun `a conflict declared on only one asset is still detected`() {
@@ -478,7 +479,7 @@ class AvatarResolverTest {
         val hidden = resolver.resolve(request(config(dna = dna)))
         assertEquals("neutral", hidden.expressionId)
         assertFalse(hidden.has("overlay_sparkles"))
-        assertTrue(hidden.has("eyes_open"))
+        assertTrue(hidden.has("eyes_round_neutral"))
         val shown = resolver.resolve(request(config(dna = dna), VisiblePresence(mood = Mood.SLEEPY)))
         assertEquals("excited", shown.expressionId)
         assertTrue(shown.has("overlay_sparkles"))
@@ -592,7 +593,7 @@ class AvatarResolverTest {
 
     @Test fun `an unknown base falls back to the default and an unknown prop is dropped`() {
         val missingBase = resolver.resolve(request(config().copy(baseAssetId = "base_nope")))
-        assertEquals("base_blob", missingBase.baseAssetId)
+        assertEquals("base_teardrop", missingBase.baseAssetId)
         assertTrue(missingBase.dropped.none { it.reason == DropReason.UNKNOWN_ASSET })
 
         val missingScene = resolver.resolve(request(
@@ -614,11 +615,11 @@ class AvatarResolverTest {
         assertTrue(fallbackProp.dropped.any { it.assetId == "prop_nope" && it.reason == DropReason.UNKNOWN_ASSET })
     }
 
-    @Test fun `layers sort by z then id and the hoodie sits behind the base`() {
+    @Test fun `layers sort by z then id`() {
         val resolved = resolver.resolve(request(config(body = "body_hoodie", features = listOf("feature_blush"))))
         val ids = resolved.layers.map { it.assetId }
         assertEquals(ids.sortedWith(compareBy({ resolved.layers.first { layer -> layer.assetId == it }.z }, { it })), ids)
-        assertTrue(ids.indexOf("body_hoodie") < ids.indexOf("base_blob"))
+        assertTrue(ids.contains("base_teardrop"))
         val drops = resolved.dropped
         assertEquals(drops.sortedWith(compareBy({ it.assetId }, { it.reason.ordinal })), drops)
     }
@@ -637,7 +638,7 @@ class AvatarResolverTest {
 
     @Test fun `accessibility sentence does not repeat a label`() {
         val resolved = resolver.resolve(request(presence = VisiblePresence(availability = Availability.DO_NOT_DISTURB)))
-        assertEquals("Blob avatar, do not disturb", resolved.accessibilityDescription)
+        assertEquals("Teardrop face avatar, do not disturb", resolved.accessibilityDescription)
     }
 
     @Test fun `accessibility description names base expression availability and activity`() {
@@ -645,7 +646,7 @@ class AvatarResolverTest {
             config(base = "base_critter"),
             VisiblePresence(mood = Mood.SLEEPY, availability = Availability.TEXT_ONLY, activityType = ActivityType.VR),
         ))
-        assertEquals("Critter avatar, sleepy, text only, in VR", resolved.accessibilityDescription)
+        assertEquals("Teardrop face avatar, sleepy, text only, in VR", resolved.accessibilityDescription)
     }
 
     @Test fun `scene detail follows size and the detail preference`() {

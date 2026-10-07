@@ -99,7 +99,7 @@ class WidgetRenderInputsTest {
         val resolved = AvatarResolver(registry).resolve(inputs.request())
         assertTrue(resolved.has("avail_busy"))
         assertTrue(resolved.has("badge_working"))
-        assertEquals("You, Orb avatar, focused, busy, working", model.copy(avatarDescription = resolved.accessibilityDescription).contentDescription)
+        assertEquals("You, Teardrop face avatar, focused, busy, working", model.copy(avatarDescription = resolved.accessibilityDescription).contentDescription)
     }
 
     @Test fun `a widget with no avatar has nothing to resolve`() {

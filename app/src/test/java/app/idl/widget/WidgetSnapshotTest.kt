@@ -28,7 +28,9 @@ import app.idl.domain.avatar.ResolvedAvatar
 import app.idl.domain.avatar.WallpaperContrastMode
 import app.idl.domain.avatar.coreRegistry
 import app.idl.domain.avatar.has
+import app.idl.domain.avatar.repoRoot
 import app.idl.domain.wire
+import java.io.File
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -51,7 +53,11 @@ import java.time.Instant
 @Config(sdk = [35], application = android.app.Application::class)
 class WidgetSnapshotTest {
     private val registry = coreRegistry()
-    private val pictures = VectorPictureCache { file -> throw java.io.FileNotFoundException(file) }
+    private val pictures = VectorPictureCache(
+        packDirectory = { asset -> registry.packDirectory(asset.id) },
+    ) { path ->
+        File(repoRoot(), "app/src/main/assets/$path").readText()
+    }
     private val now = Instant.parse("2026-10-04T15:00:00Z")
 
     @Test fun `every availability differs at the default 2x2 size`() {
@@ -140,8 +146,6 @@ class WidgetSnapshotTest {
         listOf(
             Triple("freckles", "feature_freckles", AvatarConfig(faceStyle = FaceStyle.FRECKLES)),
             Triple("blush", "feature_blush", AvatarConfig(faceStyle = FaceStyle.BLUSHY)),
-            Triple("ears_cat", "feature_ears_cat", AvatarConfig(baseForm = BaseForm.CAT)),
-            Triple("ears_fox", "feature_ears_fox", AvatarConfig(baseForm = BaseForm.FOX)),
             Triple("glasses", "face_glasses_round", AvatarConfig(faceAccessory = FaceAccessory.GLASSES)),
             Triple("sunglasses", "face_sunglasses", AvatarConfig(faceAccessory = FaceAccessory.SUNGLASSES)),
             Triple("hat", "head_wizard_hat", AvatarConfig(headAccessory = HeadAccessory.WIZARD_HAT)),

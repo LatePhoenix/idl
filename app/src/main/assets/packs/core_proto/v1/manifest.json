@@ -1774,5 +1774,11 @@
       ]
     }
   },
-  "retired": {}
+  "retired": {
+    "base_blob": "base_teardrop",
+    "base_bot": "base_teardrop",
+    "base_ghost": "base_teardrop",
+    "base_critter": "base_teardrop",
+    "base_orb": "base_teardrop"
+  }
 }

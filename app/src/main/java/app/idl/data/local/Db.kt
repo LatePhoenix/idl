@@ -14,6 +14,9 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import app.idl.domain.avatar.AssetPacks
+import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.StoredAvatar
 import kotlinx.coroutines.flow.Flow
 
 /*
@@ -205,7 +208,7 @@ interface IdlDao {
         WidgetSubscriptionEntity::class, SyncStateEntity::class,
         UserEconomyStateEntity::class, FriendTetherEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class IdlDatabase : RoomDatabase() {
@@ -227,10 +230,35 @@ abstract class IdlDatabase : RoomDatabase() {
             }
         }
 
-        fun create(context: Context): IdlDatabase =
-            Room.databaseBuilder(context, IdlDatabase::class.java, "idl.db")
-                .addMigrations(MIGRATION_1_2)
+        /** Rewrites each stored avatar to schema 3 and `base_teardrop`. Tables stay as they are. */
+        fun migration2To3(registry: AssetRegistry) = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.query("SELECT userId, json FROM avatars").use { cursor ->
+                    val userCol = cursor.getColumnIndexOrThrow("userId")
+                    val jsonCol = cursor.getColumnIndexOrThrow("json")
+                    while (cursor.moveToNext()) {
+                        val userId = cursor.getString(userCol)
+                        val json = cursor.getString(jsonCol)
+                        val rewritten = StoredAvatar.rewrite(json, registry)
+                        if (rewritten != json) {
+                            db.execSQL(
+                                "UPDATE avatars SET json = ? WHERE userId = ?",
+                                arrayOf<Any>(rewritten, userId),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun create(context: Context): IdlDatabase {
+            val registry = AssetPacks.registry { path ->
+                context.assets.open(path).bufferedReader().use { it.readText() }
+            }
+            return Room.databaseBuilder(context, IdlDatabase::class.java, "idl.db")
+                .addMigrations(MIGRATION_1_2, migration2To3(registry))
                 .build()
+        }
 
         fun inMemory(context: Context): IdlDatabase =
             Room.inMemoryDatabaseBuilder(context, IdlDatabase::class.java).build()

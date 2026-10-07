@@ -32,6 +32,12 @@ import app.idl.domain.PresenceView
 import app.idl.domain.PrivacyRules
 import app.idl.domain.Reaction
 import app.idl.domain.ReactionTemplate
+import app.idl.domain.avatar.AssetRegistry
+import app.idl.domain.avatar.AvatarConfiguration
+import app.idl.domain.avatar.AvatarWrite
+import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.LoadedAvatar
+import app.idl.domain.avatar.StoredAvatar
 import app.idl.domain.wire
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -94,6 +100,7 @@ class SessionRepository(
     val auth: AuthGateway,
     private val widgets: WidgetRefresher,
     private val renders: RenderCache,
+    private val registry: (() -> AssetRegistry)? = null,
 ) {
     val me: Flow<Me?> = dao.session().map { it?.toMe() }
 
@@ -105,8 +112,10 @@ class SessionRepository(
         try {
             val me = backend.me()
             dao.upsertSession(SessionEntity(userId = me.userId, username = me.username, displayName = me.displayName, invisible = me.invisible))
-            runCatching { backend.getAvatar() }.getOrNull()?.let {
-                dao.upsertAvatar(AvatarEntity(me.userId, IdlJson.encodeToString(AvatarConfig.serializer(), it)))
+            runCatching { backend.getAvatar() }.getOrNull()?.let { config ->
+                val encoded = IdlJson.encodeToString(AvatarConfig.serializer(), config)
+                val stored = registry?.let { StoredAvatar.rewrite(encoded, it()) } ?: encoded
+                dao.upsertAvatar(AvatarEntity(me.userId, stored))
             }
             me
         } catch (e: IdlException) {
@@ -145,12 +154,40 @@ class AvatarRepository(
     private val dao: IdlDao,
     private val backend: IdlBackend,
     private val widgets: WidgetRefresher,
+    private val registry: () -> AssetRegistry,
 ) {
-    fun avatar(userId: String): Flow<AvatarConfig?> = dao.avatar(userId).map { it?.json?.let(::decodeAvatar) }
+    fun avatar(userId: String): Flow<AvatarConfig?> = dao.avatar(userId).map { row ->
+        val json = row?.json ?: return@map null
+        val reg = registry()
+        StoredAvatar.read(json, reg)?.let { StoredAvatar.toStudioConfig(it, reg) }
+    }
+
+    suspend fun loadForEdit(userId: String): LoadedAvatar {
+        val json = dao.avatarNow(userId)?.json ?: return LoadedAvatar.Missing
+        val reg = registry()
+        val recipe = StoredAvatar.read(json, reg) ?: return LoadedAvatar.NeedsAppUpdate
+        return LoadedAvatar.Editable(StoredAvatar.toStudioConfig(recipe, reg), recipe)
+    }
 
     suspend fun save(userId: String, config: AvatarConfig): Result<AvatarConfig> {
-        // Avatar is cached first so the builder works offline; the server copy follows.
-        dao.upsertAvatar(AvatarEntity(userId, IdlJson.encodeToString(AvatarConfig.serializer(), config)))
+        val reg = registry()
+        val stored = dao.avatarNow(userId)?.json
+        val existing = stored?.let { StoredAvatar.read(it, reg) }
+        if (stored != null && existing == null) {
+            return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
+        }
+        val next = if (existing == null) {
+            LegacyAvatarMigration.migrate(config, reg)
+        } else {
+            StoredAvatar.applyStudio(existing, config, reg)
+        }
+        val write = next.prepareForWrite(reg.baseFamilies)
+        if (write is AvatarWrite.NeedsAppUpdate) {
+            return Result.failure(IllegalStateException(AvatarWrite.NeedsAppUpdate.message))
+        }
+        val ready = (write as AvatarWrite.Ready).configuration
+        // Cached as schema 3 so the builder works offline. The server still takes the v1 shape until AP-7's server PR.
+        dao.upsertAvatar(AvatarEntity(userId, IdlJson.encodeToString(AvatarConfiguration.serializer(), ready)))
         widgets.selfChanged()
         return attempt { backend.putAvatar(config) }
     }

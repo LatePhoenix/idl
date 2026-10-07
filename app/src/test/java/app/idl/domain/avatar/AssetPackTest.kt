@@ -18,6 +18,13 @@ import java.io.File
 class AssetPackTest {
     private val registry = coreRegistry()
 
+    @Test fun `legacy bases retire to the teardrop`() {
+        listOf("base_blob", "base_bot", "base_ghost", "base_critter", "base_orb").forEach { id ->
+            assertEquals(id, "base_teardrop", registry.canonicalId(id))
+            assertEquals(id, "base_teardrop", registry.asset(id)!!.id)
+        }
+    }
+
     @Test fun `core proto validates with no issues`() {
         val issues = registry.validate()
         assertEquals(issues.joinToString("\n"), emptyList<String>(), issues)
