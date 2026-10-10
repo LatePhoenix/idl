@@ -40,6 +40,7 @@ import app.idl.domain.Scene
 import app.idl.domain.VisualOverride
 import app.idl.domain.avatar.AssetPacks
 import app.idl.domain.avatar.AvatarResolver
+import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.WallpaperContrastMode
 import app.idl.widget.WidgetData
@@ -223,11 +224,16 @@ class CacheAndWidgetDataTest {
     }
 }
 
-/** Widget pixels: resolver layers, then the procedural painter. Not the v1 [AvatarSpec] plan. */
+/** Widget pixels on the vector path, with head framing. */
 @RunWith(AndroidJUnit4::class)
 class WidgetRenderPathTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val registry = AssetPacks.registry { path ->
+        context.assets.open(path).bufferedReader().use { it.readText() }
+    }
+    private val pictures = VectorPictureCache(
+        packDirectory = { asset -> registry.packDirectory(asset.id) },
+    ) { path ->
         context.assets.open(path).bufferedReader().use { it.readText() }
     }
 
@@ -293,13 +299,38 @@ class WidgetRenderPathTest {
         save("widget-2x2-default-sleepy.png", ari)
     }
 
+    @Test fun coldWidgetRenderTakesLongerThanTheCachedOne() {
+        val dir = File(context.cacheDir, "ap12-widget-timing").apply {
+            deleteRecursively()
+            mkdirs()
+        }
+        val cold = timed { RenderCache(dir).bitmap("ap12-busy", RenderCache.OWNER_SELF) { busyBitmap() } }
+        val disk = timed { RenderCache(dir).bitmap("ap12-busy", RenderCache.OWNER_SELF) { error("disk hit should not render") } }
+        val warm = RenderCache(dir)
+        warm.bitmap("ap12-busy", RenderCache.OWNER_SELF) { error("warm-up should hit disk") }
+        val memory = timed { warm.bitmap("ap12-busy", RenderCache.OWNER_SELF) { error("memory hit should not render") } }
+        Log.i("idl.widget.timing", "coldMs=${cold.first} diskMs=${disk.first} memoryMs=${memory.first}")
+        assertTrue("cold ${cold.first} ms, memory ${memory.first} ms", memory.first < cold.first)
+        assertTrue(cold.second.sameAs(disk.second))
+        assertTrue(disk.second.sameAs(memory.second))
+    }
+
+    private fun busyBitmap() = bitmap(Availability.BUSY, null, RenderTarget.STANDARD_WIDGET)
+
+    private fun timed(block: () -> Bitmap): Pair<Long, Bitmap> {
+        val start = System.nanoTime()
+        val bitmap = block()
+        return (System.nanoTime() - start) / 1_000_000 to bitmap
+    }
+
     private fun widgetBitmap(model: WidgetModel, target: RenderTarget): Bitmap {
         val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
         val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+        check(resolved.framing == Framing.HEAD)
         return AvatarRenderer.bitmap(
             resolved,
             registry,
-            noPictures,
+            pictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),
@@ -328,10 +359,11 @@ class WidgetRenderPathTest {
         )
         val inputs = checkNotNull(WidgetRenderInputs.from(model, registry, target))
         val resolved = AvatarResolver(registry).resolve(inputs.request(WallpaperContrastMode.DARK_WALLPAPER))
+        check(resolved.framing == Framing.HEAD)
         return AvatarRenderer.bitmap(
             resolved,
             registry,
-            noPictures,
+            pictures,
             256,
             AvatarBadges(),
             RenderContrast(wallpaper = WallpaperContrastMode.DARK_WALLPAPER),

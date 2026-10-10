@@ -293,9 +293,7 @@ in one PR.
   renders as a blob.
 - **Fix in Phase 2:** paint each `ResolvedLayer` by `AssetDef.painterKey`, then delete the
   adapter.
-- **Status (2026-10-05):** partly done. Since Phase 2 PR B the renderer is driven by
-  `CompositeOrder`, and vector assets bypass the adapter. Procedural layers still go through it,
-  so it retires category by category as vector art replaces procedural art.
+- **Status (2026-10-10):** widgets and in-app avatars draw vector layers on the head framing. The adapter remains for procedural categories that still have live assets: presence chrome, props, body accessories, scenes, and frames. Those painters stay until vector art replaces them.
 
 #### F-10 · Render cache hygiene · ✅ P1
 - Rendered friend images in `cacheDir/renders` survive friend removal, block and sign-out. They
@@ -588,9 +586,8 @@ PostgREST tests) can be done at any time.
 mouth instead of the whole 48 px canvas (F-33 ✅). PR 5 waits for a real item in `art/incoming/`.
 **ST-3 is done in the same pass:** `import_art.py retire <old> --to <new>` records the mapping
 and removes the old id from the shipped list. It refuses a removal that has no replacement.
-The next row is **AP-12** (widget cutover). The editor is in: quick creator, full editor, and export (AP-11). Art direction is recorded (D-53).
-The restyle is AD-3 and waits until the editor and the widgets are in. Shipped pictures stay
-placeholders. Claude's audit still has F-32 and F-35–F-40 open. F-34 is decided and applies in AD-3.
+The next row is **AD-3** (restyle under D-53). The editor (AP-11) and the widget cutover (AP-12) are in. Art direction is recorded (D-53).
+Shipped pictures stay placeholders until AD-3 redraws them. Claude's audit still has F-32 and F-35–F-40 open. F-34 is decided and applies in AD-3. F-09 stays open for procedural categories that still have assets.
 
 **The avatar program is the work queue.** Take the next item from the status table in
 [`docs/avatar/AVATAR_PROGRAM.md`](docs/avatar/AVATAR_PROGRAM.md) §5 (the first ⬜ row whose
@@ -1230,3 +1227,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | ST-3 retire: `import_art.py retire <old> --to <new>` writes the mapping and will not remove an id without a replacement | `docs/handoff/reports/2026-10-07-st-3-retire.md` |
 | 2026-10-07 | Cursor | AD-2: Q17 is F with a widget sticker edge, Q16 is brows over front hair (D-53). Shipped art stays a placeholder until AD-3 | `docs/handoff/reports/2026-10-07-ad-2-direction.md` |
 | 2026-10-10 | Cursor | AP-11 editor: session, full editor, quick creator, export at 512/1024/2048. | `docs/handoff/reports/2026-10-10-ap-11-export.md` |
+| 2026-10-10 | Cursor | AP-12 widgets: vector head framing, availability goldens at every target in light and dark. Cold render 197 ms, disk cache 5 ms, memory cache 0 ms on the emulator. PlaceholderFrame stays for procedural chrome and accessories that still have assets. | `docs/handoff/reports/2026-10-10-ap-12-widget.md` |

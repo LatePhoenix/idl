@@ -12,6 +12,7 @@ import app.idl.domain.wire
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.DropReason
 import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.coreRegistry
 import app.idl.domain.avatar.has
@@ -25,6 +26,16 @@ import java.time.Instant
 class WidgetRenderInputsTest {
     private val registry = coreRegistry()
     private val now = Instant.parse("2026-10-04T15:00:00Z")
+
+    @Test fun `widget targets use head framing`() {
+        listOf(
+            RenderTarget.COMPACT_WIDGET,
+            RenderTarget.STANDARD_WIDGET,
+            RenderTarget.LARGE_WIDGET,
+        ).forEach { target ->
+            assertEquals(Framing.HEAD, target.framing)
+        }
+    }
 
     @Test fun `cell size selects compact standard and large targets`() {
         assertEquals(76f, WidgetRenderInputs.avatarDrawnDp(110f, 110f))
