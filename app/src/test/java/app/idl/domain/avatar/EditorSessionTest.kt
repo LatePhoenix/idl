@@ -134,6 +134,21 @@ class EditorSessionTest {
         assertEquals(null, saveRefusal(session.configuration, registry, locked))
     }
 
+    @Test fun `start over returns the teardrop starter and clears before and undo`() {
+        val registry = coreRegistry()
+        val session = EditorSession(EditorDefaults.starter(registry), registry)
+        assertTrue(session.wear("hair_bob"))
+        assertTrue(session.setColor("face.primary", "#F0C9A8"))
+        session.toggleBefore()
+        assertTrue(session.showingOpened)
+        session.startOver()
+        assertEquals(EditorDefaults.starter(registry), session.configuration)
+        assertEquals("base_teardrop", session.configuration.baseAssetId)
+        assertFalse(session.showingOpened)
+        assertFalse(session.canUndo)
+        assertFalse(session.canRedo)
+    }
+
     @Test fun `onboarding samples are three teardrop avatars`() {
         val registry = coreRegistry()
         val samples = EditorDefaults.onboardingSamples(registry)

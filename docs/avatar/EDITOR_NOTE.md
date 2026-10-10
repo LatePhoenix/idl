@@ -8,7 +8,7 @@ One recipe (`AvatarConfiguration`), one session. The old Studio keeps editing v1
 
 ## Session
 
-`EditorSession` is pure Kotlin in `domain/avatar`. It holds the recipe, an undo stack (50), a redo stack, and the recipe from when the session opened (before/after). A new edit clears redo. Undo at the start does nothing.
+`EditorSession` is pure Kotlin in `domain/avatar`. It holds the recipe, an undo stack (50), a redo stack, and the recipe from when the session opened (before/after). A new edit clears redo. Undo at the start does nothing. Start over replaces the recipe with `EditorDefaults.starter` and clears undo, redo, and the before/after view. Reset all stays the pack-default reset and keeps history.
 
 Wearing an item the user already wears toggles it off. A new item wins: anything it conflicts with is removed. An item that does not fit the base is refused. Premium items can be tried on. Save still goes through `prepareForWrite`, which refuses them when they are not owned.
 

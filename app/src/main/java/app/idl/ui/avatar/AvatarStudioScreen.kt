@@ -185,6 +185,12 @@ internal class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() 
         publish()
     }
 
+    fun startOver() {
+        session?.startOver()
+        notice = null
+        publish()
+    }
+
     fun toggleBefore() {
         session?.toggleBefore()
         publish()
@@ -295,7 +301,7 @@ internal fun AvatarStudioScreen(
                 onReset = vm::resetAll,
                 onBefore = vm::toggleBefore,
                 onStartOver = {
-                    vm.resetAll()
+                    vm.startOver()
                     step = 0
                     quick = true
                 },

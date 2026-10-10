@@ -16,7 +16,9 @@ First run, and Start over from the full editor, walk skin, then hair and hair co
 
 ## Files
 
+- `app/src/main/java/app/idl/domain/avatar/EditorSession.kt`
 - `app/src/main/java/app/idl/ui/avatar/AvatarStudioScreen.kt`
+- `app/src/test/java/app/idl/domain/avatar/EditorSessionTest.kt`
 - `app/src/androidTest/java/app/idl/ui/avatar/QuickCreatorTest.kt`
 - `docs/avatar/EDITOR_NOTE.md`
 
@@ -24,13 +26,13 @@ First run, and Start over from the full editor, walk skin, then hair and hair co
 
 | Command | Result |
 | --- | --- |
-| `scripts/check.ps1` | 47 Python tests OK. Catalog OK. Gradle: 307 tests, 0 failed, 1 skipped. Lint: 0 errors, 42 warnings. **All checks passed.** |
+| `scripts/check.ps1` | 47 Python tests OK. Catalog OK. Gradle: 308 tests, 0 failed, 1 skipped. Lint: 0 errors, 42 warnings. **All checks passed.** |
 | `connectedDebugAndroidTest` `QuickCreatorTest` on `emulator-5554` (Pixel 9, API 37) | 1 test, 0 failed. Skin, hair, hair color, top, and save finished inside 2 minutes. |
 | SQL | not run. No server change. |
 
 ## Deviations
 
-- Start over lives on the full editor. It resets the look and opens the three steps.
+- Start over lives on the full editor. It replaces the recipe with the teardrop starter, clears undo and the before/after view, and opens the three steps.
 - All options leaves the short flow for the full editor without saving yet.
 
 ## Known limitations
@@ -39,4 +41,4 @@ First run, and Start over from the full editor, walk skin, then hair and hair co
 
 ## Commits
 
-This report is in the same commit as the screen.
+This report is in the first commit. The follow-up makes Start over use the teardrop starter.

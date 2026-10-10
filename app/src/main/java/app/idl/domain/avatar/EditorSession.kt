@@ -91,6 +91,17 @@ class EditorSession(
         return if (showingOpened) opened else configuration
     }
 
+    /**
+     * Fresh first-run recipe. Clears undo, redo, and the before/after view.
+     * [resetAll] stays the pack-default reset and keeps history.
+     */
+    fun startOver() {
+        configuration = EditorDefaults.starter(registry)
+        undoStack.clear()
+        redoStack.clear()
+        showingOpened = false
+    }
+
     /** Pack defaults for base, palette, scene, and frame. Worn items and colors clear. */
     fun resetAll(): Boolean {
         val defaults = registry.defaults
