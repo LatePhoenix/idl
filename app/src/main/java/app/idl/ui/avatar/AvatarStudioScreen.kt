@@ -26,6 +26,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -153,6 +157,12 @@ internal class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() 
         publish()
     }
 
+    fun clearTab(which: EditorTab) {
+        which.categories.forEach { session?.clearCategory(it) }
+        notice = null
+        publish()
+    }
+
     fun undo() {
         session?.undo()
         publish()
@@ -171,6 +181,12 @@ internal class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() 
 
     fun resetAll() {
         session?.resetAll()
+        notice = null
+        publish()
+    }
+
+    fun startOver() {
+        session?.startOver()
         notice = null
         publish()
     }
@@ -240,11 +256,32 @@ internal fun AvatarStudioScreen(
 ) {
     val state by vm.ui.collectAsState()
     val loaded = state
-    Scaffold(topBar = { IdlTopBar(if (firstRun) "Build your iDL" else "Avatar", onBack = if (firstRun) null else onDone) }) { pad ->
+    var quick by remember { mutableStateOf(firstRun) }
+    var step by remember { mutableIntStateOf(0) }
+    Scaffold(topBar = {
+        IdlTopBar(
+            if (quick) "Build your iDL" else "Avatar",
+            onBack = if (firstRun || quick) null else onDone,
+        )
+    }) { pad ->
         if (loaded == null) {
             Box(Modifier.padding(pad).fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Loading your avatar")
             }
+        } else if (quick) {
+            QuickCreator(
+                state = loaded,
+                step = step,
+                registry = c.assetRegistry,
+                entitlements = c.entitlements,
+                modifier = Modifier.padding(pad),
+                onStep = { step = it },
+                onWear = vm::wear,
+                onColor = vm::setColor,
+                onClear = { vm.clearTab(quickSteps[step]) },
+                onFullEditor = { quick = false },
+                onSave = { vm.save(onDone) },
+            )
         } else {
             EditorBody(
                 state = loaded,
@@ -263,6 +300,11 @@ internal fun AvatarStudioScreen(
                 onRandom = vm::randomize,
                 onReset = vm::resetAll,
                 onBefore = vm::toggleBefore,
+                onStartOver = {
+                    vm.startOver()
+                    step = 0
+                    quick = true
+                },
                 onSave = { vm.save(onDone) },
             )
         }
@@ -288,6 +330,7 @@ internal fun EditorBody(
     onRandom: () -> Unit,
     onReset: () -> Unit,
     onBefore: () -> Unit,
+    onStartOver: () -> Unit = {},
     onSave: () -> Unit,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -343,6 +386,7 @@ internal fun EditorBody(
             TextButton(onClick = onBefore, enabled = !state.blocked, modifier = Modifier.testTag("before-after")) {
                 Text(if (state.showingOpened) "After" else "Before")
             }
+            TextButton(onClick = onStartOver, enabled = !state.blocked, modifier = Modifier.testTag("start-over")) { Text("Start over") }
         }
         Button(
             onClick = onSave,
@@ -354,6 +398,67 @@ internal fun EditorBody(
     }
 }
 
+private val quickSteps = listOf(EditorTab.SKIN, EditorTab.HAIR, EditorTab.TOPS)
+
+@Composable
+internal fun QuickCreator(
+    state: EditorUi,
+    step: Int,
+    registry: AssetRegistry,
+    entitlements: Entitlements,
+    modifier: Modifier = Modifier,
+    onStep: (Int) -> Unit,
+    onWear: (String) -> Unit,
+    onColor: (String, String) -> Unit,
+    onClear: () -> Unit,
+    onFullEditor: () -> Unit,
+    onSave: () -> Unit,
+) {
+    val tab = quickSteps[step.coerceIn(quickSteps.indices)]
+    val stepState = state.copy(tab = tab)
+    val last = step == quickSteps.lastIndex
+    Column(modifier.fillMaxSize()) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AvatarImage(
+                state.displayed,
+                "Avatar at widget size",
+                size = 48.dp,
+                target = RenderTarget.COMPACT_WIDGET,
+            )
+            Column {
+                Text(tab.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag("quick-step"))
+                Text("${step + 1} of ${quickSteps.size}", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            state.notice?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("notice")) }
+            if (tab.palette != null) ColorRow(stepState, registry, onColor, onToggleLink = {}, showLinks = false)
+            if (tab.categories.isNotEmpty()) ItemGrid(stepState, registry, entitlements, onWear, onClear)
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(onClick = { onStep(step - 1) }, enabled = step > 0, modifier = Modifier.testTag("quick-back")) { Text("Back") }
+            TextButton(onClick = onFullEditor, modifier = Modifier.testTag("full-editor")) { Text("All options") }
+        }
+        Button(
+            onClick = { if (last) onSave() else onStep(step + 1) },
+            enabled = !state.blocked,
+            modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(if (last) "save" else "quick-next"),
+        ) {
+            Text(if (last) "This is me" else "Next")
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColorRow(
@@ -361,6 +466,7 @@ private fun ColorRow(
     registry: AssetRegistry,
     onColor: (String, String) -> Unit,
     onToggleLink: (String) -> Unit,
+    showLinks: Boolean = true,
 ) {
     val tab = state.tab
     val slot = tab.colorSlot
@@ -383,7 +489,7 @@ private fun ColorRow(
             }
         }
     }
-    if (tab.unlinkSlots.isNotEmpty()) {
+    if (showLinks && tab.unlinkSlots.isNotEmpty()) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             tab.unlinkSlots.forEach { link ->
                 val linked = link !in state.configuration.unlinkedSlots
