@@ -32,6 +32,6 @@ Seeded with `kotlin.random.Random`. Same seed, same registry, same starting reci
 
 ## Later pull requests
 
-- Full editor UI, then quick creator (skin, hair and hair color, top, done), then export at 512, 1024, and 2048, rendered at that size.
+- Export at 512, 1024, and 2048, rendered at that size. The full editor and the quick creator are in.
 - The entitlement message in the UI uses the asset's accessibility label (F-40). The domain result still carries the ids.
 - Replace the v1 Studio and the fox / ghost / robot onboarding row in the UI pull request.
