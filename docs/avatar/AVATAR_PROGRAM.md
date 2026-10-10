@@ -294,7 +294,7 @@ Legend: ⬜ not started · 🔨 in progress (a branch exists) · ✅ merged · �
 ST and AD rows are specified in [`docs/handoff/STUDIO_TASK.md`](../handoff/STUDIO_TASK.md). When every remaining
 row depends on an unfinished 👤 row, stop (runbook §7) and tell the user exactly what to decide.
 
-**Next (2026-10-07):** AP-11, the editor screen. Art direction is recorded (D-53). The restyle waits until the editor and widgets are in. ST-2 PR 5, the pilot real-art import, waits for a file in `art/incoming/`.
+**Next (2026-10-10):** AD-3, the restyle under D-53. The editor and the widgets are in. ST-2 PR 5, the pilot real-art import, waits for a file in `art/incoming/`.
 
 | # | Item | Depends on | Device? | Server? | Status |
 | --- | --- | --- | --- | --- | --- |
