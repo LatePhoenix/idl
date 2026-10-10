@@ -4,15 +4,13 @@
 > Cursor and Claude both read and update it. Detailed specs live in `docs/` and are linked
 > from here; this file says *what state everything is in* and *what to do next*.
 
-Last status refresh: **2026-10-07** (ST-2 PR 4, F-33). `origin/main` is at
-`0b9b1bb` (ST-2 PR 3, #59). Earlier full review: 2026-10-05 by Claude through PR #23.
+Last status refresh: **2026-10-10** (AP-12, PR #67). `origin/main` is at `97bc8bf`.
 
-**ST-2 resumed (2026-10-07).** The pause before ST-2 is over. The importer is specified in
-[`docs/handoff/ART_IMPORT_TASK.md`](docs/handoff/ART_IMPORT_TASK.md) (D-51, D-52). PR 1
-merged as #57 and PR 2 as #58. PR 3 is review sheets on `tools/import-art-sheets`.
-PR 4 is F-33. PR 5 waits for a real studio export
-([`COORDINATION.md`](COORDINATION.md)). The pause note is
-`docs/handoff/reports/2026-10-07-cursor-handoff-before-st-2.md`.
+**Function is in through the widgets.** The editor (AP-11, #62 #64 #65 #66) and the widget
+cutover (AP-12, #67) are merged. Art direction is D-53. The next program row is **AD-3**, the
+restyle. Shipped pictures stay placeholders until that redraw. ST-2's importer is done
+(#57–#60); its pilot art PR still waits for a real file in `art/incoming/`
+([`COORDINATION.md`](COORDINATION.md)).
 
 ---
 
@@ -47,25 +45,25 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 
 ---
 
-## 1. Current state (2026-10-07)
+## 1. Current state (2026-10-10)
 
 ### 1.1 Branches and CI
 
 | Item | State |
 | --- | --- |
 | Remote | `github.com/LatePhoenix/idl` (private) |
-| `origin/main` | `0b9b1bb` (PR #59, ST-2 review sheets, 2026-10-07). Tags: `avatar-ad-1`, `avatar-ap-10`. Start new work from an up-to-date `origin/main` |
-| Open PRs | None until `tools/legibility-zones` (ST-2 PR 4) is pushed |
+| `origin/main` | `97bc8bf` (PR #67, AP-12 widgets, 2026-10-10). Tags through `avatar-ap-12`, plus `avatar-ad-1`, `avatar-ad-2`, `avatar-st-2`, `avatar-st-3`. Start new work from an up-to-date `origin/main` |
+| Open PRs | None |
 | Working tree note | Untracked leftover (do not commit unless claimed by a done item): `app/src/test/snapshots/widget/ears_cat.png`, `ears_fox.png` |
 | Merged branches still on GitHub | `avatar/emoji-core-slice`, `avatar/vector-domain`, `avatar/vector-renderer`, `chore/branch-cleanup`, `docs/phase-2-task`, and older avatar feature branches. Safe to delete |
-| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` (`actions/upload-artifact@v7`) when the android job fails. No emulator job. Main CI green after #51 and #52 |
+| CI (`.github/workflows/ci.yml`) | ✅ Jobs: `android` (unit tests, Roborazzi verify, lint, debug build) and `backend` (SQL suite + PostgREST IT). Snapshot diffs upload as `roborazzi-diffs` when the android job fails. No emulator job. Main CI green after #67 |
 
-### 1.2 Verified numbers (Claude, 2026-10-05)
+### 1.2 Verified numbers (2026-10-10)
 
 | Check | Result |
 | --- | --- |
-| `scripts/check.sh` | ✅ 216 JVM tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. Run on PR #23's head, which merged unchanged as `7a175a6`. CI green |
-| Instrumented tests (Pixel 9 emulator, API 37) | ✅ 21/21 pass on `emulator-5554`, including `VectorSliceDeviceTest`. `scripts/check.sh --device` waits for boot and unlocks first (F-20 ✅) |
+| `scripts/check.ps1` | ✅ 47 Python tests. Gradle 313 tests, 0 failed, 1 skipped (`SupabaseRestIT` runs in CI's backend job). Lint 0 errors / 42 warnings. Run on the AP-12 branch before #67. Main CI after #67 is green |
+| Instrumented tests (Pixel 9 emulator, API 37) | ✅ `WidgetRenderPathTest` on `emulator-5554` for AP-12. Cold widget render 197 ms, disk cache 5 ms, memory cache 0 ms. A full device suite was not re-run for this refresh |
 | SQL suite (`supabase/tests/run.sh`) | ✅ in CI (29/29 privacy vectors + behaviour/RLS) |
 | Domain purity | ✅ No `android.*` imports, no `Instant.now()` in `domain/` |
 | Secrets | ✅ None tracked (`local.properties` gitignored; anon key only via BuildConfig) |
@@ -84,7 +82,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Friends, invites (QR display + code), requests, block/remove | ✅ | QR **scanning** not built |
 | Reactions (send, inbox, dismiss, expire, rate limit) | ✅ | |
 | Privacy Center (per-category audience, preview-as-friend) | ✅ | Circles/individuals disabled in UI |
-| Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
+| Widgets: solo friend + self, pinning, config activity | 🟡 | AP-12: vector pipeline and head framing. Availability goldens at compact, standard, and large, light and dark. Wallpaper contrast follows the wallpaper (F-07 ✅). `PlaceholderFrame` remains for procedural chrome and accessories (F-09) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1, plus recipe schema 3 (PR #9). `itemIds`, color slots and vector assets resolve (Phase 2 PR A) |
 | Vector avatar art (D-39) | 🟡 | `emoji_core` is the teardrop (AP-1) with schema 3 recipes saved in Room and on the server (AP-7). Widgets and the in-app avatar draw that vector head. Content beyond the first slice is still thin (F-37) |
 | Avatar editor for the new recipe format | ✅ | Quick creator, full editor, and PNG plus recipe export (AP-11) |
@@ -102,7 +100,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | --- | --- |
 | `AGENTS.md` | Agent rules: invariants, commands, conventions, report format |
 | `docs/IDL_PRODUCT_SPEC.md` | Product principles, MVP scope, non-goals |
-| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-43). **Don't reopen without asking the user** |
+| `docs/IDL_DECISIONS.md` | Every recorded decision (D-01…D-53). **Don't reopen without asking the user** |
 | `docs/IDL_ARCHITECTURE.md` · `IDL_DATA_MODEL.md` · `IDL_PRIVACY_MODEL.md` · `IDL_WIDGET_ARCHITECTURE.md` · `IDL_API_CONTRACT.md` | Technical design |
 | `docs/IDL_AVATAR_CREATOR_MASTER_PLAN.md` | Avatar product requirements (cited as §n) |
 | `docs/IDL_AVATAR_CREATOR_PLAN.md` | Avatar phases 1–9, with detail |
@@ -287,7 +285,7 @@ in one PR.
   lives in the unit tests as a cross-check that every indicator and badge still declares
   the expected shape.
 
-#### F-09 · `PlaceholderFrame` adapter is lossy · 🟡 P1 (resolved by Avatar Phase 2)
+#### F-09 · `PlaceholderFrame` adapter is lossy · 🟡 P1
 - It ignores resolved brows, eye and mouth families, essential overlays chosen by
   semantics/overrides, extras (sick → bandage), reactions and confetti. Critter without ears
   renders as a blob.
@@ -533,9 +531,7 @@ in one PR.
   `render: procedural`. Hair has no procedural band (`CompositeOrder.proceduralBand`), so all nine draw
   nothing. They are `storeVisible`, free, and in the server catalog, so a saved recipe can already pin them.
 - The D-48 guard ("≥12 free hairstyles covering the textures") passes on these stubs, so it guards nothing yet.
-- **Fix:** AP-11 must not list hair without art (set `storeVisible: false` on the stubs, or filter on render
-  type). AP-15's hair wave ships real art **under these same ids** (they're now catalog contract; removing one
-  needs a `retired` mapping). Then tighten the guard to count only hair with vector art.
+- **Status (2026-10-10):** the editor grid and randomize skip procedural wardrobe, so these nine are not offered (AP-11). A saved recipe that already wears one still renders nothing. AP-15's hair wave ships real art **under these same ids** (they're catalog contract; removing one needs a `retired` mapping). Then tighten the guard to count only hair with vector art.
 
 #### F-38 · AD-1 sheets don't meet "hair reads as hair at 48 px" · P1 for AD-3 (Claude audit, 2026-10-07)
 - In B–G the hair is drawn inside the head outline and under the head stroke. The front masses read as heavy
@@ -557,8 +553,9 @@ in one PR.
 
 #### F-40 · The entitlement refusal shows raw asset ids and is matched by string · P3 (Claude audit, 2026-10-07)
 - `NeedsEntitlement.message` reads "Unlock frame_sticker to save this avatar". The spec says the refusal names
-  the item; it should use the asset's `accessibilityLabel`. `AvatarStudioViewModel` detects it with
-  `startsWith("unlock ")`. Return a typed error instead. Fold into AP-11 (the new editor owns this path).
+  the item; it should use the asset's `accessibilityLabel`.
+- **Status (2026-10-10):** the editor shows the accessibility label (`saveRefusal`) and does not match the
+  domain string. The domain message still carries the raw ids.
 
 ---
 
@@ -595,8 +592,8 @@ dependencies are ✅) and follow [`docs/handoff/CURSOR_RUNBOOK.md`](docs/handoff
 Rows marked 🎨 (AP-13, AP-15) are art made after AD-3. **D-51 (2026-10-07):** AP-15 item art comes from the
 external `idl-art-studio` through the importer (ST-2, contract `docs/avatar/ART_INTERCHANGE.md`); AP-13 expression
 art stays in-repo SVG.
-**Execution order (2026-10-07):** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → ST-2 ✅ (pilot art still waits) → ST-3 ✅ → **AP-11** → AP-12 →
-AD-2 ✅ (D-53) → AD-3 (restyle, after the editor and widgets) → AP-13 → AP-15 → AP-14 → AP-16.
+**Execution order:** ST-1 ✅ → AD-1 ✅ → AP-10 ✅ → ST-2 ✅ (pilot art still waits) → ST-3 ✅ → AP-11 ✅ → AP-12 ✅ →
+AD-2 ✅ (D-53) → **AD-3** (restyle) → AP-13 → AP-15 → AP-14 → AP-16.
 Cursor runs it under D-49. On 2026-10-07 the user asked Cursor to make art and design
 calls (including Q17) and to lock app functionality before a long restyle.
 Items outside the program (I.0 integration research, U.1 thought bubbles, Charge C.3+) wait until
@@ -876,7 +873,7 @@ creator packs (after moderation) → verified integrations → optional E2E smal
 
 ## 5. Decisions
 
-All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-51). The most relevant to current work:
+All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-53). The most relevant to current work:
 
 - **D-21** RPC-only server API · **D-24** server filters semantics, client composes
 - **D-25/26** asset packs as data plus code, shipped in the APK · **D-27** render cache
@@ -923,6 +920,8 @@ All decisions live in `docs/IDL_DECISIONS.md` (D-01…D-51). The most relevant t
 - **D-49** Cursor runs the avatar program on its own and merges its own green PRs (2026-10-06, user)
 - **D-50** The iDL Art Studio (operator-only, Claude-driven) makes the avatar art; AP-13 and AP-15 are made with it (2026-10-06, user; amended 2026-10-07: Cursor builds S1–S3 and makes the art after AD-2). Item art part superseded by D-51
 - **D-51** Item art (hair, accessories, clothes, props) comes from the external `idl-art-studio` as line art plus slot-labelled regions, through `art/incoming/` and an app-side importer; contract `docs/avatar/ART_INTERCHANGE.md`. ST-2 becomes the importer, ST-3 keeps retire. Expressions stay in-repo SVG (2026-10-07, user)
+- **D-52** Interchange clarifications for the importer: schema, pack ids, version order, and review sheets (2026-10-07)
+- **D-53** Art direction is readable volume, with a light sticker edge on widget and head framing only. The teardrop stands. Shipped art stays a placeholder until AD-3 (2026-10-07, pick delegated; Q16 and Q17)
 
 ---
 
@@ -1228,3 +1227,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | AD-2: Q17 is F with a widget sticker edge, Q16 is brows over front hair (D-53). Shipped art stays a placeholder until AD-3 | `docs/handoff/reports/2026-10-07-ad-2-direction.md` |
 | 2026-10-10 | Cursor | AP-11 editor: session, full editor, quick creator, export at 512/1024/2048. | `docs/handoff/reports/2026-10-10-ap-11-export.md` |
 | 2026-10-10 | Cursor | AP-12 widgets: vector head framing, availability goldens at every target in light and dark. Cold render 197 ms, disk cache 5 ms, memory cache 0 ms on the emulator. PlaceholderFrame stays for procedural chrome and accessories that still have assets. | `docs/handoff/reports/2026-10-10-ap-12-widget.md` |
+| 2026-10-10 | Cursor | Status refresh: main is `97bc8bf` (AP-12, #67). Next program row is AD-3. | this edit |
