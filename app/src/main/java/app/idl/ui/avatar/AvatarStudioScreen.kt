@@ -45,7 +45,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.idl.AppContainer
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import app.idl.avatar.AvatarExport
 import app.idl.avatar.AvatarImage
+import app.idl.avatar.ExportBackdrop
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import app.idl.domain.avatar.AssetCategory
 import app.idl.domain.avatar.AssetDef
 import app.idl.domain.avatar.AssetRegistry
@@ -191,6 +197,28 @@ internal class AvatarStudioViewModel(private val c: AppContainer) : ViewModel() 
         publish()
     }
 
+    fun shareImage(context: Context, backdrop: ExportBackdrop, sizePx: Int) {
+        val config = session?.configuration ?: return
+        if (blocked) return
+        viewModelScope.launch(Dispatchers.Default) {
+            val bitmap = AvatarExport.render(
+                config,
+                c.assetRegistry,
+                c.expressionCatalog,
+                c.vectorPictures,
+                sizePx,
+                backdrop,
+            )
+            withContext(Dispatchers.Main) { AvatarExport.sharePng(context, bitmap, sizePx) }
+        }
+    }
+
+    fun shareRecipe(context: Context) {
+        val config = session?.configuration ?: return
+        if (blocked) return
+        AvatarExport.shareRecipe(context, config)
+    }
+
     fun toggleBefore() {
         session?.toggleBefore()
         publish()
@@ -256,6 +284,7 @@ internal fun AvatarStudioScreen(
 ) {
     val state by vm.ui.collectAsState()
     val loaded = state
+    val context = LocalContext.current
     var quick by remember { mutableStateOf(firstRun) }
     var step by remember { mutableIntStateOf(0) }
     Scaffold(topBar = {
@@ -305,6 +334,8 @@ internal fun AvatarStudioScreen(
                     step = 0
                     quick = true
                 },
+                onShareImage = { backdrop, size -> vm.shareImage(context, backdrop, size) },
+                onShareRecipe = { vm.shareRecipe(context) },
                 onSave = { vm.save(onDone) },
             )
         }
@@ -331,6 +362,8 @@ internal fun EditorBody(
     onReset: () -> Unit,
     onBefore: () -> Unit,
     onStartOver: () -> Unit = {},
+    onShareImage: (ExportBackdrop, Int) -> Unit = { _, _ -> },
+    onShareRecipe: () -> Unit = {},
     onSave: () -> Unit,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -388,6 +421,7 @@ internal fun EditorBody(
             }
             TextButton(onClick = onStartOver, enabled = !state.blocked, modifier = Modifier.testTag("start-over")) { Text("Start over") }
         }
+        ExportRow(enabled = !state.blocked, onShareImage = onShareImage, onShareRecipe = onShareRecipe)
         Button(
             onClick = onSave,
             enabled = !state.blocked,
@@ -399,6 +433,53 @@ internal fun EditorBody(
 }
 
 private val quickSteps = listOf(EditorTab.SKIN, EditorTab.HAIR, EditorTab.TOPS)
+
+@Composable
+private fun ExportRow(
+    enabled: Boolean,
+    onShareImage: (ExportBackdrop, Int) -> Unit,
+    onShareRecipe: () -> Unit,
+) {
+    var backdrop by remember { mutableStateOf(ExportBackdrop.SCENE) }
+    var size by remember { mutableIntStateOf(AvatarExport.SIZES.first()) }
+    Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ExportBackdrop.entries.forEach { mode ->
+                FilterChip(
+                    selected = backdrop == mode,
+                    onClick = { backdrop = mode },
+                    enabled = enabled,
+                    label = { Text(mode.title) },
+                    modifier = Modifier.testTag("export-backdrop:${mode.name}"),
+                )
+            }
+            AvatarExport.SIZES.forEach { px ->
+                FilterChip(
+                    selected = size == px,
+                    onClick = { size = px },
+                    enabled = enabled,
+                    label = { Text(px.toString()) },
+                    modifier = Modifier.testTag("export-size:$px"),
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = { onShareImage(backdrop, size) }, enabled = enabled, modifier = Modifier.testTag("export-image")) {
+                Text("Share image")
+            }
+            TextButton(onClick = onShareRecipe, enabled = enabled, modifier = Modifier.testTag("export-recipe")) {
+                Text("Share recipe")
+            }
+        }
+    }
+}
+
+private val ExportBackdrop.title: String
+    get() = when (this) {
+        ExportBackdrop.TRANSPARENT -> "Transparent"
+        ExportBackdrop.SOLID -> "Solid"
+        ExportBackdrop.SCENE -> "Background"
+    }
 
 @Composable
 internal fun QuickCreator(
