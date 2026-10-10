@@ -24,6 +24,7 @@ import app.idl.domain.Scene
 import app.idl.domain.VisualOverride
 import app.idl.domain.avatar.AvatarResolver
 import app.idl.domain.avatar.LegacyAvatarMigration
+import app.idl.domain.avatar.Framing
 import app.idl.domain.avatar.RenderTarget
 import app.idl.domain.avatar.ResolvedAvatar
 import app.idl.domain.avatar.WallpaperContrastMode
@@ -60,6 +61,39 @@ class WidgetSnapshotTest {
         File(repoRoot(), "app/src/main/assets/$path").readText()
     }
     private val now = Instant.parse("2026-10-04T15:00:00Z")
+
+    @Test fun `widget targets use head framing`() {
+        listOf(
+            RenderTarget.COMPACT_WIDGET,
+            RenderTarget.STANDARD_WIDGET,
+            RenderTarget.LARGE_WIDGET,
+        ).forEach { target ->
+            assertEquals(Framing.HEAD, target.framing)
+        }
+    }
+
+    @Test fun `every availability at every widget target in light and dark`() {
+        val targets = listOf(
+            RenderTarget.COMPACT_WIDGET,
+            RenderTarget.STANDARD_WIDGET,
+            RenderTarget.LARGE_WIDGET,
+        )
+        for (target in targets) {
+            for (mode in listOf(WallpaperContrastMode.LIGHT_WALLPAPER, WallpaperContrastMode.DARK_WALLPAPER)) {
+                val resting = pixels(draw(self(Availability.OFFLINE), target, mode).second)
+                for (availability in Availability.entries) {
+                    val (resolved, bitmap) = draw(self(availability), target, mode)
+                    assertEquals(Framing.HEAD, resolved.framing)
+                    assertTrue(resolved.has("avail_${availability.wire}"))
+                    assertFalse(pixels(bitmap).contentEquals(resting) && availability != Availability.OFFLINE)
+                    snap(
+                        "avail_${availability.wire}_${target.name.lowercase()}_${mode.name.lowercase()}",
+                        bitmap,
+                    )
+                }
+            }
+        }
+    }
 
     @Test fun `every availability differs at the default 2x2 size`() {
         val target = WidgetRenderInputs.targetFor(110f, 110f)

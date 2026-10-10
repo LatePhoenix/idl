@@ -16,9 +16,8 @@ import app.idl.domain.Scene
 import app.idl.domain.wire
 
 /**
- * The procedural painter still draws v1 shapes. This maps a resolved v2 avatar onto those
- * shapes, and only includes a layer when the resolver kept it. An occluded face part is
- * therefore absent here too.
+ * The procedural painter still draws categories that have no vector asset yet: presence
+ * chrome, props, body accessories, scenes, and frames. Vector layers skip this adapter.
  */
 data class PlaceholderFrame(
     val config: AvatarConfig,
