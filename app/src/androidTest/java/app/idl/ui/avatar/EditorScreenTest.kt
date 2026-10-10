@@ -65,6 +65,9 @@ class EditorScreenTest {
             }
         }
         rule.onNodeWithTag("undo").assertIsNotEnabled()
+        rule.onNodeWithTag("export-image").fetchSemanticsNode()
+        rule.onNodeWithTag("export-recipe").fetchSemanticsNode()
+        rule.onNodeWithTag("export-size:2048").fetchSemanticsNode()
         rule.onNodeWithTag("item:hair_bob").performScrollTo().performClick()
         rule.onNodeWithTag("undo").assertIsEnabled()
         assertTrue(session.wornIds().contains("hair_bob"))

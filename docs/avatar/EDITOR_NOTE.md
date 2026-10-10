@@ -32,6 +32,6 @@ Seeded with `kotlin.random.Random`. Same seed, same registry, same starting reci
 
 ## Later pull requests
 
-- Export at 512, 1024, and 2048, rendered at that size. The full editor and the quick creator are in.
+- Export renders a transparent PNG, a solid PNG, and the scene PNG at 512, 1024, and 2048. Each bitmap is drawn at that size. Share image and Share recipe open the Android share sheet.
 - The entitlement message in the UI uses the asset's accessibility label (F-40). The domain result still carries the ids.
 - Replace the v1 Studio and the fox / ghost / robot onboarding row in the UI pull request.

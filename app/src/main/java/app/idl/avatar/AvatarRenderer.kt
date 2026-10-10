@@ -46,6 +46,13 @@ data class AvatarBadges(
     val activity: ActivityType? = null,
 )
 
+/** What fills the square behind the character. Export renders each of these at the requested size. */
+enum class ExportBackdrop {
+    TRANSPARENT,
+    SOLID,
+    SCENE,
+}
+
 /** Sticker outline and stroke weight for a render target's surroundings. */
 data class RenderContrast(
     val wallpaper: WallpaperContrastMode = WallpaperContrastMode.NONE,
@@ -105,8 +112,11 @@ object AvatarRenderer {
         sizePx: Int,
         badges: AvatarBadges? = null,
         contrast: RenderContrast = RenderContrast(),
+        backdrop: ExportBackdrop = ExportBackdrop.SCENE,
     ): Bitmap = blank(sizePx).also { bmp ->
-        draw(Canvas(bmp), resolved, registry, pictures, sizePx.toFloat(), badges, contrast)
+        val canvas = Canvas(bmp)
+        if (backdrop == ExportBackdrop.SOLID) canvas.drawColor(AvatarExport.PAPER)
+        draw(canvas, resolved, registry, pictures, sizePx.toFloat(), badges, contrast, backdrop)
     }
 
     private fun blank(sizePx: Int): Bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
@@ -151,6 +161,7 @@ object AvatarRenderer {
         size: Float,
         badges: AvatarBadges? = null,
         contrast: RenderContrast = RenderContrast(),
+        backdrop: ExportBackdrop = ExportBackdrop.SCENE,
     ) {
         val frame = PlaceholderFrames.from(resolved, registry)
         val loaded = HashMap<String, VectorPictureCache.PicturePaths?>()
@@ -198,7 +209,10 @@ object AvatarRenderer {
             // The procedural scene clips to the frame. Without it (a vector scene, or none), clip here
             // so vector parts and the procedural layers above them keep the frame shape.
             if (framed.none { it is DrawOp.Procedural && it.category == AssetCategory.SCENE }) painter.frameClip()
-            framed.forEach { paintOp(it, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming, publishedMasks, ::load) }
+            framed.forEach { op ->
+                if (backdrop != ExportBackdrop.SCENE && isBackdrop(op, ::load)) return@forEach
+                paintOp(op, painter, frame, badges, vectors, canvas, resolved, registry, size, useFraming, publishedMasks, ::load)
+            }
         } finally {
             canvas.restoreToCount(checkpoint)
         }
@@ -243,6 +257,14 @@ object AvatarRenderer {
             canvas.restoreToCount(checkpoint)
         }
         drawLayers(p, frame, overlay, badges)
+    }
+
+    private fun isBackdrop(
+        op: DrawOp,
+        load: (String) -> VectorPictureCache.PicturePaths?,
+    ): Boolean = when (op) {
+        is DrawOp.Procedural -> op.category == AssetCategory.SCENE
+        is DrawOp.VectorPart -> load(op.assetId)?.picture?.parts?.getOrNull(op.partIndex)?.zBand == 0
     }
 
     private fun paintOp(

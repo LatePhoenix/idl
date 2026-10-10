@@ -87,7 +87,7 @@ verification (F-14, PR #11). Device tests are still local; there is no emulator 
 | Widgets: solo friend + self, pinning, config activity | 🟡 | Resting avatar plus presence (F-01, F-03 ✅). Explicit status accessories beat signatures for every viewer (F-02 ✅). The default 2×2 uses STANDARD (F-21 ✅). Render failures stay in the fallback (F-22 ✅). Wallpaper contrast follows the wallpaper (F-07 ✅) |
 | Avatar v2 domain (model, pack, resolver, compat, migration) | ✅ | Avatar Phase 1, plus recipe schema 3 (PR #9). `itemIds`, color slots and vector assets resolve (Phase 2 PR A) |
 | Vector avatar art (D-39) | 🟡 | `emoji_core` is the teardrop (AP-1) with schema 3 recipes saved in Room and on the server (AP-7). Widgets and the in-app avatar draw that vector head. Content beyond the first slice is still thin (F-37) |
-| Avatar editor for the new recipe format | ⬜ | Saved recipes are schema 3 (AP-7). The quick creator and full editor are AP-11, not started |
+| Avatar editor for the new recipe format | ✅ | Quick creator, full editor, and PNG plus recipe export (AP-11) |
 | Availability as shape glyphs (D-28) | ✅ | Drawn in the app and on the widget path. Glyph names come from the manifest (F-08 ✅) |
 | Render cache | ✅ | Cleared on sign-out and friend purge. Per-friend files, 8 MB byte LRU, atomic writes. Memory access is locked (F-10 ✅, F-26 ✅) |
 | Charge economy (passive, mutual widget tethers) | 🟡 | Local prototype. Per-friend signals removed (F-05 ✅, C.2 ✅). Guardrails recorded; the in-app cap explanation is still C.5 (F-06 🟡). Ledger is still client-side (F-04) |
@@ -588,7 +588,7 @@ PostgREST tests) can be done at any time.
 mouth instead of the whole 48 px canvas (F-33 ✅). PR 5 waits for a real item in `art/incoming/`.
 **ST-3 is done in the same pass:** `import_art.py retire <old> --to <new>` records the mapping
 and removes the old id from the shipped list. It refuses a removal that has no replacement.
-The next row is **AP-11** (editor screen, quick creator, export). Art direction is recorded (D-53).
+The next row is **AP-12** (widget cutover). The editor is in: quick creator, full editor, and export (AP-11). Art direction is recorded (D-53).
 The restyle is AD-3 and waits until the editor and the widgets are in. Shipped pictures stay
 placeholders. Claude's audit still has F-32 and F-35–F-40 open. F-34 is decided and applies in AD-3.
 
@@ -1229,3 +1229,4 @@ win once Track 0 is done.
 | 2026-10-07 | Cursor | ST-2 importer: check (#57), import (#58), review sheets (#59), zone legibility (F-33). Pilot art PR waits | `docs/handoff/reports/2026-10-07-st-2-legibility-zones.md` |
 | 2026-10-07 | Cursor | ST-3 retire: `import_art.py retire <old> --to <new>` writes the mapping and will not remove an id without a replacement | `docs/handoff/reports/2026-10-07-st-3-retire.md` |
 | 2026-10-07 | Cursor | AD-2: Q17 is F with a widget sticker edge, Q16 is brows over front hair (D-53). Shipped art stays a placeholder until AD-3 | `docs/handoff/reports/2026-10-07-ad-2-direction.md` |
+| 2026-10-10 | Cursor | AP-11 editor: session, full editor, quick creator, export at 512/1024/2048. | `docs/handoff/reports/2026-10-10-ap-11-export.md` |
